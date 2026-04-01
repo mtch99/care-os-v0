@@ -1,0 +1,37 @@
+{
+  "name": "@careos/db",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "start:postgres": "docker run --name careos-pg -e POSTGRES_PASSWORD=careos -e POSTGRES_DB=careos -p 5432:5432 -d postgres",
+    "stop:postgres": "docker stop careos-pg && docker rm careos-pg",
+    "migrate": "drizzle-kit generate",
+    "migrate:apply": "drizzle-kit migrate",
+    "seed": "tsx --env-file=.env src/seed.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.4",
+  "dependencies": {
+    "drizzle-orm": "^0.45.1",
+    "postgres": "^3.4.8",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}

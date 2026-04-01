@@ -1,0 +1,21 @@
+{
+  "name": "care-os-v0",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "start:postgres": "docker run --name careos-pg -e POSTGRES_PASSWORD=careos -p 5432:5432 -d postgres",
+    "stop:postgres": "docker stop careos-pg && docker rm careos-pg"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.4",
+  "devDependencies": {
+    "turbo": "^2.8.20",
+    "typescript": "^6.0.2"
+  }
+}

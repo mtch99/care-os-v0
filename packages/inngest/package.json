@@ -1,0 +1,32 @@
+{
+  "name": "@careos/inngest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "inngest dev",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "exports": {
+    "./client": {
+      "types": "./dist/client.ts",
+      "default": "./dist/client.js"
+    },
+    "./functions/*": {
+      "types": "./dist/functions/*.ts",
+      "default": "./dist/functions/*.js"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.4",
+  "dependencies": {
+    "@careos/clinical": "workspace:*",
+    "@standard-schema/spec": "^1.1.0",
+    "inngest": "^4.1.0",
+    "zod": "^4.3.6"
+  }
+}
