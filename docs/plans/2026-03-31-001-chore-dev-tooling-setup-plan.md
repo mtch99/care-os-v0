@@ -1,7 +1,7 @@
 ---
 title: Setup Dev Tooling (ESLint, Prettier, Lefthook, Vitest, GitHub Actions CI)
 type: chore
-status: active
+status: completed
 date: 2026-03-31
 origin: docs/brainstorms/2026-03-31-dev-tooling-brainstorm.md
 ---
