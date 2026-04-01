@@ -4,9 +4,12 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
+    "lint": "eslint src",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "test": "vitest run",
     "start:postgres": "docker run --name careos-pg -e POSTGRES_PASSWORD=careos -e POSTGRES_DB=careos -p 5432:5432 -d postgres",
     "stop:postgres": "docker stop careos-pg && docker rm careos-pg",
     "migrate": "drizzle-kit generate",
@@ -32,6 +35,7 @@
     "@types/node": "^25.5.0",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   }
 }

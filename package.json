@@ -7,6 +7,11 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "postinstall": "lefthook install",
     "start:postgres": "docker run --name careos-pg -e POSTGRES_PASSWORD=careos -p 5432:5432 -d postgres",
     "stop:postgres": "docker stop careos-pg && docker rm careos-pg"
   },
@@ -15,7 +20,20 @@
   "license": "ISC",
   "packageManager": "pnpm@10.12.4",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@next/eslint-plugin-next": "^16.2.2",
+    "@vitest/coverage-v8": "^4.1.2",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-drizzle": "^0.2.3",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "jiti": "^2.6.1",
+    "lefthook": "^2.1.4",
+    "prettier": "^3.8.1",
     "turbo": "^2.8.20",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "vitest": "^4.1.2"
   }
 }
