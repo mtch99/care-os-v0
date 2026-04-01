@@ -4,10 +4,10 @@ import {
   InvalidStateTransitionError,
   SessionAlreadyActiveError,
   PractitionerNotAssignedError,
-} from '@careos/api-contract';
-import { eq } from 'drizzle-orm';
-import type { DrizzleDB } from '@careos/db';
-import { appointments, sessions } from '@careos/db';
+} from '@careos/api-contract'
+import { eq } from 'drizzle-orm'
+import type { DrizzleDB } from '@careos/db'
+import { appointments, sessions } from '@careos/db'
 
 export async function startSession(
   db: DrizzleDB,
@@ -16,47 +16,51 @@ export async function startSession(
   // 1. Fetch appointment
   const appointment = await db.query.appointments.findFirst({
     where: eq(appointments.id, input.appointmentId),
-  });
+  })
 
   db.query.appointments.findFirst({
     where: eq(appointments.id, input.appointmentId),
-  });
+  })
 
   if (!appointment) {
-    throw new AppointmentNotFoundError(input.appointmentId);
+    throw new AppointmentNotFoundError(input.appointmentId)
   }
 
   // 2. Validate business rules
   if (appointment.status !== 'scheduled') {
-    throw new InvalidStateTransitionError(appointment.status, 'in_session');
+    throw new InvalidStateTransitionError(appointment.status, 'in_session')
   }
 
   if (appointment.practitionerId !== input.practitionerId) {
-    throw new PractitionerNotAssignedError(input.practitionerId, input.appointmentId);
+    throw new PractitionerNotAssignedError(input.practitionerId, input.appointmentId)
   }
 
   // 3. Check no existing session
   const existingSession = await db.query.sessions.findFirst({
     where: eq(sessions.appointmentId, input.appointmentId),
-  });
+  })
 
   if (existingSession) {
-    throw new SessionAlreadyActiveError(input.appointmentId);
+    throw new SessionAlreadyActiveError(input.appointmentId)
   }
 
   // 4. Create session + update appointment (atomic)
-  const now = new Date();
+  const now = new Date()
 
-  const [session] = await db.insert(sessions).values({
-    appointmentId: input.appointmentId,
-    practitionerId: input.practitionerId,
-    status: 'active',
-    startedAt: now,
-  }).returning();
+  const [session] = await db
+    .insert(sessions)
+    .values({
+      appointmentId: input.appointmentId,
+      practitionerId: input.practitionerId,
+      status: 'active',
+      startedAt: now,
+    })
+    .returning()
 
-  await db.update(appointments)
+  await db
+    .update(appointments)
     .set({ status: 'in_session', updatedAt: now })
-    .where(eq(appointments.id, input.appointmentId));
+    .where(eq(appointments.id, input.appointmentId))
 
   // 5. Return response
   return {
@@ -65,5 +69,5 @@ export async function startSession(
     practitionerId: input.practitionerId,
     startedAt: now.toISOString(),
     status: 'active',
-  };
+  }
 }

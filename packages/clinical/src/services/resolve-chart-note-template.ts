@@ -1,35 +1,37 @@
 export enum ChartNoteTemplateType {
-  GENERAL = "GENERAL",
-  FOLLOW_UP = "FOLLOW_UP", 
+  GENERAL = 'GENERAL',
+  FOLLOW_UP = 'FOLLOW_UP',
 }
 
 export enum ChartNoteTemplateDiscipline {
-  PHYSICAL_THERAPY = "PHYSICAL_THERAPY",
-  OCCUPATIONAL_THERAPY = "OCCUPATIONAL_THERAPY",
+  PHYSICAL_THERAPY = 'PHYSICAL_THERAPY',
+  OCCUPATIONAL_THERAPY = 'OCCUPATIONAL_THERAPY',
 }
 
 export enum PhysicalTherapyChartNoteTemplateType {
-  INITIAL_EVALUATION = "INITIAL_EVALUATION",
-  SOAP_NOTE = "SOAP_NOTE",
+  INITIAL_EVALUATION = 'INITIAL_EVALUATION',
+  SOAP_NOTE = 'SOAP_NOTE',
 }
 
 export type ChartNoteTemplate = {
-  id: string;
-  name: string;
-  content: string;
-} & ( | {
-  discipline: ChartNoteTemplateDiscipline.PHYSICAL_THERAPY;
-  type: PhysicalTherapyChartNoteTemplateType;
-} | {
-  discipline: ChartNoteTemplateDiscipline.OCCUPATIONAL_THERAPY;
-  type: ChartNoteTemplateType.GENERAL;
-});
+  id: string
+  name: string
+  content: string
+} & (
+  | {
+      discipline: ChartNoteTemplateDiscipline.PHYSICAL_THERAPY
+      type: PhysicalTherapyChartNoteTemplateType
+    }
+  | {
+      discipline: ChartNoteTemplateDiscipline.OCCUPATIONAL_THERAPY
+      type: ChartNoteTemplateType.GENERAL
+    }
+)
 
 export type ResolveChartNoteTemplateInput = {
-  discipline: ChartNoteTemplateDiscipline;
-  appointmentType?: 'initial' | 'follow_up';
-};
-
+  discipline: ChartNoteTemplateDiscipline
+  appointmentType?: 'initial' | 'follow_up'
+}
 
 /**
  * WARNING: This is a mock implementation
@@ -37,8 +39,8 @@ export type ResolveChartNoteTemplateInput = {
  * Returns the default chart note template for the given discipline and appointment type
  * Each discipline has a default template for each appointment type
  * Each User has a default template for each discipline and appointment type
- * @param input 
- * @returns 
+ * @param input
+ * @returns
  */
 function resolveChartNoteTemplate(input: ResolveChartNoteTemplateInput): ChartNoteTemplate {
   if (input.discipline === ChartNoteTemplateDiscipline.PHYSICAL_THERAPY) {
@@ -49,7 +51,7 @@ function resolveChartNoteTemplate(input: ResolveChartNoteTemplateInput): ChartNo
         content: 'Template content for physical therapy initial evaluation...',
         discipline: ChartNoteTemplateDiscipline.PHYSICAL_THERAPY,
         type: PhysicalTherapyChartNoteTemplateType.INITIAL_EVALUATION,
-      };
+      }
     } else {
       return {
         id: 'template-2',
@@ -57,24 +59,17 @@ function resolveChartNoteTemplate(input: ResolveChartNoteTemplateInput): ChartNo
         content: 'Template content for physical therapy SOAP note...',
         discipline: ChartNoteTemplateDiscipline.PHYSICAL_THERAPY,
         type: PhysicalTherapyChartNoteTemplateType.SOAP_NOTE,
-      };
+      }
     }
-  } else if (input.discipline === ChartNoteTemplateDiscipline.OCCUPATIONAL_THERAPY) {
+  } else {
     return {
       id: 'template-3',
       name: 'Occupational Therapy General Note',
       content: 'Template content for occupational therapy general note...',
       discipline: ChartNoteTemplateDiscipline.OCCUPATIONAL_THERAPY,
       type: ChartNoteTemplateType.GENERAL,
-    };
+    }
   }
-
-  throw new Error('No template found for the given discipline and appointment type');
 }
 
-export default resolveChartNoteTemplate;
-
-
-
-
-
+export default resolveChartNoteTemplate
