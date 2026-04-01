@@ -1,0 +1,9 @@
+pre-push:
+  parallel: true
+  commands:
+    typecheck:
+      run: pnpm turbo typecheck
+    lint:
+      run: pnpm turbo lint
+    format-check:
+      run: pnpm turbo format:check
