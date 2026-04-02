@@ -10,9 +10,12 @@
     }
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint src",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +25,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
-    "typescript": "^6.0.2"
+    "@types/node": "catalog:",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   }
 }

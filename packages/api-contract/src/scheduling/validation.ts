@@ -1,5 +1,5 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const startSessionSchema = z.object({
   appointmentId: z.uuid(),
-});
+})

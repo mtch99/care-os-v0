@@ -1,24 +1,15 @@
-import type { InngestFunction } from "inngest";
-import { inngest } from "../../../client";
-import { eventType } from "inngest";
-import { z } from "zod";
+import { inngest } from '../../../client'
+import { sessionStarted } from '../../../client'
 
-export const sessionStarted = eventType("clinical/session.started", {
-  schema: z.object({
-    sessionId: z.string(),
-  }),
-});
-
-export const createSessionStartedFunction = (createFn: typeof inngest.createFunction) => createFn(
-  { 
-    id: "session-started", 
-    triggers: [sessionStarted] },
-  async ({
-    event,
-    logger
-  }) => {
-    throw new Error("Not implemented");
-    // Your function code
-    return { message: "Session started function executed" };
-  }
-) as any;
+export const createSessionStartedFunction = (createFn: typeof inngest.createFunction) =>
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  createFn(
+    {
+      id: 'session-started',
+      triggers: [sessionStarted],
+    },
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async () => {
+      throw new Error('Not implemented')
+    },
+  ) as any // eslint-disable-line @typescript-eslint/no-explicit-any

@@ -30,5 +30,8 @@ npm-debug.log*
 # Test
 coverage/
 
+# Lefthook local overrides
+.lefthook-local.yml
+
 # Claude Code settings
 .claude/settings.local.json

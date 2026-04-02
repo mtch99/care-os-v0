@@ -7,7 +7,9 @@
       "Read(//Users/maximetchagou/Projects/careOS/care-os-v0-eslint-setup/**)",
       "Bash(find /Users/maximetchagou/Projects/careOS/care-os-v0 -path */node_modules/inngest -type d)",
       "Bash(INNGEST_PATH=\"/Users/maximetchagou/Projects/careOS/care-os-v0/node_modules/.pnpm/inngest@4.1.0_@opentelemetry+core@2.6.1_@opentelemetry+api@1.9.1__hono@4.12.9_typescript@6.0.2_zod@4.3.6/node_modules/inngest\")",
-      "Read(//Users/maximetchagou/Projects/careOS/care-os-v0/$INNGEST_PATH/**)"
+      "Read(//Users/maximetchagou/Projects/careOS/care-os-v0/$INNGEST_PATH/**)",
+      "Bash(pnpm exec:*)",
+      "Bash(pnpm install:*)"
     ]
   }
 }

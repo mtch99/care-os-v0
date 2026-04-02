@@ -8,6 +8,21 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "build/**", "dist/**"]
     },
+    "lint": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "format": {
+      "outputs": []
+    },
+    "format:check": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "cache": true
+    },
     "install": {
       "cache": false,
     },
