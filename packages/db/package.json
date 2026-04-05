@@ -30,6 +30,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@careos/api-contract": "workspace:*",
     "@types/node": "catalog:",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",

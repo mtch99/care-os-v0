@@ -178,9 +178,9 @@ Note: `templateContentSchema` in api-contract IS updated to v0.2 as part of this
 - [x] `TemplateSchema.parse` — combines schema + validate, returns typed object or throws
 - [x] 14 FieldType config schemas (strict shape, strip unknown — Zod v4 default)
 - [x] `TemplateValidationError` domain error in api-contract (422, details array)
-- [ ] Physio initial evaluation fixture (50+ fields, 4 pages, bilingual fr/en)
-- [ ] Physio follow-up SOAP note fixture
-- [ ] Both v0.2 seeds inserted by `pnpm db:seed` (as `isDefault: false`)
+- [x] Physio initial evaluation fixture (50+ fields, 4 pages, bilingual fr/en)
+- [x] Physio follow-up SOAP note fixture
+- [x] Both v0.2 seeds inserted by `pnpm db:seed` (as `isDefault: false`)
 - [ ] Both seeded templates retrievable via `GET /templates` and `GET /templates/:id`
 - [x] `@careos/api-contract` + `zod` added as runtime dependencies to `@careos/clinical`
 - [ ] Enum values in `packages/clinical/` aligned with api-contract (`physiotherapy`, `ergotherapy`)

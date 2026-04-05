@@ -147,6 +147,9 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
+      '@careos/api-contract':
+        specifier: workspace:*
+        version: link:../api-contract
       '@types/node':
         specifier: 'catalog:'
         version: 25.5.0

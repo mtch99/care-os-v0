@@ -2,6 +2,7 @@ import { db } from './index'
 import { clinics, patients, practitioners } from './schema/shared'
 import { appointments } from './schema/scheduling'
 import { chartNoteTemplates } from './schema/clinical'
+import { physioInitialEval, physioFollowUpSoap } from './fixtures'
 
 const CLINIC_ID = 'a5514ace-7a45-4315-8809-e2aa2277aefc'
 const PHYSIO_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
@@ -15,6 +16,8 @@ const TEMPLATE_1_ID = '29187424-4563-4ebd-b2ee-c710ce251c70'
 const TEMPLATE_2_ID = 'e55a96e5-fbc2-4bef-a261-c70e824c1a4e'
 const TEMPLATE_3_ID = '9a78491a-380b-4a67-b2d7-856a3bc29c4b'
 const TEMPLATE_4_ID = 'f720c816-4907-4ee8-8d3f-ee0b04a1ae63'
+const TEMPLATE_V2_INITIAL_ID = 'b3a1c7d2-5e4f-4a89-9c12-d8f6e2a1b3c4'
+const TEMPLATE_V2_SOAP_ID = 'c4d2e8f3-6a5b-4b90-ad23-e9f7f3b2c4d5'
 
 async function seed() {
   console.log('Seeding...')
@@ -126,6 +129,31 @@ async function seed() {
         content: { sections: ['subjective', 'objective', 'assessment', 'plan'] },
         isDefault: true,
         createdBy: ERGO_ID,
+      },
+    ])
+    .onConflictDoNothing()
+
+  // Chart note templates (v0.2 — rich content, alongside v0.1 seeds)
+  await db
+    .insert(chartNoteTemplates)
+    .values([
+      {
+        id: TEMPLATE_V2_INITIAL_ID,
+        name: 'IAF v0.2 — Physiotherapy',
+        discipline: 'physiotherapy',
+        appointmentType: 'initial',
+        content: physioInitialEval,
+        isDefault: false,
+        createdBy: PHYSIO_ID,
+      },
+      {
+        id: TEMPLATE_V2_SOAP_ID,
+        name: 'SOAP Note v0.2 — Physiotherapy',
+        discipline: 'physiotherapy',
+        appointmentType: 'follow_up',
+        content: physioFollowUpSoap,
+        isDefault: false,
+        createdBy: PHYSIO_ID,
       },
     ])
     .onConflictDoNothing()
