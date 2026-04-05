@@ -13,8 +13,10 @@ packages/db/drizzle/
 .env.local
 .env.*.local
 
-# IDE
-.vscode/
+# IDE — commit shared config, ignore personal files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo

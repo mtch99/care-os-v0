@@ -26,31 +26,21 @@ careOS manages the core workflow of a clinical visit: scheduling appointments, t
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 22
+- [Node.js](https://nodejs.org/) 22 (auto-selected if you use nvm, fnm, or mise — see `.node-version`)
 - [pnpm](https://pnpm.io/) 10.12.4+
-- [Docker](https://www.docker.com/) (for PostgreSQL)
+- [Docker](https://www.docker.com/) (for PostgreSQL via Docker Compose)
 
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
-pnpm install
+# 1. Copy environment files (defaults work with the Docker Compose Postgres)
+cp packages/db/.env.example packages/db/.env
+cp apps/api/.env.example apps/api/.env
 
-# 2. Start PostgreSQL
-pnpm start:postgres
+# 2. Install deps, start Postgres, run migrations, and seed
+pnpm bootstrap
 
-# 3. Set up environment variables
-# packages/db/.env — required:
-#   DATABASE_URL=postgresql://postgres:careos@localhost:5432/postgres
-#
-# apps/api/.env — optional:
-#   PORT=3000 (default)
-
-# 4. Run database migrations and seed
-pnpm --filter @careos/db migrate:apply
-pnpm --filter @careos/db seed
-
-# 5. Start the dev server
+# 3. Start the dev server
 pnpm dev
 ```
 
@@ -62,6 +52,8 @@ curl http://localhost:3000/health
 ```
 
 ### Environment Variables
+
+See `packages/db/.env.example` and `apps/api/.env.example` for defaults. Copy them to `.env` and adjust as needed.
 
 **`packages/db/.env`** (required)
 
@@ -117,17 +109,22 @@ scheduled ──→ in_session ──→ awaiting_completion ──→ completed
 
 ## Available Scripts
 
-| Command               | Description                              |
-| --------------------- | ---------------------------------------- |
-| `pnpm dev`            | Start all apps in dev mode               |
-| `pnpm build`          | Build all packages                       |
-| `pnpm typecheck`      | Run TypeScript type checking             |
-| `pnpm lint`           | Run ESLint across all packages           |
-| `pnpm format`         | Format code with Prettier                |
-| `pnpm format:check`   | Check formatting without modifying files |
-| `pnpm test`           | Run Vitest test suite                    |
-| `pnpm start:postgres` | Start PostgreSQL via Docker on port 5432 |
-| `pnpm stop:postgres`  | Stop and remove PostgreSQL container     |
+| Command                | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `pnpm bootstrap`           | Full bootstrap: install, start Postgres, migrate, seed |
+| `pnpm dev`             | Start all apps in dev mode                        |
+| `pnpm build`           | Build all packages                                |
+| `pnpm typecheck`       | Run TypeScript type checking                      |
+| `pnpm lint`            | Run ESLint across all packages                    |
+| `pnpm format`          | Format code with Prettier                         |
+| `pnpm format:check`    | Check formatting without modifying files          |
+| `pnpm test`            | Run Vitest test suite                             |
+| `pnpm db:up`           | Start PostgreSQL via Docker Compose               |
+| `pnpm db:down`         | Stop PostgreSQL (data persisted in volume)        |
+| `pnpm db:nuke`         | Stop PostgreSQL and delete all data               |
+| `pnpm db:migrate`      | Generate new migration (drizzle-kit generate)     |
+| `pnpm db:migrate:apply` | Apply pending migrations (drizzle-kit migrate)   |
+| `pnpm db:seed`         | Seed the database                                 |
 
 Run a command for a specific package:
 
@@ -154,6 +151,10 @@ This opens a local dashboard where you can see events, function runs, and replay
 - **Test suite** — domain unit tests → adapter integration tests → route tests, following a test pyramid
 - **Authentication** — replace the hardcoded practitioner ID with real auth
 - **`@careos/fixtures` package** — shared test data for consistent testing across packages
+
+## Editor Setup (VS Code)
+
+Open the repo in VS Code and accept the recommended extensions prompt (ESLint + Prettier). Workspace settings enable format-on-save and ESLint auto-fix, so your code always matches the CI quality gate.
 
 ## Contributing
 

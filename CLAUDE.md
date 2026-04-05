@@ -14,12 +14,16 @@ pnpm format             # Prettier format
 pnpm format:check       # Prettier check (CI)
 pnpm test               # Vitest
 
-# Database
-pnpm start:postgres                   # Docker PostgreSQL on :5432 (password: careos)
-pnpm stop:postgres                    # stop + remove container
-pnpm --filter @careos/db migrate      # generate migrations (drizzle-kit generate)
-pnpm --filter @careos/db migrate:apply # apply migrations (drizzle-kit migrate)
-pnpm --filter @careos/db seed         # seed database (tsx)
+# Database (Docker Compose)
+pnpm db:up             # start PostgreSQL (docker compose, port 5432)
+pnpm db:down           # stop PostgreSQL (data persisted)
+pnpm db:nuke           # stop + delete volume (fresh start)
+pnpm db:migrate        # generate migrations (drizzle-kit generate)
+pnpm db:migrate:apply  # apply migrations (drizzle-kit migrate)
+pnpm db:seed           # seed database (tsx)
+
+# Full bootstrap
+pnpm bootstrap             # install → db:up → db:migrate:apply → db:seed
 
 # Per-package scoping
 pnpm --filter @careos/api dev
@@ -77,7 +81,7 @@ Do not introduce circular dependencies between packages.
 - **`packages/db/src/index.ts` creates a DB connection at import time** — tests must set `DATABASE_URL` in env before importing.
 - **`apps/api/src/env.ts` parses `PORT` eagerly** — test setup must provide env vars before importing.
 - **`HARDCODED_PRACTITIONER_ID`** in `apps/api/src/routes/scheduling.ts` — auth is not implemented. Do not build auth flows yet.
-- **`.env` files are gitignored** — no `.env.example` files exist. Required vars: `DATABASE_URL` (packages/db), `PORT` (apps/api, optional, defaults 3000).
+- **`.env` files are gitignored** — `.env.example` files exist in `packages/db/` and `apps/api/`. Copy to `.env` before running. Defaults work with the Docker Compose Postgres.
 
 ## Security Rules
 

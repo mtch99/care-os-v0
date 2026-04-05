@@ -12,8 +12,13 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "postinstall": "lefthook install",
-    "start:postgres": "docker run --name careos-pg -e POSTGRES_PASSWORD=careos -p 5432:5432 -d postgres",
-    "stop:postgres": "docker stop careos-pg && docker rm careos-pg"
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:nuke": "docker compose down -v",
+    "db:migrate": "pnpm --filter @careos/db migrate",
+    "db:migrate:apply": "pnpm --filter @careos/db migrate:apply",
+    "db:seed": "pnpm --filter @careos/db seed",
+    "bootstrap": "pnpm install && pnpm db:up && pnpm db:migrate:apply && pnpm db:seed"
   },
   "keywords": [],
   "author": "",

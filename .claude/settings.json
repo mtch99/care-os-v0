@@ -15,7 +15,12 @@
       "Bash(xargs -I{} ls {})",
       "Bash(pnpm format:check -- README.md CLAUDE.md)",
       "Bash(pnpm prettier:*)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(pnpm --filter @careos/db typecheck)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm --filter @careos/db migrate)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm format:check)"
     ]
   }
 }

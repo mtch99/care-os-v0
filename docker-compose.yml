@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: careos-pg
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: careos
+      POSTGRES_DB: careos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
