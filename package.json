@@ -18,7 +18,10 @@
     "db:migrate": "pnpm --filter @careos/db migrate",
     "db:migrate:apply": "pnpm --filter @careos/db migrate:apply",
     "db:seed": "pnpm --filter @careos/db seed",
-    "bootstrap": "pnpm install && pnpm db:up && pnpm db:migrate:apply && pnpm db:seed"
+    "bootstrap": "pnpm install && pnpm db:up && pnpm db:migrate:apply && pnpm db:seed",
+    "start": "pnpm bootstrap && pnpm dev",
+    "teardown": "pnpm db:nuke && rm -rf node_modules apps/*/node_modules packages/*/node_modules",
+    "stop": "pkill -f 'turbo run dev' || true && pnpm db:down"
   },
   "keywords": [],
   "author": "",
