@@ -14,10 +14,7 @@ const fieldVariants = fieldTypeEnum.options.map((type) =>
 
 const fieldSchema = z.discriminatedUnion(
   'type',
-  fieldVariants as unknown as [
-    (typeof fieldVariants)[number],
-    ...(typeof fieldVariants)[number][],
-  ],
+  fieldVariants as unknown as [(typeof fieldVariants)[number], ...(typeof fieldVariants)[number][]],
 )
 
 const rowSchema = z.object({

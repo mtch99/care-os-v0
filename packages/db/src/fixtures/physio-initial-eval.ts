@@ -569,7 +569,10 @@ export const physioInitialEval: TemplateContentV2 = {
               columns: [
                 {
                   key: 'short_term_goals',
-                  label: { fr: 'Objectifs à court terme (2-4 sem.)', en: 'Short-term Goals (2-4 wk)' },
+                  label: {
+                    fr: 'Objectifs à court terme (2-4 sem.)',
+                    en: 'Short-term Goals (2-4 wk)',
+                  },
                   type: 'narrative',
                   required: true,
                   config: {},
