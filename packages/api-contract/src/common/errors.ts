@@ -43,3 +43,45 @@ export class PractitionerNotAssignedError extends DomainError {
     )
   }
 }
+
+export class TemplateNotFoundError extends DomainError {
+  constructor(templateId: string) {
+    super('TEMPLATE_NOT_FOUND', `Template ${templateId} not found`, 404)
+  }
+}
+
+export class DefaultTemplateNotFoundError extends DomainError {
+  constructor(discipline: string, appointmentType: string) {
+    super(
+      'DEFAULT_TEMPLATE_NOT_FOUND',
+      `No default template found for ${discipline} / ${appointmentType}`,
+      404,
+    )
+  }
+}
+
+export class CannotArchiveDefaultTemplateError extends DomainError {
+  constructor(templateId: string) {
+    super(
+      'CANNOT_ARCHIVE_DEFAULT_TEMPLATE',
+      `Cannot archive template ${templateId} because it is the default. Reassign the default first.`,
+      409,
+    )
+  }
+}
+
+export class TemplateArchivedError extends DomainError {
+  constructor(templateId: string) {
+    super('TEMPLATE_ARCHIVED', `Template ${templateId} is archived`, 409)
+  }
+}
+
+export class DefaultAlreadyExistsError extends DomainError {
+  constructor(discipline: string, appointmentType: string) {
+    super(
+      'DEFAULT_ALREADY_EXISTS',
+      `A default template already exists for ${discipline} / ${appointmentType}`,
+      409,
+    )
+  }
+}
