@@ -1,74 +1,47 @@
-export enum ChartNoteTemplateType {
-  GENERAL = 'GENERAL',
-  FOLLOW_UP = 'FOLLOW_UP',
+// TODO(CAR-103): Replace this stub with real DB-backed template resolution
+
+type Discipline = 'physiotherapy' | 'ergotherapy'
+type AppointmentType = 'initial' | 'follow_up'
+
+interface ResolveChartNoteTemplateInput {
+  discipline: Discipline
+  appointmentType?: AppointmentType
 }
 
-export enum ChartNoteTemplateDiscipline {
-  PHYSICAL_THERAPY = 'PHYSICAL_THERAPY',
-  OCCUPATIONAL_THERAPY = 'OCCUPATIONAL_THERAPY',
-}
-
-export enum PhysicalTherapyChartNoteTemplateType {
-  INITIAL_EVALUATION = 'INITIAL_EVALUATION',
-  SOAP_NOTE = 'SOAP_NOTE',
-}
-
-export type ChartNoteTemplate = {
+interface ChartNoteTemplateStub {
   id: string
   name: string
-  content: string
-} & (
-  | {
-      discipline: ChartNoteTemplateDiscipline.PHYSICAL_THERAPY
-      type: PhysicalTherapyChartNoteTemplateType
-    }
-  | {
-      discipline: ChartNoteTemplateDiscipline.OCCUPATIONAL_THERAPY
-      type: ChartNoteTemplateType.GENERAL
-    }
-)
-
-export type ResolveChartNoteTemplateInput = {
-  discipline: ChartNoteTemplateDiscipline
-  appointmentType?: 'initial' | 'follow_up'
+  discipline: Discipline
+  appointmentType: AppointmentType
 }
 
 /**
- * WARNING: This is a mock implementation
- * Depends on the discipline and appointment type
- * Returns the default chart note template for the given discipline and appointment type
- * Each discipline has a default template for each appointment type
- * Each User has a default template for each discipline and appointment type
- * @param input
- * @returns
+ * @deprecated Mock implementation — returns hardcoded templates.
+ * Will be replaced by real DB queries in CAR-103.
  */
-function resolveChartNoteTemplate(input: ResolveChartNoteTemplateInput): ChartNoteTemplate {
-  if (input.discipline === ChartNoteTemplateDiscipline.PHYSICAL_THERAPY) {
+function resolveChartNoteTemplate(input: ResolveChartNoteTemplateInput): ChartNoteTemplateStub {
+  if (input.discipline === 'physiotherapy') {
     if (input.appointmentType === 'initial') {
       return {
         id: 'template-1',
-        name: 'Physical Therapy Initial Evaluation',
-        content: 'Template content for physical therapy initial evaluation...',
-        discipline: ChartNoteTemplateDiscipline.PHYSICAL_THERAPY,
-        type: PhysicalTherapyChartNoteTemplateType.INITIAL_EVALUATION,
-      }
-    } else {
-      return {
-        id: 'template-2',
-        name: 'Physical Therapy SOAP Note',
-        content: 'Template content for physical therapy SOAP note...',
-        discipline: ChartNoteTemplateDiscipline.PHYSICAL_THERAPY,
-        type: PhysicalTherapyChartNoteTemplateType.SOAP_NOTE,
+        name: 'IAF — Physiotherapy',
+        discipline: 'physiotherapy',
+        appointmentType: 'initial',
       }
     }
-  } else {
     return {
-      id: 'template-3',
-      name: 'Occupational Therapy General Note',
-      content: 'Template content for occupational therapy general note...',
-      discipline: ChartNoteTemplateDiscipline.OCCUPATIONAL_THERAPY,
-      type: ChartNoteTemplateType.GENERAL,
+      id: 'template-2',
+      name: 'SOAP Note — Physiotherapy',
+      discipline: 'physiotherapy',
+      appointmentType: 'follow_up',
     }
+  }
+
+  return {
+    id: 'template-3',
+    name: 'General Note — Ergotherapy',
+    discipline: 'ergotherapy',
+    appointmentType: input.appointmentType ?? 'initial',
   }
 }
 

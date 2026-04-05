@@ -183,7 +183,7 @@ Note: `templateContentSchema` in api-contract IS updated to v0.2 as part of this
 - [x] Both v0.2 seeds inserted by `pnpm db:seed` (as `isDefault: false`)
 - [ ] Both seeded templates retrievable via `GET /templates` and `GET /templates/:id`
 - [x] `@careos/api-contract` + `zod` added as runtime dependencies to `@careos/clinical`
-- [ ] Enum values in `packages/clinical/` aligned with api-contract (`physiotherapy`, `ergotherapy`)
+- [x] Enum values in `packages/clinical/` aligned with api-contract (`physiotherapy`, `ergotherapy`)
 - [x] `packages/clinical/` barrel export updated to expose `TemplateSchema` namespace
 - [ ] All existing tests and type checks pass (`pnpm typecheck && pnpm test`)
 
