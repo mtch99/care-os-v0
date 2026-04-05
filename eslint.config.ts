@@ -1,16 +1,16 @@
+import { defineConfig, globalIgnores } from 'eslint/config'
 import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
+// @ts-expect-error — no type declarations shipped
 import drizzle from 'eslint-plugin-drizzle'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import next from '@next/eslint-plugin-next'
 import prettierConfig from 'eslint-config-prettier'
 
-export default tseslint.config(
+export default defineConfig([
   // Ignored paths
-  {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.turbo/**', '**/coverage/**'],
-  },
+  globalIgnores(['**/dist/**', '**/node_modules/**', '**/.turbo/**', '**/coverage/**']),
 
   // Base JS rules
   js.configs.recommended,
@@ -22,7 +22,11 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['eslint.config.ts'],
+          defaultProject: 'tsconfig.base.json',
+        },
+        // @ts-expect-error — import.meta.dirname requires module:"NodeNext" but base tsconfig uses "ESNext"
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -55,4 +59,4 @@ export default tseslint.config(
 
   // Prettier — must be last to disable all formatting rules that conflict
   prettierConfig,
-)
+])
