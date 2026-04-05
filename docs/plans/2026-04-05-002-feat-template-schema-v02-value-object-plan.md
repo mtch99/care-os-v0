@@ -174,8 +174,8 @@ Note: `templateContentSchema` in api-contract IS updated to v0.2 as part of this
 - [x] `templateContentSchemaV2` in api-contract — Zod schema validates v0.2 structure (pages > sections > rows > fields, 14 field types, bilingual labels)
 - [x] `createTemplateSchema` and `updateTemplateSchema` updated to use v0.2 content schema
 - [x] `TemplateResponse.content` typed to v0.2 shape (no longer `unknown`)
-- [ ] `TemplateSchema.validate` — checks unique field keys across template, locale completeness
-- [ ] `TemplateSchema.parse` — combines schema + validate, returns typed object or throws
+- [x] `TemplateSchema.validate` — checks unique field keys across template, locale completeness
+- [x] `TemplateSchema.parse` — combines schema + validate, returns typed object or throws
 - [x] 14 FieldType config schemas (strict shape, strip unknown — Zod v4 default)
 - [x] `TemplateValidationError` domain error in api-contract (422, details array)
 - [ ] Physio initial evaluation fixture (50+ fields, 4 pages, bilingual fr/en)
@@ -184,7 +184,7 @@ Note: `templateContentSchema` in api-contract IS updated to v0.2 as part of this
 - [ ] Both seeded templates retrievable via `GET /templates` and `GET /templates/:id`
 - [x] `@careos/api-contract` + `zod` added as runtime dependencies to `@careos/clinical`
 - [ ] Enum values in `packages/clinical/` aligned with api-contract (`physiotherapy`, `ergotherapy`)
-- [ ] `packages/clinical/` barrel export updated to expose `TemplateSchema` namespace
+- [x] `packages/clinical/` barrel export updated to expose `TemplateSchema` namespace
 - [ ] All existing tests and type checks pass (`pnpm typecheck && pnpm test`)
 
 ## Implementation Phases
