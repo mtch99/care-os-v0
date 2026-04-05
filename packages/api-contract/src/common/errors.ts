@@ -85,3 +85,13 @@ export class DefaultAlreadyExistsError extends DomainError {
     )
   }
 }
+
+export class TemplateValidationError extends DomainError {
+  constructor(public readonly details: string[]) {
+    super(
+      'TEMPLATE_VALIDATION_ERROR',
+      `Template content validation failed: ${details.join('; ')}`,
+      422,
+    )
+  }
+}

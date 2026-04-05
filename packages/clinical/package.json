@@ -29,5 +29,9 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "vitest": "^4.1.2"
+  },
+  "dependencies": {
+    "@careos/api-contract": "workspace:*",
+    "zod": "^4.3.6"
   }
 }
