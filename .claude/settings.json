@@ -30,7 +30,8 @@
       "Bash(pnpm build:*)",
       "Bash(pnpm list:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__claude_ai_Linear__list_issues"
     ],
     "additionalDirectories": []
   }
