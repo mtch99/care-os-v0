@@ -57,7 +57,7 @@ export const chartNoteTemplates = pgTable(
   },
   (table) => [
     uniqueIndex('chart_note_templates_default_idx')
-      .on(table.discipline, table.appointmentType, table.isDefault)
+      .on(table.discipline, table.appointmentType)
       .where(sql`${table.isDefault} = true`),
     index('chart_note_templates_lookup_idx').on(
       table.discipline,
