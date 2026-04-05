@@ -64,6 +64,9 @@ export const chartNoteTemplates = pgTable(
       table.appointmentType,
       table.isArchived,
     ),
+    uniqueIndex('chart_note_templates_version_idx')
+      .on(table.parentTemplateId, table.version)
+      .where(sql`${table.parentTemplateId} IS NOT NULL`),
   ],
 )
 

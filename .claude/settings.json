@@ -20,7 +20,14 @@
       "Bash(pnpm typecheck:*)",
       "Bash(pnpm --filter @careos/db migrate)",
       "Bash(pnpm lint:*)",
-      "Bash(pnpm format:check)"
+      "Bash(pnpm format:check)",
+      "mcp__claude_ai_Linear__get_issue",
+      "Bash(ls -la docs/brainstorms/*.md)",
+      "Bash(ls docs/plans/2026-04-05-*-plan.md)",
+      "Bash(pnpm db:migrate)",
+      "Bash(pnpm db:migrate:apply)",
+      "Bash(pnpm --filter @careos/api add drizzle-orm)",
+      "Bash(pnpm build:*)"
     ]
   }
 }

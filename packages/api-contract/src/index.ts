@@ -1,3 +1,5 @@
 export * from './common/errors'
 export * from './scheduling/types'
 export * from './scheduling/validation'
+export * from './clinical/types'
+export * from './clinical/validation'

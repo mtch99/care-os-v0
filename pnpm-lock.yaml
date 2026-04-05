@@ -77,6 +77,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.19.11
         version: 1.19.11(hono@4.12.9)
+      drizzle-orm:
+        specifier: ^0.45.1
+        version: 0.45.1(@opentelemetry/api@1.9.1)(@types/pg@8.15.6)(postgres@3.4.8)
       hono:
         specifier: ^4.12.9
         version: 4.12.9
