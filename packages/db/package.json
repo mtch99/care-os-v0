@@ -10,8 +10,6 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "test": "vitest run",
-    "start:postgres": "docker run --name careos-pg -e POSTGRES_PASSWORD=careos -e POSTGRES_DB=careos -p 5432:5432 -d postgres",
-    "stop:postgres": "docker stop careos-pg && docker rm careos-pg",
     "migrate": "drizzle-kit generate",
     "migrate:apply": "drizzle-kit migrate",
     "seed": "tsx --env-file=.env src/seed.ts"
