@@ -42,7 +42,7 @@ apps/
 
 packages/
   api-contract/     → Zod request schemas, response types, DomainError classes
-  clinical/         → Clinical domain services (chart note template resolution)
+  clinical/         → TemplateSchema value object, semantic validation (@careos/clinical)
   db/               → Drizzle schemas, migrations, DB client, seed script (@careos/db)
   inngest/          → Inngest client, event definitions, background functions (@careos/inngest)
   scheduling/       → Domain commands (startSession) — pure business logic (@careos/scheduling)
@@ -52,10 +52,10 @@ packages/
 
 - `apps/api` → imports from all `packages/*`
 - `packages/scheduling` → `db`, `api-contract`
+- `packages/clinical` → `api-contract`, `zod`
 - `packages/inngest` → `clinical`
 - `packages/api-contract` → standalone, no internal deps
-- `packages/clinical` → standalone
-- `packages/db` → standalone
+- `packages/db` → standalone (type-only import from `api-contract` for fixture types)
 
 Do not introduce circular dependencies between packages.
 
@@ -66,7 +66,7 @@ Do not introduce circular dependencies between packages.
 - Routes in `apps/api/src/routes/` handle HTTP only: validate input → execute domain command → emit Inngest events → respond
 - Domain errors extend `DomainError` from `api-contract` — caught by Hono's `app.onError()` handler
 - Background jobs are Inngest event-driven functions in `packages/inngest`
-- All validation uses Zod schemas from `api-contract` at route boundaries
+- Validation is two-pass: Zod structural schemas from `api-contract` at route boundaries (Pass 1), then `TemplateSchema.validate` from `clinical` for domain semantics like unique field keys and locale completeness (Pass 2)
 
 ## Code Conventions
 
@@ -98,11 +98,11 @@ Do not introduce circular dependencies between packages.
 
 - **Repository interfaces (ports)** will be introduced in `packages/scheduling` before tests are written — do not create test mocks for `DrizzleDB` directly
 - **Test pyramid**: domain unit tests (pure functions) → adapter integration tests (real DB) → route tests (`app.request()`) — do not create E2E tests with HTTP clients
-- **`@careos/fixtures` package** is planned for shared test data — do not create per-package fixture files
+- **`@careos/fixtures` package** is planned for shared test data — `packages/db/src/fixtures/` exists as an interim location for seed fixtures (typed objects, no runtime deps on `clinical`). Migrate these to `@careos/fixtures` when that package is created
 - **Inngest Dev Server** for manual debugging of background functions — `pnpm --filter @careos/inngest dev`
 
 ## CI/CD
 
 - **Quality Gate** (blocking): build → typecheck → lint → format:check
-- **Tests** (non-blocking): run and report, never block merge — will become blocking once meaningful baseline exists
+- **Tests** (blocking): `pnpm turbo test` — fails the pipeline on test failures
 - **Pre-push hooks** (Lefthook): typecheck + lint + format:check in parallel

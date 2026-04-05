@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { ZodError } from 'zod'
 import { TemplateValidationError } from '@careos/api-contract'
-import { TemplateSchema } from './index'
+import { TemplateSchema } from '../index'
 
 const validContent = {
   schemaVersion: '0.2',

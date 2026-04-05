@@ -47,9 +47,6 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
-    # Non-blocking — see brainstorm decision: tests run and report but never block merge.
-    # Once a meaningful baseline of tests exists, promote this to a required status check.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 

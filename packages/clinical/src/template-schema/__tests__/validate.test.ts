@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { TemplateValidationError } from '@careos/api-contract'
 import type { TemplateContentV2 } from '@careos/api-contract'
-import { validateTemplateSemantics } from './validate'
+import { validateTemplateSemantics } from '../validate'
 
 function makeTemplate(overrides: Partial<TemplateContentV2> = {}): TemplateContentV2 {
   return {

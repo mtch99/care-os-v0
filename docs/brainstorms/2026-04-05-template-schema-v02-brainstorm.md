@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-05
 **Linear:** [CAR-92](https://linear.app/careos/issue/CAR-92) | Parent: [CAR-89](https://linear.app/careos/issue/CAR-89) | Related: [CAR-102](https://linear.app/careos/issue/CAR-102)
-**Status:** Ready for planning
+**Status:** Implemented (PR #7)
 
 ## What We're Building
 
