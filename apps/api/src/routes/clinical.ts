@@ -12,6 +12,7 @@ import {
   TemplateArchivedError,
   DefaultAlreadyExistsError,
 } from '@careos/api-contract'
+import { TemplateSchema } from '@careos/clinical'
 
 export const clinicalRoutes = new Hono()
 
@@ -21,6 +22,7 @@ const HARDCODED_PRACTITIONER_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
 // POST /templates — create new template
 clinicalRoutes.post('/templates', async (c) => {
   const input = createTemplateSchema.parse(await c.req.json())
+  TemplateSchema.validate(input.content)
 
   if (input.isDefault) {
     const existing = await db.query.chartNoteTemplates.findFirst({
@@ -149,7 +151,12 @@ clinicalRoutes.put('/templates/:id', async (c) => {
         .where(eq(chartNoteTemplates.id, current.id))
     }
 
-    // 5. Insert new version
+    // 5. Validate new content semantically if provided
+    if (input.content) {
+      TemplateSchema.validate(input.content)
+    }
+
+    // 6. Insert new version
     const [newVersion] = await tx
       .insert(chartNoteTemplates)
       .values({

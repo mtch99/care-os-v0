@@ -18,6 +18,7 @@
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
     "@careos/api-contract": "workspace:*",
+    "@careos/clinical": "workspace:*",
     "@careos/db": "workspace:*",
     "@careos/inngest": "workspace:*",
     "@careos/scheduling": "workspace:*",

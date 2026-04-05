@@ -65,6 +65,9 @@ importers:
       '@careos/api-contract':
         specifier: workspace:*
         version: link:../../packages/api-contract
+      '@careos/clinical':
+        specifier: workspace:*
+        version: link:../../packages/clinical
       '@careos/db':
         specifier: workspace:*
         version: link:../../packages/db
