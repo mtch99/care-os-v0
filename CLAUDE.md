@@ -22,8 +22,11 @@ pnpm db:migrate        # generate migrations (drizzle-kit generate)
 pnpm db:migrate:apply  # apply migrations (drizzle-kit migrate)
 pnpm db:seed           # seed database (tsx)
 
-# Full bootstrap
+# Lifecycle
+pnpm start                 # bootstrap + dev (all-in-one)
+pnpm stop                  # stop dev services + PostgreSQL
 pnpm bootstrap             # install → db:up → db:migrate:apply → db:seed
+pnpm teardown              # nuke DB + remove all node_modules
 
 # Per-package scoping
 pnpm --filter @careos/api dev
