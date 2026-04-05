@@ -171,18 +171,18 @@ Note: `templateContentSchema` in api-contract IS updated to v0.2 as part of this
 
 ## Acceptance Criteria
 
-- [ ] `templateContentSchemaV2` in api-contract — Zod schema validates v0.2 structure (pages > sections > rows > fields, 14 field types, bilingual labels)
-- [ ] `createTemplateSchema` and `updateTemplateSchema` updated to use v0.2 content schema
-- [ ] `TemplateResponse.content` typed to v0.2 shape (no longer `unknown`)
+- [x] `templateContentSchemaV2` in api-contract — Zod schema validates v0.2 structure (pages > sections > rows > fields, 14 field types, bilingual labels)
+- [x] `createTemplateSchema` and `updateTemplateSchema` updated to use v0.2 content schema
+- [x] `TemplateResponse.content` typed to v0.2 shape (no longer `unknown`)
 - [ ] `TemplateSchema.validate` — checks unique field keys across template, locale completeness
 - [ ] `TemplateSchema.parse` — combines schema + validate, returns typed object or throws
-- [ ] 14 FieldType config schemas with `.strip()` (strict shape, strip unknown)
-- [ ] `TemplateValidationError` domain error in api-contract (422, details array)
+- [x] 14 FieldType config schemas (strict shape, strip unknown — Zod v4 default)
+- [x] `TemplateValidationError` domain error in api-contract (422, details array)
 - [ ] Physio initial evaluation fixture (50+ fields, 4 pages, bilingual fr/en)
 - [ ] Physio follow-up SOAP note fixture
 - [ ] Both v0.2 seeds inserted by `pnpm db:seed` (as `isDefault: false`)
 - [ ] Both seeded templates retrievable via `GET /templates` and `GET /templates/:id`
-- [ ] `@careos/api-contract` + `zod` added as runtime dependencies to `@careos/clinical`
+- [x] `@careos/api-contract` + `zod` added as runtime dependencies to `@careos/clinical`
 - [ ] Enum values in `packages/clinical/` aligned with api-contract (`physiotherapy`, `ergotherapy`)
 - [ ] `packages/clinical/` barrel export updated to expose `TemplateSchema` namespace
 - [ ] All existing tests and type checks pass (`pnpm typecheck && pnpm test`)
