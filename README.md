@@ -133,6 +133,10 @@ pnpm --filter @careos/api dev
 pnpm --filter @careos/db typecheck
 ```
 
+### Manual Test Scripts
+
+Task-specific curl test scripts live in `scripts/test-<branch>/`. Each directory has its own README with a script table, expected HTTP codes, and SQL verification queries. Run them against a local dev server after seeding.
+
 ## Background Jobs (Inngest)
 
 careOS uses [Inngest](https://www.inngest.com/) for event-driven background processing. When a domain action occurs (e.g., a session starts), the API emits an Inngest event, and background functions in `packages/inngest` handle side effects asynchronously.
