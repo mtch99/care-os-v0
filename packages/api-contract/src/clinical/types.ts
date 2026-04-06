@@ -1,14 +1,16 @@
+import type { TemplateContentV2 } from './template-content-schema'
+
 export interface CreateTemplateRequest {
   name: string
   discipline: string
   appointmentType: 'initial' | 'follow_up'
-  content: { sections: string[] }
+  content: TemplateContentV2
   isDefault?: boolean
 }
 
 export interface UpdateTemplateRequest {
   name?: string
-  content?: { sections: string[] }
+  content?: TemplateContentV2
 }
 
 export interface TemplateResponse {
@@ -16,7 +18,7 @@ export interface TemplateResponse {
   name: string
   discipline: string
   appointmentType: 'initial' | 'follow_up'
-  content: unknown
+  content: TemplateContentV2
   version: number
   parentTemplateId: string | null
   isDefault: boolean

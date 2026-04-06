@@ -30,7 +30,14 @@
       "Bash(pnpm build:*)",
       "Bash(pnpm list:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__claude_ai_Linear__list_issues",
+      "Bash(pnpm --filter @careos/api-contract typecheck)",
+      "Bash(pnpm --filter @careos/api-contract build)",
+      "Bash(pnpm --filter @careos/clinical build)",
+      "Bash(pnpm --filter @careos/api typecheck)",
+      "Bash(pnpm --filter @careos/clinical test)",
+      "Bash(pnpm test:*)"
     ],
     "additionalDirectories": []
   }

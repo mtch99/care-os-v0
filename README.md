@@ -21,7 +21,7 @@ careOS manages the core workflow of a clinical visit: scheduling appointments, t
 | Linting         | ESLint v10 (strict type-checked)               |
 | Formatting      | Prettier                                       |
 | Git hooks       | Lefthook (pre-push)                            |
-| Testing         | Vitest v4 (infrastructure only — no tests yet) |
+| Testing         | Vitest v4                                      |
 | CI              | GitHub Actions                                 |
 
 ## Prerequisites
@@ -79,7 +79,7 @@ apps/
 
 packages/
   api-contract/       → Zod request schemas, response types, domain error classes
-  clinical/           → Clinical domain services (chart note template resolution)
+  clinical/           → TemplateSchema value object, semantic validation
   db/                 → Drizzle ORM schemas, migrations, DB client, seed script
   inngest/            → Inngest client + event-driven background functions
   scheduling/         → Domain commands (e.g. startSession) — pure business logic
@@ -133,6 +133,10 @@ pnpm --filter @careos/api dev
 pnpm --filter @careos/db typecheck
 ```
 
+### Manual Test Scripts
+
+Task-specific curl test scripts live in `scripts/test-<branch>/`. Each directory has its own README with a script table, expected HTTP codes, and SQL verification queries. Run them against a local dev server after seeding.
+
 ## Background Jobs (Inngest)
 
 careOS uses [Inngest](https://www.inngest.com/) for event-driven background processing. When a domain action occurs (e.g., a session starts), the API emits an Inngest event, and background functions in `packages/inngest` handle side effects asynchronously.
@@ -181,4 +185,4 @@ All three must pass before code can be pushed.
 ### CI Pipeline
 
 - **Quality Gate** (blocking): build → typecheck → lint → format:check
-- **Tests** (non-blocking): runs and reports, but does not block merges until a meaningful test baseline exists
+- **Tests** (blocking): runs `pnpm turbo test` — fails the pipeline on test failures

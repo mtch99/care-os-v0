@@ -1,5 +1,7 @@
 export * from './common/errors'
 export * from './scheduling/types'
 export * from './scheduling/validation'
+export * from './clinical/field-configs'
+export * from './clinical/template-content-schema'
 export * from './clinical/types'
 export * from './clinical/validation'

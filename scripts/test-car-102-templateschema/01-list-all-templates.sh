@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# List all templates — should include both v0.1 and v0.2 seeds (6 total)
+set -euo pipefail
+
+BASE_URL="${BASE_URL:-http://localhost:3000}"
+
+echo "==> GET /api/clinical/templates"
+resp=$(curl -s -w '\n%{http_code}' "$BASE_URL/api/clinical/templates")
+code=${resp##*$'\n'}
+body=${resp%$'\n'*}
+echo "$body" | jq .
+echo "HTTP $code"

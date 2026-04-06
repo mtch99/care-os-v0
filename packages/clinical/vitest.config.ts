@@ -4,5 +4,12 @@ export default defineConfig({
   test: {
     globals: true,
     passWithNoTests: true,
+    exclude: ['dist/**', 'node_modules/**'],
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: 'coverage',
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/__tests__/**'],
+    },
   },
 })

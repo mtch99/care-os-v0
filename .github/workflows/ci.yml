@@ -44,12 +44,18 @@ jobs:
       - name: Format check
         run: pnpm turbo format:check
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            packages/*/dist
+            .turbo
+
   tests:
     name: Tests
+    needs: quality
     runs-on: ubuntu-latest
-    # Non-blocking — see brainstorm decision: tests run and report but never block merge.
-    # Once a meaningful baseline of tests exists, promote this to a required status check.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -65,15 +71,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Cache Turbo
-        uses: actions/cache@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-${{ github.sha }}
-          restore-keys: turbo-${{ runner.os }}-
-
-      - name: Build
-        run: pnpm turbo build
+          name: build-output
 
       - name: Test
         run: pnpm turbo test
