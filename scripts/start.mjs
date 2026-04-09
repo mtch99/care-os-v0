@@ -15,8 +15,7 @@ const running = []
 if (isRunning("pgrep -f 'turbo run dev'")) running.push('turbo dev')
 if (isRunning('lsof -ti tcp:3000')) running.push('API (port 3000)')
 if (isRunning('lsof -ti tcp:9376')) running.push('Inngest webhook (port 9376)')
-if (isRunning('docker compose ps --status running | grep -q postgres'))
-  running.push('PostgreSQL')
+if (isRunning('docker compose ps --status running | grep -q postgres')) running.push('PostgreSQL')
 
 if (running.length > 0) {
   console.log('\n⚠ Already running:')

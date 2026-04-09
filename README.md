@@ -10,19 +10,19 @@ careOS manages the core workflow of a clinical visit: scheduling appointments, t
 
 ## Tech Stack
 
-| Concern         | Technology                                     |
-| --------------- | ---------------------------------------------- |
-| Runtime         | Node.js 22, TypeScript 6.0                     |
-| HTTP            | Hono + @hono/node-server                       |
-| Database        | PostgreSQL, Drizzle ORM                        |
-| Background jobs | Inngest (event-driven)                         |
-| Validation      | Zod v4                                         |
-| Monorepo        | pnpm 10 + Turborepo                            |
-| Linting         | ESLint v10 (strict type-checked)               |
-| Formatting      | Prettier                                       |
-| Git hooks       | Lefthook (pre-push)                            |
-| Testing         | Vitest v4                                      |
-| CI              | GitHub Actions                                 |
+| Concern         | Technology                       |
+| --------------- | -------------------------------- |
+| Runtime         | Node.js 22, TypeScript 6.0       |
+| HTTP            | Hono + @hono/node-server         |
+| Database        | PostgreSQL, Drizzle ORM          |
+| Background jobs | Inngest (event-driven)           |
+| Validation      | Zod v4                           |
+| Monorepo        | pnpm 10 + Turborepo              |
+| Linting         | ESLint v10 (strict type-checked) |
+| Formatting      | Prettier                         |
+| Git hooks       | Lefthook (pre-push)              |
+| Testing         | Vitest v4                        |
+| CI              | GitHub Actions                   |
 
 ## Prerequisites
 
@@ -109,22 +109,22 @@ scheduled ──→ in_session ──→ awaiting_completion ──→ completed
 
 ## Available Scripts
 
-| Command                | Description                                       |
-| ---------------------- | ------------------------------------------------- |
-| `pnpm bootstrap`           | Full bootstrap: install, start Postgres, migrate, seed |
-| `pnpm dev`             | Start all apps in dev mode                        |
-| `pnpm build`           | Build all packages                                |
-| `pnpm typecheck`       | Run TypeScript type checking                      |
-| `pnpm lint`            | Run ESLint across all packages                    |
-| `pnpm format`          | Format code with Prettier                         |
-| `pnpm format:check`    | Check formatting without modifying files          |
-| `pnpm test`            | Run Vitest test suite                             |
-| `pnpm db:up`           | Start PostgreSQL via Docker Compose               |
-| `pnpm db:down`         | Stop PostgreSQL (data persisted in volume)        |
-| `pnpm db:nuke`         | Stop PostgreSQL and delete all data               |
-| `pnpm db:migrate`      | Generate new migration (drizzle-kit generate)     |
-| `pnpm db:migrate:apply` | Apply pending migrations (drizzle-kit migrate)   |
-| `pnpm db:seed`         | Seed the database                                 |
+| Command                 | Description                                            |
+| ----------------------- | ------------------------------------------------------ |
+| `pnpm bootstrap`        | Full bootstrap: install, start Postgres, migrate, seed |
+| `pnpm dev`              | Start all apps in dev mode                             |
+| `pnpm build`            | Build all packages                                     |
+| `pnpm typecheck`        | Run TypeScript type checking                           |
+| `pnpm lint`             | Run ESLint across all packages                         |
+| `pnpm format`           | Format code with Prettier                              |
+| `pnpm format:check`     | Check formatting without modifying files               |
+| `pnpm test`             | Run Vitest test suite                                  |
+| `pnpm db:up`            | Start PostgreSQL via Docker Compose                    |
+| `pnpm db:down`          | Stop PostgreSQL (data persisted in volume)             |
+| `pnpm db:nuke`          | Stop PostgreSQL and delete all data                    |
+| `pnpm db:migrate`       | Generate new migration (drizzle-kit generate)          |
+| `pnpm db:migrate:apply` | Apply pending migrations (drizzle-kit migrate)         |
+| `pnpm db:seed`          | Seed the database                                      |
 
 Run a command for a specific package:
 
@@ -148,6 +148,18 @@ pnpm --filter @careos/inngest dev
 ```
 
 This opens a local dashboard where you can see events, function runs, and replay failures.
+
+## Documentation
+
+Design decisions, brainstorms, and implementation plans live in `docs/`:
+
+```
+docs/
+  brainstorms/    → Requirements exploration before planning
+  plans/          → Implementation plans with file lists and verification steps
+```
+
+These are internal working documents — they capture the _why_ behind decisions and are not guaranteed to stay current with the code.
 
 ## Near-Term Roadmap
 

@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "typecheck": {
-      "dependsOn": ["^typecheck"],
+      "dependsOn": ["^typecheck"]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -24,7 +24,7 @@
       "cache": false
     },
     "install": {
-      "cache": false,
+      "cache": false
     },
     "dev": {
       "cache": false,

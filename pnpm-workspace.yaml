@@ -1,6 +1,6 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 
 catalog:
-  "@types/node": "^25.5.0"
+  '@types/node': '^25.5.0'

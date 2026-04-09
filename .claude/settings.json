@@ -37,7 +37,9 @@
       "Bash(pnpm --filter @careos/clinical build)",
       "Bash(pnpm --filter @careos/api typecheck)",
       "Bash(pnpm --filter @careos/clinical test)",
-      "Bash(pnpm test:*)"
+      "Bash(pnpm test:*)",
+      "mcp__claude_ai_Linear__research",
+      "mcp__claude_ai_Linear__save_issue"
     ],
     "additionalDirectories": []
   }

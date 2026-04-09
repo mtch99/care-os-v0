@@ -12,7 +12,7 @@ Analyze the staged git changes and create a comprehensive commit message, then c
 5. Draft a commit message following this structure:
    - Subject line: `<type>(<scope>): <imperative summary>` (max 72 chars)
    - Blank line
-   - Body: explain *what* and *why* (not *how*), referencing packages/modules affected
+   - Body: explain _what_ and _why_ (not _how_), referencing packages/modules affected
    - If multiple logical concerns exist, list them as bullet points
 6. Get the current git user with `git config user.name` and `git config user.email`
 7. Commit using:
