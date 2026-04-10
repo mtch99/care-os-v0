@@ -39,7 +39,11 @@
       "Bash(pnpm --filter @careos/clinical test)",
       "Bash(pnpm test:*)",
       "mcp__claude_ai_Linear__research",
-      "mcp__claude_ai_Linear__save_issue"
+      "mcp__claude_ai_Linear__save_issue",
+      "WebFetch(domain:linear.app)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh:*)",
+      "Bash(bash scripts/**)"
     ],
     "additionalDirectories": []
   }

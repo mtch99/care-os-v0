@@ -94,6 +94,25 @@ Do not introduce circular dependencies between packages.
 - Database credentials only via `DATABASE_URL`
 - When adding new secrets, add them to the relevant `env.ts` Zod schema
 
+## Scripts
+
+Manual curl test scripts live in `scripts/test-<branch>/`. They are committed with the executable bit (`chmod +x`) so every dev can run them directly after cloning — no extra setup needed.
+
+```bash
+# Run a single script
+./scripts/test-car-102-templateschema/01-list-all-templates.sh
+
+# Run all scripts in a test directory sequentially
+for f in scripts/test-<branch>/*.sh; do bash "$f"; done
+```
+
+When generating new scripts, `chmod +x` before committing. Git tracks the executable bit via `core.fileMode`.
+
+### Related Commands & Agents
+
+- **`/generate-test-scripts`** — reads the current branch's route, schema, and seed changes, then generates a numbered set of curl scripts under `scripts/test-<branch>/` with a README
+- **`integration-verifier` agent** — reads a phase spec or Linear issue, plans verification, then writes scripts + `CHECKLIST.md` covering happy paths, concurrency, idempotency, immutability guards, and more. It writes scripts only — the human runs them
+
 ## Near-Term Intent (Do Not Contradict)
 
 - **Repository interfaces (ports)** will be introduced in `packages/scheduling` before tests are written — do not create test mocks for `DrizzleDB` directly

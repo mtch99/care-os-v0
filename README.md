@@ -137,6 +137,18 @@ pnpm --filter @careos/db typecheck
 
 Task-specific curl test scripts live in `scripts/test-<branch>/`. Each directory has its own README with a script table, expected HTTP codes, and SQL verification queries. Run them against a local dev server after seeding.
 
+Scripts are committed with the executable bit set, so they work out of the box after cloning — no extra `chmod` needed. Run them directly:
+
+```bash
+./scripts/test-car-102-templateschema/01-list-all-templates.sh
+```
+
+When generating new test scripts, mark them executable before committing:
+
+```bash
+chmod +x scripts/test-<branch>/*.sh
+```
+
 ## Background Jobs (Inngest)
 
 careOS uses [Inngest](https://www.inngest.com/) for event-driven background processing. When a domain action occurs (e.g., a session starts), the API emits an Inngest event, and background functions in `packages/inngest` handle side effects asynchronously.
