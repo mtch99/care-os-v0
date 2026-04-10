@@ -30,6 +30,7 @@ For each endpoint found in step 4, generate:
 - Name format: `NN-verb-description.sh` (e.g. `01-create-template.sh`, `02-create-default-conflict.sh`)
 
 Generate a `README.md` with:
+
 - Prerequisites section (what needs to be running)
 - A table mapping each script to its expected HTTP status and what it tests
 - SQL verification queries to run in a DB explorer after testing

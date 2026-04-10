@@ -12,22 +12,22 @@ Manual curl tests for the clinical template CRUD endpoints with v0.2 content val
 
 ## Scripts
 
-| # | Script | Method | Endpoint | Expected | What it tests |
-|---|--------|--------|----------|----------|---------------|
-| 01 | list-all-templates.sh | GET | /api/clinical/templates | 200 | All 6 templates returned (4 v0.1 + 2 v0.2) |
-| 02 | get-v2-initial-by-id.sh | GET | /api/clinical/templates/:id | 200 | v0.2 initial eval retrieved with rich content |
-| 03 | get-v2-soap-by-id.sh | GET | /api/clinical/templates/:id | 200 | v0.2 SOAP note retrieved with rich content |
-| 04 | get-nonexistent-template.sh | GET | /api/clinical/templates/:id | 404 | TemplateNotFoundError |
-| 05 | list-physio-templates.sh | GET | /api/clinical/templates?discipline=physiotherapy | 200 | Filter returns 4 physio templates (2 v0.1 + 2 v0.2) |
-| 06 | get-default-physio-initial.sh | GET | /api/clinical/templates/default | 200 | Default is still the v0.1 seed |
-| 07 | create-v2-template.sh | POST | /api/clinical/templates | 422 | Duplicate field keys rejected by semantic validation (Pass 2) |
-| 08 | create-invalid-content.sh | POST | /api/clinical/templates | 400 | Missing schemaVersion rejected |
-| 09 | create-invalid-field-type.sh | POST | /api/clinical/templates | 400 | Unknown field type "dropdown" rejected |
-| 10 | update-v2-template.sh | PUT | /api/clinical/templates/:id | 200 | Version bump with v0.2 content |
-| 11 | archive-v2-template.sh | DELETE | /api/clinical/templates/:id | 200 | Soft-delete non-default v0.2 template |
-| 12 | set-default-v2-template.sh | PATCH | /api/clinical/templates/:id/set-default | 200 | Promote v0.2 template to default |
-| 13 | create-default-conflict.sh | POST | /api/clinical/templates | 409 | DefaultAlreadyExistsError |
-| 14 | create-duplicate-keys.sh | POST | /api/clinical/templates | 422 | TemplateValidationError — duplicate field keys (Pass 2) |
+| #   | Script                        | Method | Endpoint                                         | Expected | What it tests                                                 |
+| --- | ----------------------------- | ------ | ------------------------------------------------ | -------- | ------------------------------------------------------------- |
+| 01  | list-all-templates.sh         | GET    | /api/clinical/templates                          | 200      | All 6 templates returned (4 v0.1 + 2 v0.2)                    |
+| 02  | get-v2-initial-by-id.sh       | GET    | /api/clinical/templates/:id                      | 200      | v0.2 initial eval retrieved with rich content                 |
+| 03  | get-v2-soap-by-id.sh          | GET    | /api/clinical/templates/:id                      | 200      | v0.2 SOAP note retrieved with rich content                    |
+| 04  | get-nonexistent-template.sh   | GET    | /api/clinical/templates/:id                      | 404      | TemplateNotFoundError                                         |
+| 05  | list-physio-templates.sh      | GET    | /api/clinical/templates?discipline=physiotherapy | 200      | Filter returns 4 physio templates (2 v0.1 + 2 v0.2)           |
+| 06  | get-default-physio-initial.sh | GET    | /api/clinical/templates/default                  | 200      | Default is still the v0.1 seed                                |
+| 07  | create-v2-template.sh         | POST   | /api/clinical/templates                          | 422      | Duplicate field keys rejected by semantic validation (Pass 2) |
+| 08  | create-invalid-content.sh     | POST   | /api/clinical/templates                          | 400      | Missing schemaVersion rejected                                |
+| 09  | create-invalid-field-type.sh  | POST   | /api/clinical/templates                          | 400      | Unknown field type "dropdown" rejected                        |
+| 10  | update-v2-template.sh         | PUT    | /api/clinical/templates/:id                      | 200      | Version bump with v0.2 content                                |
+| 11  | archive-v2-template.sh        | DELETE | /api/clinical/templates/:id                      | 200      | Soft-delete non-default v0.2 template                         |
+| 12  | set-default-v2-template.sh    | PATCH  | /api/clinical/templates/:id/set-default          | 200      | Promote v0.2 template to default                              |
+| 13  | create-default-conflict.sh    | POST   | /api/clinical/templates                          | 409      | DefaultAlreadyExistsError                                     |
+| 14  | create-duplicate-keys.sh      | POST   | /api/clinical/templates                          | 422      | TemplateValidationError — duplicate field keys (Pass 2)       |
 
 ## Usage
 

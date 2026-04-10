@@ -2,27 +2,25 @@
 
 Healthcare operations platform — appointment lifecycle and clinical session management for practitioners seeing patients at clinics.
 
-> **v0** — actively evolving. APIs, schema, and patterns will change.
-
 ## What is careOS?
 
 careOS manages the core workflow of a clinical visit: scheduling appointments, transitioning them through a state machine, creating sessions when a practitioner starts seeing a patient, and capturing chart notes. It is a backend API and background job processing layer — there is no UI in this repo.
 
 ## Tech Stack
 
-| Concern         | Technology                                     |
-| --------------- | ---------------------------------------------- |
-| Runtime         | Node.js 22, TypeScript 6.0                     |
-| HTTP            | Hono + @hono/node-server                       |
-| Database        | PostgreSQL, Drizzle ORM                        |
-| Background jobs | Inngest (event-driven)                         |
-| Validation      | Zod v4                                         |
-| Monorepo        | pnpm 10 + Turborepo                            |
-| Linting         | ESLint v10 (strict type-checked)               |
-| Formatting      | Prettier                                       |
-| Git hooks       | Lefthook (pre-push)                            |
-| Testing         | Vitest v4                                      |
-| CI              | GitHub Actions                                 |
+| Concern         | Technology                       |
+| --------------- | -------------------------------- |
+| Runtime         | Node.js 22, TypeScript 6.0       |
+| HTTP            | Hono + @hono/node-server         |
+| Database        | PostgreSQL, Drizzle ORM          |
+| Background jobs | Inngest (event-driven)           |
+| Validation      | Zod v4                           |
+| Monorepo        | pnpm 10 + Turborepo              |
+| Linting         | ESLint v10 (strict type-checked) |
+| Formatting      | Prettier                         |
+| Git hooks       | Lefthook (pre-push)              |
+| Testing         | Vitest v4                        |
+| CI              | GitHub Actions                   |
 
 ## Prerequisites
 
@@ -52,8 +50,6 @@ curl http://localhost:3000/health
 ```
 
 ### Environment Variables
-
-See `packages/db/.env.example` and `apps/api/.env.example` for defaults. Copy them to `.env` and adjust as needed.
 
 **`packages/db/.env`** (required)
 
@@ -109,22 +105,22 @@ scheduled ──→ in_session ──→ awaiting_completion ──→ completed
 
 ## Available Scripts
 
-| Command                | Description                                       |
-| ---------------------- | ------------------------------------------------- |
-| `pnpm bootstrap`           | Full bootstrap: install, start Postgres, migrate, seed |
-| `pnpm dev`             | Start all apps in dev mode                        |
-| `pnpm build`           | Build all packages                                |
-| `pnpm typecheck`       | Run TypeScript type checking                      |
-| `pnpm lint`            | Run ESLint across all packages                    |
-| `pnpm format`          | Format code with Prettier                         |
-| `pnpm format:check`    | Check formatting without modifying files          |
-| `pnpm test`            | Run Vitest test suite                             |
-| `pnpm db:up`           | Start PostgreSQL via Docker Compose               |
-| `pnpm db:down`         | Stop PostgreSQL (data persisted in volume)        |
-| `pnpm db:nuke`         | Stop PostgreSQL and delete all data               |
-| `pnpm db:migrate`      | Generate new migration (drizzle-kit generate)     |
-| `pnpm db:migrate:apply` | Apply pending migrations (drizzle-kit migrate)   |
-| `pnpm db:seed`         | Seed the database                                 |
+| Command                 | Description                                            |
+| ----------------------- | ------------------------------------------------------ |
+| `pnpm bootstrap`        | Full bootstrap: install, start Postgres, migrate, seed |
+| `pnpm dev`              | Start all apps in dev mode                             |
+| `pnpm build`            | Build all packages                                     |
+| `pnpm typecheck`        | Run TypeScript type checking                           |
+| `pnpm lint`             | Run ESLint across all packages                         |
+| `pnpm format`           | Format code with Prettier                              |
+| `pnpm format:check`     | Check formatting without modifying files               |
+| `pnpm test`             | Run Vitest test suite                                  |
+| `pnpm db:up`            | Start PostgreSQL via Docker Compose                    |
+| `pnpm db:down`          | Stop PostgreSQL (data persisted in volume)             |
+| `pnpm db:nuke`          | Stop PostgreSQL and delete all data                    |
+| `pnpm db:migrate`       | Generate new migration (drizzle-kit generate)          |
+| `pnpm db:migrate:apply` | Apply pending migrations (drizzle-kit migrate)         |
+| `pnpm db:seed`          | Seed the database                                      |
 
 Run a command for a specific package:
 
@@ -137,6 +133,10 @@ pnpm --filter @careos/db typecheck
 
 Task-specific curl test scripts live in `scripts/test-<branch>/`. Each directory has its own README with a script table, expected HTTP codes, and SQL verification queries. Run them against a local dev server after seeding.
 
+```bash
+./scripts/test-car-102-templateschema/01-list-all-templates.sh
+```
+
 ## Background Jobs (Inngest)
 
 careOS uses [Inngest](https://www.inngest.com/) for event-driven background processing. When a domain action occurs (e.g., a session starts), the API emits an Inngest event, and background functions in `packages/inngest` handle side effects asynchronously.
@@ -148,6 +148,52 @@ pnpm --filter @careos/inngest dev
 ```
 
 This opens a local dashboard where you can see events, function runs, and replay failures.
+
+## Documentation
+
+Design decisions, brainstorms, and implementation plans live in `docs/`:
+
+```
+docs/
+  brainstorms/    → Requirements exploration before planning
+  plans/          → Implementation plans with file lists and verification steps
+```
+
+These are internal working documents — they capture the _why_ behind decisions and are not guaranteed to stay current with the code.
+
+## Agentic Development
+
+Claude Code agents handle implementation work end-to-end: read a Linear issue, set up an isolated worktree, plan, implement, commit, and open a PR for human review.
+
+### Agents
+
+| Agent | Purpose |
+|-------|---------|
+| `domain-model` | Commands on Core-subdomain aggregates (Domain Model + Ports & Adapters) |
+| `port-adapter` | External integration boundaries (LLM, API, repository, event publisher) |
+| `schema-migration` | Drizzle schemas and migrations |
+| `transaction-script` | Supporting-subdomain commands (validate → write → return) |
+| `integration-verifier` | Verification scripts and checklists for phase close-outs |
+
+Agent definitions live in `.claude/agents/`. Each agent runs autonomously — no mid-run prompts. Ambiguities are decided and documented in the PR.
+
+### `/worktree` Skill
+
+All agents use the `/worktree` skill to set up their working environment:
+
+```
+/worktree CAR-96          # Linear issue → resolves base branch, verifies blockers
+/worktree chore/my-thing  # Manual branch name → branches from master
+```
+
+Worktrees are created under `.claude/worktrees/` (gitignored). The skill handles branch name sanitization, `git fetch`, idempotency, `.env` file copying, and `pnpm install`.
+
+### Git Conventions for Agents
+
+- Conventional commits with Linear ID: `feat(clinical): add validation (CAR-102)`
+- Co-authored-by trailer on every commit
+- PRs set `--base` explicitly to match the worktree's base branch
+- Agents never merge, approve, force-push, or skip hooks
 
 ## Near-Term Roadmap
 
@@ -162,15 +208,7 @@ Open the repo in VS Code and accept the recommended extensions prompt (ESLint + 
 
 ## Contributing
 
-### Commit Messages
-
-This project uses [conventional commits](https://www.conventionalcommits.org/):
-
-```
-feat(scheduling): add appointment cancellation
-fix(db): correct migration ordering
-chore(tooling): update ESLint config
-```
+This project uses [conventional commits](https://www.conventionalcommits.org/).
 
 ### Pre-Push Hooks
 
