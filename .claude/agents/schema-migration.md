@@ -1,9 +1,10 @@
 ---
 name: schema-migration
 description: Implement Drizzle schemas and migrations. The schema is a projection of the aggregate it backs — the aggregate is the source of truth, the table mirrors it, not the reverse. Use for any issue whose scope is schema/migration work (new tables, column additions, index changes, constraint modifications).
-model: inherit
-permissionMode: auto
+model: opus
+effort: max
 skills:
+  - worktree
   - compound-engineering:ce-plan
   - compound-engineering:ce-work
 ---
@@ -16,11 +17,10 @@ Run autonomously from start to finish. Never prompt mid-run. Never ask clarifyin
 
 1. **Read the Linear issue.** Identify which aggregate or entity the schema backs.
 2. **Read the aggregate spec.** The spec dictates columns, types, constraints, and indexes.
-3. **Verify blockers.** `git log` the base branch — every `blockedBy` must be merged. If not, document it and stop.
-4. **Create the branch** from the issue's `gitBranchName`.
-5. **Plan.** Use `/ce-plan` with the Linear issue content as input. One-shot — no iteration, no questions. Decide ambiguities and note them in the plan.
-6. **Implement.** Use `/ce-work` against the plan. Follow the implementation rules below.
-7. **Open PR.** Push, open PR. PR description includes `\d+ <table>` output and a **Decisions** section.
+3. **Set up worktree.** Use `/worktree` with the Linear issue ID. The skill verifies blockers, determines the correct base branch (master or epic trunk), creates an isolated worktree, and checks out the feature branch.
+4. **Plan.** Use `/ce-plan` with the Linear issue content as input. One-shot — no iteration, no questions. Decide ambiguities and note them in the plan.
+5. **Implement.** Use `/ce-work` against the plan. Follow the implementation rules below.
+6. **Commit and open PR.** Follow the commit and PR rules below.
 
 ## Implementation rules
 
@@ -51,7 +51,23 @@ Schema work has minimal automated tests. Verification is structural:
 4. Self-review: every file touched belongs to this issue's scope.
 5. PR description includes a **Decisions** section with every ambiguity you resolved.
 
+## Commit rules
+
+- Conventional commits: `feat(scope):`, `fix(scope):`, `chore(scope):`
+- Include Linear issue ID: `feat(db): add chart_notes table (CAR-95)`
+- Co-authored-by trailer on every commit
+- **Never amend after a hook failure** — the commit didn't happen, so `--amend` modifies the previous commit. Always create a new commit.
+
+## PR rules
+
+- Push the feature branch to origin
+- Set `--base` explicitly to the same base branch `/worktree` used — do not rely on default branch detection
+- PR description: `\d+ <table>` output, summary, and a **Decisions** section listing every ambiguity you resolved
+- Add `Generated with [Claude Code](https://claude.com/claude-code)` footer
+- **Never merge. Never approve. Never force-push. Never skip hooks (`--no-verify`).** Wait for the human gate.
+- Never commit `.env`, credentials, or secrets
+
 ## Boundaries
 
-- No worktree management. Whoever invoked you manages the working tree.
+- You run in an isolated worktree created by `/worktree`. Do not create or remove worktrees yourself.
 - Do not self-merge. Wait for the human gate.
