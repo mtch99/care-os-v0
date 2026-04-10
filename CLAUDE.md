@@ -106,12 +106,12 @@ Manual curl test scripts live in `scripts/test-<branch>/`. They are committed wi
 for f in scripts/test-<branch>/*.sh; do bash "$f"; done
 ```
 
-When generating new scripts, `chmod +x` before committing. Git tracks the executable bit via `core.fileMode`.
+When generating new scripts, `chmod +x` before committing.
 
 ### Related Commands & Agents
 
 - **`/generate-test-scripts`** — reads the current branch's route, schema, and seed changes, then generates a numbered set of curl scripts under `scripts/test-<branch>/` with a README
-- **`integration-verifier` agent** — reads a phase spec or Linear issue, plans verification, then writes scripts + `CHECKLIST.md` covering happy paths, concurrency, idempotency, immutability guards, and more. It writes scripts only — the human runs them
+- **`integration-verifier` agent** — reads a phase spec or Linear issue, plans verification, then writes scripts + `CHECKLIST.md` covering happy paths, concurrency, idempotency, immutability guards, and more. Commits scripts and opens a PR — the human runs them
 
 ## Near-Term Intent (Do Not Contradict)
 
