@@ -1,5 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { templateContentSchemaV2 } from '@careos/api-contract'
 import type { TemplateContentV2 } from '@careos/api-contract'
+import { z } from 'zod'
 
 import type { AIChartingPort } from '../../domain/ports/ai-charting.port'
 import type { ChartNoteDraft } from '../../domain/types/chart-note-draft'
@@ -9,103 +11,13 @@ const TEMPLATE_MAX_TOKENS = 8192
 const CHART_NOTE_MAX_TOKENS = 4096
 
 /**
- * JSON Schema for TemplateContentV2 — used as tool input_schema to force
- * structured JSON output via tool_choice: { type: 'tool', name: '...' }.
+ * JSON Schema for TemplateContentV2 — derived from the Zod source of truth.
+ * Used as tool input_schema to force structured JSON output via
+ * tool_choice: { type: 'tool', name: '...' }.
  */
-const templateContentJsonSchema: Anthropic.Tool.InputSchema = {
-  type: 'object',
-  properties: {
-    schemaVersion: { type: 'string', enum: ['0.2'] },
-    locale: {
-      type: 'array',
-      items: { type: 'string' },
-      minItems: 1,
-    },
-    pages: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          key: { type: 'string' },
-          label: {
-            type: 'object',
-            properties: { fr: { type: 'string' }, en: { type: 'string' } },
-            required: ['fr', 'en'],
-          },
-          sections: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                key: { type: 'string' },
-                label: {
-                  type: 'object',
-                  properties: { fr: { type: 'string' }, en: { type: 'string' } },
-                  required: ['fr', 'en'],
-                },
-                rows: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      columns: {
-                        type: 'array',
-                        items: {
-                          type: 'object',
-                          properties: {
-                            key: { type: 'string' },
-                            label: {
-                              type: 'object',
-                              properties: {
-                                fr: { type: 'string' },
-                                en: { type: 'string' },
-                              },
-                              required: ['fr', 'en'],
-                            },
-                            type: {
-                              type: 'string',
-                              enum: [
-                                'narrative',
-                                'text',
-                                'select',
-                                'radio',
-                                'date',
-                                'scale',
-                                'checkboxGroup',
-                                'checkboxWithText',
-                                'repeaterTable',
-                                'table',
-                                'legend',
-                                'bodyDiagram',
-                                'romDiagram',
-                                'signature',
-                              ],
-                            },
-                            required: { type: 'boolean' },
-                            config: { type: 'object' },
-                          },
-                          required: ['key', 'label', 'type', 'required', 'config'],
-                        },
-                        minItems: 1,
-                      },
-                    },
-                    required: ['columns'],
-                  },
-                  minItems: 1,
-                },
-              },
-              required: ['key', 'label', 'rows'],
-            },
-            minItems: 1,
-          },
-        },
-        required: ['key', 'label', 'sections'],
-      },
-      minItems: 1,
-    },
-  },
-  required: ['schemaVersion', 'locale', 'pages'],
-}
+const templateContentJsonSchema = z.toJSONSchema(
+  templateContentSchemaV2,
+) as Anthropic.Tool.InputSchema
 
 const chartNoteDraftJsonSchema: Anthropic.Tool.InputSchema = {
   type: 'object',
