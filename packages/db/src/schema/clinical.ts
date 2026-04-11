@@ -5,6 +5,7 @@ import {
   pgEnum,
   uuid,
   varchar,
+  text,
   integer,
   boolean,
   timestamp,
@@ -33,7 +34,11 @@ export const sessions = pgTable('sessions', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
-export const chartNoteStatusEnum = pgEnum('chart_note_status', ['draft', 'signed'])
+export const chartNoteStatusEnum = pgEnum('chart_note_status', [
+  'draft',
+  'readyForSignature',
+  'signed',
+])
 
 export const chartNoteTemplates = pgTable(
   'chart_note_templates',
@@ -70,25 +75,57 @@ export const chartNoteTemplates = pgTable(
   ],
 )
 
-export const chartNotes = pgTable('chart_notes', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  sessionId: uuid('session_id')
-    .notNull()
-    .references(() => sessions.id),
-  appointmentId: uuid('appointment_id')
-    .notNull()
-    .references(() => appointments.id),
-  practitionerId: uuid('practitioner_id')
-    .notNull()
-    .references(() => practitioners.id),
-  templateId: uuid('template_id').references(() => chartNoteTemplates.id),
-  status: chartNoteStatusEnum('status').notNull().default('draft'),
-  content: jsonb('content'),
-  signedAt: timestamp('signed_at'),
-  signedBy: uuid('signed_by').references(() => practitioners.id),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+export const chartNotes = pgTable(
+  'chart_notes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    sessionId: uuid('session_id')
+      .notNull()
+      .references(() => sessions.id)
+      .unique(),
+    templateVersionId: uuid('template_version_id')
+      .notNull()
+      .references(() => chartNoteTemplates.id),
+    status: chartNoteStatusEnum('status').notNull().default('draft'),
+    fieldValues: jsonb('field_values'),
+    prePopulatedFromIntakeId: uuid('pre_populated_from_intake_id'),
+    signedAt: timestamp('signed_at'),
+    signedBy: uuid('signed_by').references(() => practitioners.id),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('chart_notes_template_version_idx').on(table.templateVersionId),
+    index('chart_notes_status_idx').on(table.status),
+  ],
+)
+
+export const aiChartNoteDraftStatusEnum = pgEnum('ai_chart_note_draft_status', [
+  'pending',
+  'accepted',
+  'rejected',
+])
+
+export const aiChartNoteDrafts = pgTable(
+  'ai_chart_note_drafts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    chartNoteId: uuid('chart_note_id')
+      .notNull()
+      .references(() => chartNotes.id),
+    rawNotes: text('raw_notes').notNull(),
+    fieldValues: jsonb('field_values'),
+    status: aiChartNoteDraftStatusEnum('status').notNull().default('pending'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('ai_chart_note_drafts_chart_note_idx').on(table.chartNoteId),
+    uniqueIndex('ai_chart_note_drafts_pending_idx')
+      .on(table.chartNoteId)
+      .where(sql`${table.status} = 'pending'`),
+  ],
+)
 
 export type Session = typeof sessions.$inferSelect
 export type NewSession = typeof sessions.$inferInsert
@@ -96,3 +133,5 @@ export type ChartNote = typeof chartNotes.$inferSelect
 export type NewChartNote = typeof chartNotes.$inferInsert
 export type ChartNoteTemplate = typeof chartNoteTemplates.$inferSelect
 export type NewChartNoteTemplate = typeof chartNoteTemplates.$inferInsert
+export type AiChartNoteDraft = typeof aiChartNoteDrafts.$inferSelect
+export type NewAiChartNoteDraft = typeof aiChartNoteDrafts.$inferInsert
