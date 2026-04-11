@@ -108,6 +108,8 @@ export class AnthropicChartingAdapter implements AIChartingPort {
       tool_choice: { type: 'tool', name: TEMPLATE_TOOL_NAME },
     })
 
+    // Safety: tool_choice forces structured output matching the schema, but the
+    // cast is unvalidated. Callers must run the result through TemplateSchema.parse().
     return extractToolInput(response, TEMPLATE_TOOL_NAME) as TemplateContentV2
   }
 
@@ -142,6 +144,8 @@ export class AnthropicChartingAdapter implements AIChartingPort {
       tool_choice: { type: 'tool', name: CHART_NOTE_TOOL_NAME },
     })
 
+    // Safety: unvalidated cast — callers must verify field keys exist in the
+    // template and that value types match the corresponding FieldType.
     return extractToolInput(response, CHART_NOTE_TOOL_NAME) as ChartNoteDraft
   }
 }
