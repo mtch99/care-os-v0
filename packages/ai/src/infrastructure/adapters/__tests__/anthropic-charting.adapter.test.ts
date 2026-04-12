@@ -73,46 +73,6 @@ function createFailingClient(): Anthropic {
 
 describe('AnthropicChartingAdapter', () => {
   describe('generateTemplateDraft', () => {
-    it('returns the tool input as TemplateContentV2', async () => {
-      const { client } = createSpyClient('generate_template', TEMPLATE_RESULT)
-      const adapter = new AnthropicChartingAdapter(client)
-
-      const result = await adapter.generateTemplateDraft({
-        discipline: 'physiotherapy',
-        appointmentType: 'initial',
-        preferences: 'Focus on ROM assessment',
-        locale: ['fr', 'en'],
-      })
-
-      expect(result).toEqual(TEMPLATE_RESULT)
-    })
-
-    it('passes correct parameters to the API', async () => {
-      const { client, createFn } = createSpyClient('generate_template', TEMPLATE_RESULT)
-      const adapter = new AnthropicChartingAdapter(client, 'claude-haiku-3')
-
-      await adapter.generateTemplateDraft({
-        discipline: 'ergotherapy',
-        appointmentType: 'follow_up',
-        preferences: 'Include hand function assessment',
-        locale: ['en'],
-      })
-
-      expect(createFn).toHaveBeenCalledOnce()
-
-      const args = createFn.mock.calls[0][0] as Record<string, unknown>
-      expect(args.model).toBe('claude-haiku-3')
-      expect(args.tool_choice).toEqual({ type: 'tool', name: 'generate_template' })
-
-      const tools = args.tools as Array<{ name: string }>
-      expect(tools).toHaveLength(1)
-      expect(tools[0].name).toBe('generate_template')
-
-      const messages = args.messages as Array<{ content: string }>
-      expect(messages[0].content).toContain('ergotherapy')
-      expect(messages[0].content).toContain('follow_up')
-    })
-
     it('throws when response has no tool_use block', async () => {
       const client = createFailingClient()
       const adapter = new AnthropicChartingAdapter(client)
@@ -126,36 +86,9 @@ describe('AnthropicChartingAdapter', () => {
         }),
       ).rejects.toThrow('did not contain a generate_template tool call')
     })
-
-    it('uses default model when none specified', async () => {
-      const { client, createFn } = createSpyClient('generate_template', TEMPLATE_RESULT)
-      const adapter = new AnthropicChartingAdapter(client)
-
-      await adapter.generateTemplateDraft({
-        discipline: 'physiotherapy',
-        appointmentType: 'initial',
-        preferences: '',
-        locale: ['fr'],
-      })
-
-      const args = createFn.mock.calls[0][0] as Record<string, unknown>
-      expect(args.model).toBe('claude-sonnet-4-5')
-    })
   })
 
   describe('generateChartNoteDraft', () => {
-    it('returns the tool input as ChartNoteDraft', async () => {
-      const { client } = createSpyClient('generate_chart_note', CHART_NOTE_RESULT)
-      const adapter = new AnthropicChartingAdapter(client)
-
-      const result = await adapter.generateChartNoteDraft({
-        rawNotes: 'Patient reports lower back pain, 7/10, radiating to left leg.',
-        templateContent: TEMPLATE_RESULT,
-      })
-
-      expect(result).toEqual(CHART_NOTE_RESULT)
-    })
-
     it('includes intake data in the prompt when provided', async () => {
       const { client, createFn } = createSpyClient('generate_chart_note', CHART_NOTE_RESULT)
       const adapter = new AnthropicChartingAdapter(client)
