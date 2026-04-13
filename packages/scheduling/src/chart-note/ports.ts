@@ -41,6 +41,7 @@ export interface TemplateListItem {
 export interface ChartNoteRepository {
   findBySessionId(sessionId: string): Promise<ChartNoteRow | null>
   insert(data: {
+    id: string
     sessionId: string
     templateVersionId: string
     status: 'draft'
@@ -51,18 +52,14 @@ export interface ChartNoteRepository {
 }
 
 export interface TemplateRepository {
-  findDefault(
-    discipline: string,
-    appointmentType: string,
-  ): Promise<TemplateRow | null>
-  listByDisciplineAndType(
-    discipline: string,
-    appointmentType: string,
-  ): Promise<TemplateListItem[]>
+  findDefault(discipline: string, appointmentType: string): Promise<TemplateRow | null>
+  listByDisciplineAndType(discipline: string, appointmentType: string): Promise<TemplateListItem[]>
 }
 
 export interface IntakeLookupPort {
-  findSignedIntakeForSession(sessionId: string): Promise<{ intakeId: string; fieldIds: string[] } | null>
+  findSignedIntakeForSession(
+    sessionId: string,
+  ): Promise<{ intakeId: string; fieldIds: string[] } | null>
 }
 
 export interface SessionLookupPort {

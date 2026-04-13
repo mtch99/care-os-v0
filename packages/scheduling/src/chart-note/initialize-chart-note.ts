@@ -124,6 +124,7 @@ export async function initializeChartNote(
   // 8. Persist — handle unique-violation race condition
   try {
     const inserted = await chartNoteRepo.insert({
+      id: chartNote.id,
       sessionId: chartNote.sessionId,
       templateVersionId: chartNote.templateVersionId,
       status: 'draft',

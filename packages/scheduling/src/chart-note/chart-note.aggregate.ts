@@ -99,7 +99,7 @@ export class ChartNote {
       row.sessionId,
       row.templateVersionId,
       row.status,
-      (row.fieldValues as Record<string, null>) ?? {},
+      row.fieldValues ?? {},
       row.prePopulatedFromIntakeId,
       row.createdAt,
       row.updatedAt,

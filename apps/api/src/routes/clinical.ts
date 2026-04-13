@@ -13,8 +13,6 @@ import {
   CannotArchiveDefaultTemplateError,
   TemplateArchivedError,
   DefaultAlreadyExistsError,
-  NoDefaultTemplateError,
-  DomainError,
 } from '@careos/api-contract'
 import { TemplateSchema } from '@careos/clinical'
 import { initializeChartNote } from '@careos/scheduling'
@@ -279,7 +277,7 @@ function toChartNoteRow(row: {
 }) {
   return {
     ...row,
-    fieldValues: (row.fieldValues as Record<string, null>) ?? null,
+    fieldValues: row.fieldValues ? (row.fieldValues as Record<string, null>) : null,
   }
 }
 
@@ -294,6 +292,7 @@ const chartNoteRepo: ChartNoteRepository = {
     const [row] = await db
       .insert(chartNotes)
       .values({
+        id: data.id,
         sessionId: data.sessionId,
         templateVersionId: data.templateVersionId,
         status: data.status,

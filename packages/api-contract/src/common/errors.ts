@@ -113,11 +113,7 @@ export class NoDefaultTemplateError extends DomainError {
       appointmentType: string
     }>,
   ) {
-    super(
-      'NO_DEFAULT_TEMPLATE',
-      `No default template for ${discipline} / ${appointmentType}`,
-      409,
-    )
+    super('NO_DEFAULT_TEMPLATE', `No default template for ${discipline} / ${appointmentType}`, 409)
   }
 }
 
@@ -133,10 +129,6 @@ export class TemplateVersionUnresolvableError extends DomainError {
 
 export class ChartNoteAlreadyExistsError extends DomainError {
   constructor(sessionId: string) {
-    super(
-      'CHART_NOTE_ALREADY_EXISTS',
-      `A chart note already exists for session ${sessionId}`,
-      409,
-    )
+    super('CHART_NOTE_ALREADY_EXISTS', `A chart note already exists for session ${sessionId}`, 409)
   }
 }

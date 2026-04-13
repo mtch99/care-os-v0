@@ -4,17 +4,15 @@
  * Traverses pages -> sections -> rows -> columns and collects each column's key.
  * The template content shape is defined in @careos/api-contract.
  */
-export function extractFieldKeys(
-  content: {
-    pages: Array<{
-      sections: Array<{
-        rows: Array<{
-          columns: Array<{ key: string }>
-        }>
+export function extractFieldKeys(content: {
+  pages: Array<{
+    sections: Array<{
+      rows: Array<{
+        columns: Array<{ key: string }>
       }>
     }>
-  },
-): string[] {
+  }>
+}): string[] {
   const keys: string[] = []
   for (const page of content.pages) {
     for (const section of page.sections) {
