@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/require-await,  */
 /**
  * In-memory fake ports for testing the ChartNote aggregate and initialize command.
  * Deterministic and reusable across tests. No real DB, no real HTTP.
@@ -106,6 +106,7 @@ export class FakeIntakeLookup implements IntakeLookupPort {
   private result: { intakeId: string; fieldIds: string[] } | null = null
 
   async findSignedIntakeForSession(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _sessionId: string,
   ): Promise<{ intakeId: string; fieldIds: string[] } | null> {
     return this.result
