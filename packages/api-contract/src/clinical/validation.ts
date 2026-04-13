@@ -33,3 +33,9 @@ export const defaultTemplateQuerySchema = z.object({
   discipline: disciplineEnum,
   appointmentType: appointmentTypeEnum,
 })
+
+export const initializeChartNoteSchema = z.object({
+  sessionId: z.uuid(),
+  discipline: disciplineEnum,
+  appointmentType: appointmentTypeEnum,
+})

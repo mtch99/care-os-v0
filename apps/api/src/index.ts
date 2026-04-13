@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { ZodError } from 'zod'
-import { DomainError } from '@careos/api-contract'
+import { DomainError, NoDefaultTemplateError } from '@careos/api-contract'
 import { schedulingRoutes } from './routes/scheduling'
 import { clinicalRoutes } from './routes/clinical'
 import { env } from './env'
@@ -12,6 +12,18 @@ import { inngest } from '@careos/inngest/client'
 const app = new Hono()
 
 app.onError((err, c) => {
+  if (err instanceof NoDefaultTemplateError) {
+    return c.json(
+      {
+        error: {
+          code: err.code,
+          message: err.message,
+          availableTemplates: err.availableTemplates,
+        },
+      },
+      err.httpStatus as ContentfulStatusCode,
+    )
+  }
   if (err instanceof DomainError) {
     return c.json(
       { error: { code: err.code, message: err.message } },
