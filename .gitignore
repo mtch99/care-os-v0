@@ -41,4 +41,7 @@ coverage/
 
 # Plans
 docs/plans/*
-docs/brainstorms/*
+docs/brainstorms/
+
+# pnpm store
+.pnpm-store/
