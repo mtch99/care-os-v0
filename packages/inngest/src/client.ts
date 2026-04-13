@@ -15,6 +15,35 @@ export const userSignup = eventType('user/signup', {
   }),
 })
 
+// --- AI Chart Note Draft events (CAR-98) ---
+
+export const rawNotesSubmitted = eventType('charting/rawNotes.submitted', {
+  schema: z.object({
+    chartNoteId: z.string(),
+  }),
+})
+
+export const aiChartDraftGenerated = eventType('charting/aiChartDraft.generated', {
+  schema: z.object({
+    draftId: z.string(),
+    chartNoteId: z.string(),
+  }),
+})
+
+export const aiChartDraftAccepted = eventType('charting/aiChartDraft.accepted', {
+  schema: z.object({
+    draftId: z.string(),
+    chartNoteId: z.string(),
+  }),
+})
+
+export const aiChartDraftRejected = eventType('charting/aiChartDraft.rejected', {
+  schema: z.object({
+    draftId: z.string(),
+    chartNoteId: z.string(),
+  }),
+})
+
 export const inngest = new Inngest({
   id: 'my-app',
 })

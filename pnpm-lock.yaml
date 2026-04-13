@@ -62,6 +62,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@careos/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@careos/api-contract':
         specifier: workspace:*
         version: link:../../packages/api-contract
@@ -215,6 +218,9 @@ importers:
 
   packages/scheduling:
     dependencies:
+      '@careos/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@careos/api-contract':
         specifier: workspace:*
         version: link:../api-contract
