@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { db } from '@careos/db'
 import { generateAiDraftSchema } from '@careos/api-contract'
-import { generateAiDraft, acceptAiDraft, rejectAiDraft } from '@careos/scheduling'
+import { generateAiDraft, acceptAiDraft, rejectAiDraft } from '@careos/charting'
 import { createAnthropicChartingAdapter } from '@careos/ai'
 import {
   inngest,

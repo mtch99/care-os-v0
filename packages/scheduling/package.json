@@ -22,7 +22,6 @@
   "license": "ISC",
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
-    "@careos/ai": "workspace:*",
     "@careos/api-contract": "workspace:*",
     "@careos/db": "workspace:*",
     "drizzle-orm": "^0.45.1"
