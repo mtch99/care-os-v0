@@ -8,9 +8,6 @@ import { inngest, sessionStarted } from '@careos/inngest/client'
 
 export const schedulingRoutes = new Hono()
 
-// Hardcoded auth for v0.1
-const HARDCODED_PRACTITIONER_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
-
 schedulingRoutes.post('/sessions', async (c) => {
   try {
     // 1. Validate
@@ -19,7 +16,7 @@ schedulingRoutes.post('/sessions', async (c) => {
     // 2. Execute
     const result = await startSession(db, {
       appointmentId: body.appointmentId,
-      practitionerId: HARDCODED_PRACTITIONER_ID,
+      practitionerId: body.practitionerId,
     })
 
     const sessionStartedEvent = sessionStarted.create({
