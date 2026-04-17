@@ -52,7 +52,7 @@ export interface InitializeChartNotePorts {
  * Command handler shape: load aggregate -> call aggregate method -> persist -> emit events.
  *
  * Idempotent: if a chart note already exists for the session, return it with created: false.
- * On unique-violation race (concurrent double-tap): re-SELECT and return existing with created: false.
+ * On concurrent double-tap: adapter handles conflict idempotently via ON CONFLICT DO NOTHING.
  */
 export async function initializeChartNote(
   input: InitializeChartNoteInput,
@@ -121,39 +121,32 @@ export async function initializeChartNote(
     prePopulatedFieldIds: intakeResult?.fieldIds ?? [],
   })
 
-  // 8. Persist — handle unique-violation race condition
-  try {
-    const inserted = await chartNoteRepo.insert({
-      id: chartNote.id,
-      sessionId: chartNote.sessionId,
-      templateVersionId: chartNote.templateVersionId,
-      status: 'draft',
-      fieldValues: chartNote.fieldValues,
-      prePopulatedFromIntakeId: chartNote.prePopulatedFromIntakeId,
-      version: chartNote.version,
-    })
+  // 8. Persist — adapter handles conflict idempotently via ON CONFLICT DO NOTHING
+  const { row: inserted, created } = await chartNoteRepo.insert({
+    id: chartNote.id,
+    sessionId: chartNote.sessionId,
+    templateVersionId: chartNote.templateVersionId,
+    status: 'draft',
+    fieldValues: chartNote.fieldValues,
+    prePopulatedFromIntakeId: chartNote.prePopulatedFromIntakeId,
+    version: chartNote.version,
+  })
 
-    // 9. Emit events after successful mutation
-    for (const event of chartNote.getUncommittedEvents()) {
-      eventPublisher.publish(event)
-    }
-
+  if (!created) {
     return {
       chartNote: toResult(ChartNote.fromRow(inserted)),
-      created: true,
+      created: false,
     }
-  } catch (error: unknown) {
-    // 10. On unique-violation race (concurrent double-tap): re-SELECT
-    if (isUniqueViolation(error)) {
-      const raceWinner = await chartNoteRepo.findBySessionId(input.sessionId)
-      if (raceWinner) {
-        return {
-          chartNote: toResult(ChartNote.fromRow(raceWinner)),
-          created: false,
-        }
-      }
-    }
-    throw error
+  }
+
+  // 9. Emit events only after successful creation
+  for (const event of chartNote.getUncommittedEvents()) {
+    eventPublisher.publish(event)
+  }
+
+  return {
+    chartNote: toResult(ChartNote.fromRow(inserted)),
+    created: true,
   }
 }
 
@@ -169,14 +162,4 @@ function toResult(note: ChartNote): InitializeChartNoteResult['chartNote'] {
     updatedAt: note.updatedAt.toISOString(),
     version: note.version,
   }
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  // PostgreSQL unique_violation error code: 23505
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as { code: string }).code === '23505'
-  )
 }

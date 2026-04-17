@@ -48,7 +48,7 @@ export interface ChartNoteRepository {
     fieldValues: Record<string, null>
     prePopulatedFromIntakeId: string | null
     version: number
-  }): Promise<ChartNoteRow>
+  }): Promise<{ row: ChartNoteRow; created: boolean }>
 }
 
 export interface TemplateRepository {

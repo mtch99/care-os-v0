@@ -18,7 +18,6 @@ import type {
 
 export class FakeChartNoteRepository implements ChartNoteRepository {
   private store: ChartNoteRow[] = []
-  private shouldThrowUniqueViolation = false
 
   async findBySessionId(sessionId: string): Promise<ChartNoteRow | null> {
     return this.store.find((r) => r.sessionId === sessionId) ?? null
@@ -32,12 +31,12 @@ export class FakeChartNoteRepository implements ChartNoteRepository {
     fieldValues: Record<string, null>
     prePopulatedFromIntakeId: string | null
     version: number
-  }): Promise<ChartNoteRow> {
-    if (this.shouldThrowUniqueViolation) {
-      const err = new Error('unique_violation') as Error & { code: string }
-      err.code = '23505'
-      throw err
+  }): Promise<{ row: ChartNoteRow; created: boolean }> {
+    const existing = this.store.find((r) => r.sessionId === data.sessionId)
+    if (existing) {
+      return { row: existing, created: false }
     }
+
     const row: ChartNoteRow = {
       id: data.id,
       sessionId: data.sessionId,
@@ -52,19 +51,11 @@ export class FakeChartNoteRepository implements ChartNoteRepository {
       version: data.version,
     }
     this.store.push(row)
-    return row
+    return { row, created: true }
   }
 
   seed(row: ChartNoteRow): void {
     this.store.push(row)
-  }
-
-  simulateUniqueViolationOnNextInsert(): void {
-    this.shouldThrowUniqueViolation = true
-  }
-
-  resetUniqueViolation(): void {
-    this.shouldThrowUniqueViolation = false
   }
 
   getAll(): readonly ChartNoteRow[] {
