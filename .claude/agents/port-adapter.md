@@ -32,6 +32,7 @@ Run autonomously from start to finish. Never prompt mid-run. Never ask clarifyin
 - **Error translation in the adapter.** External failures are caught and wrapped in typed domain errors. The domain sees `AIGenerationFailedError`, not `AxiosError`.
 - **Config via environment variables.** API keys, endpoints, timeouts — parsed with Zod schemas in the adapter's `env.ts`. Never hardcoded.
 - **Retry logic lives in the adapter, not the domain.** The domain calls the port once; the adapter decides whether and how to retry.
+- **Result types for expected outcomes.** Idempotent insert operations return `{ row, created: boolean }` instead of throwing on conflict. The adapter uses `ON CONFLICT DO NOTHING` + fallback SELECT. Error translation applies to unexpected errors; expected outcomes (duplicate = conflict) are result types, not exceptions. See `docs/solutions/integration-issues/drizzle-error-wrapping-domain-isolation.md`.
 - **Keep the diff tight.** Port interface + adapter implementation + composition root wiring + tests. Nothing else.
 
 ## Testing rules
@@ -40,6 +41,7 @@ Write tests before marking the PR ready.
 
 - **Port contract tests.** Define a shared test suite that any adapter (real or fake) must pass. This ensures the fake stays in sync with the real adapter's behavior.
 - **Fake adapter.** In-memory, deterministic, reusable. The fake is a first-class deliverable — domain command tests depend on it.
+- **Smart fakes enforce invariants naturally.** Fakes check their store for duplicates and return `{ created: false }` — no error simulation. A fake that does `this.store.find(r => r.sessionId === data.sessionId)` can't diverge on error shapes because there are no errors. Never use `simulateXOnNextCall()` flags. See `docs/solutions/integration-issues/drizzle-error-wrapping-domain-isolation.md` for red flags.
 - **Adapter unit tests.** Test the real adapter's response parsing, error translation, and retry logic using stubbed external responses (not real network calls).
 - **No real external calls in CI.** Real LLM calls, real HTTP calls — those are for manual test scripts.
 - **Test naming:** `Given <external response>, when <port method>, then <domain result>` — one behavior per test.

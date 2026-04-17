@@ -2,7 +2,12 @@ import { db } from './index'
 import { clinics, patients, practitioners } from './schema/shared'
 import { appointments } from './schema/scheduling'
 import { chartNoteTemplates } from './schema/clinical'
-import { physioInitialEval, physioFollowUpSoap, ergoInitialEval, ergoFollowUpSoap } from './fixtures'
+import {
+  physioInitialEval,
+  physioFollowUpSoap,
+  ergoInitialEval,
+  ergoFollowUpSoap,
+} from './fixtures'
 
 const CLINIC_ID = 'a5514ace-7a45-4315-8809-e2aa2277aefc'
 const PHYSIO_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'

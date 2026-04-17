@@ -291,5 +291,4 @@ describe('initializeChartNote', () => {
       expect(events[1].type).toBe('chartNote.prePopulated')
     })
   })
-
 })

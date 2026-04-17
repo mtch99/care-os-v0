@@ -118,7 +118,10 @@ export const ergoInitialEval: TemplateContentV2 = {
               columns: [
                 {
                   key: 'leisure_activities',
-                  label: { fr: 'Loisirs et activités significatives', en: 'Leisure & Meaningful Activities' },
+                  label: {
+                    fr: 'Loisirs et activités significatives',
+                    en: 'Leisure & Meaningful Activities',
+                  },
                   type: 'narrative',
                   required: false,
                   config: {},
@@ -143,7 +146,10 @@ export const ergoInitialEval: TemplateContentV2 = {
                       { key: 'diabetes', label: { fr: 'Diabète', en: 'Diabetes' } },
                       { key: 'hypertension', label: { fr: 'Hypertension', en: 'Hypertension' } },
                       { key: 'cardiac', label: { fr: 'Maladie cardiaque', en: 'Cardiac Disease' } },
-                      { key: 'neurological', label: { fr: 'Condition neurologique', en: 'Neurological Condition' } },
+                      {
+                        key: 'neurological',
+                        label: { fr: 'Condition neurologique', en: 'Neurological Condition' },
+                      },
                       { key: 'mental_health', label: { fr: 'Santé mentale', en: 'Mental Health' } },
                       { key: 'arthritis', label: { fr: 'Arthrite', en: 'Arthritis' } },
                     ],
@@ -182,7 +188,10 @@ export const ergoInitialEval: TemplateContentV2 = {
       sections: [
         {
           key: 'adl',
-          label: { fr: 'Activités de la vie quotidienne (AVQ)', en: 'Activities of Daily Living (ADL)' },
+          label: {
+            fr: 'Activités de la vie quotidienne (AVQ)',
+            en: 'Activities of Daily Living (ADL)',
+          },
           rows: [
             {
               columns: [
@@ -220,11 +229,20 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: false,
                   config: {
                     items: [
-                      { key: 'meal_prep', label: { fr: 'Préparation des repas', en: 'Meal Preparation' } },
-                      { key: 'housekeeping', label: { fr: 'Entretien ménager', en: 'Housekeeping' } },
+                      {
+                        key: 'meal_prep',
+                        label: { fr: 'Préparation des repas', en: 'Meal Preparation' },
+                      },
+                      {
+                        key: 'housekeeping',
+                        label: { fr: 'Entretien ménager', en: 'Housekeeping' },
+                      },
                       { key: 'laundry', label: { fr: 'Lessive', en: 'Laundry' } },
                       { key: 'shopping', label: { fr: 'Courses', en: 'Shopping' } },
-                      { key: 'finances', label: { fr: 'Gestion financière', en: 'Financial Management' } },
+                      {
+                        key: 'finances',
+                        label: { fr: 'Gestion financière', en: 'Financial Management' },
+                      },
                       { key: 'driving', label: { fr: 'Conduite automobile', en: 'Driving' } },
                     ],
                     columns: 2,
@@ -287,7 +305,7 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: false,
                   config: {
                     placeholder: {
-                      fr: 'Nine-Hole Peg Test, manipulation d\'objets',
+                      fr: "Nine-Hole Peg Test, manipulation d'objets",
                       en: 'Nine-Hole Peg Test, object manipulation',
                     },
                   },
