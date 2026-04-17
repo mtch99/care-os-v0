@@ -12,6 +12,7 @@ BASE_URL="${BASE_URL:-http://localhost:3000}"
 # Seed IDs
 ERGO_FOLLOW_UP_TEMPLATE_ID="f720c816-4907-4ee8-8d3f-ee0b04a1ae63"  # SOAP Note — Ergotherapy (default)
 APPT_2_ID="37d6720e-6b0b-4930-88e6-b4f545142558"  # Bob, ergotherapy, follow_up
+ERGO_ID="01beaf78-bfde-4e6e-97bb-4a25f7ccc59c"    # Dr. Ergo
 
 echo "==> Step 1: Remove default from ergotherapy/follow_up template"
 resp=$(curl -s -w '\n%{http_code}' \
@@ -26,7 +27,7 @@ echo "==> Step 2: Start session for Bob's ergotherapy/follow_up appointment"
 resp=$(curl -s -w '\n%{http_code}' \
   -X POST \
   -H 'Content-Type: application/json' \
-  -d "{\"appointmentId\": \"$APPT_2_ID\"}" \
+  -d "{\"appointmentId\": \"$APPT_2_ID\", \"practitionerId\": \"$ERGO_ID\"}" \
   "$BASE_URL/api/scheduling/sessions")
 code=${resp##*$'\n'}
 body=${resp%$'\n'*}

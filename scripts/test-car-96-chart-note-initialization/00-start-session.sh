@@ -6,12 +6,13 @@ set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost:3000}"
 APPT_ID="${1:-988930cb-8255-4883-9899-cc2b0c5e44c4}"
+PRACTITIONER_ID="${2:-0323c4a0-28e8-48cd-aed0-d57bf170a948}"
 
-echo "==> POST /api/scheduling/sessions (appointmentId: $APPT_ID)"
+echo "==> POST /api/scheduling/sessions (appointmentId: $APPT_ID, practitionerId: $PRACTITIONER_ID)"
 resp=$(curl -s -w '\n%{http_code}' \
   -X POST \
   -H 'Content-Type: application/json' \
-  -d "{\"appointmentId\": \"$APPT_ID\"}" \
+  -d "{\"appointmentId\": \"$APPT_ID\", \"practitionerId\": \"$PRACTITIONER_ID\"}" \
   "$BASE_URL/api/scheduling/sessions")
 code=${resp##*$'\n'}
 body=${resp%$'\n'*}
