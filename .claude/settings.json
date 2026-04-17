@@ -46,5 +46,8 @@
       "Bash(bash scripts/**)"
     ],
     "additionalDirectories": []
+  },
+  "enabledPlugins": {
+    "compound-engineering@compound-engineering-plugin": true
   }
 }
