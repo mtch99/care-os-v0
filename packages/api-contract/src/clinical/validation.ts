@@ -47,3 +47,7 @@ export const generateAiDraftSchema = z.object({
 export const markReadyForSignatureSchema = z.object({
   version: z.number().int().positive(),
 })
+
+export const reopenChartNoteSchema = z.object({
+  version: z.number().int().positive(),
+})

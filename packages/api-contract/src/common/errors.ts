@@ -164,6 +164,16 @@ export class DraftAlreadyResolvedError extends DomainError {
   }
 }
 
+export class ChartNoteAlreadySignedError extends DomainError {
+  constructor(chartNoteId: string) {
+    super(
+      'CHART_NOTE_ALREADY_SIGNED',
+      `Chart note ${chartNoteId} is signed and cannot be reopened`,
+      409,
+    )
+  }
+}
+
 export class VersionConflictError extends DomainError {
   constructor(entityId: string, expected: number, actual: number) {
     super(

@@ -54,6 +54,14 @@ export const chartNoteReadyForSignature = eventType('charting/chartNote.readyFor
   }),
 })
 
+export const chartNoteReopened = eventType('charting/chartNote.reopened', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    reopenedBy: z.string(),
+    reopenedAt: z.string(),
+  }),
+})
+
 export const inngest = new Inngest({
   id: 'my-app',
 })
