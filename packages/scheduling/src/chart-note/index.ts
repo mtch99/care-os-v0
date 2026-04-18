@@ -20,4 +20,3 @@ export type {
   ChartNoteEvent,
   FieldValue,
 } from './ports'
-export { extractFieldKeys } from './extract-field-keys'

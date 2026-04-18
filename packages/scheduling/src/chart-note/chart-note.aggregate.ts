@@ -55,24 +55,29 @@ export class ChartNote {
    * - Session exists
    * - No existing chart note for this session
    * - Default template resolved with a valid templateVersionId
-   * - fieldKeys are extracted from the template content
    *
    * This factory enforces the aggregate's own invariants:
    * - Status must be 'draft'
-   * - fieldValues keys initialized to null
+   * - fieldValues keys derived from templateContent, initialized to null
+   *
+   * Signature mirrors `saveDraft` / `acceptAiDraft` so all three chart-note
+   * write paths accept `templateContent` — no `FieldValueSchema.validate`
+   * call today because initialize takes no payload, but the shape is wired
+   * so future pre-population parameters can flow through validation without
+   * a second signature change.
    */
   static initialize(params: {
     id: string
     sessionId: string
     templateVersionId: string
-    fieldKeys: string[]
+    templateContent: TemplateContentV2
     initializedAt: Date
     initializedBy: string
     prePopulatedFromIntakeId: string | null
     prePopulatedFieldIds: string[]
   }): ChartNote {
     const fieldValues: Record<string, null> = {}
-    for (const key of params.fieldKeys) {
+    for (const key of collectFieldKeys(params.templateContent)) {
       fieldValues[key] = null
     }
 

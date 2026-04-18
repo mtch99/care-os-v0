@@ -3,9 +3,9 @@ import {
   NoDefaultTemplateError,
   TemplateVersionUnresolvableError,
 } from '@careos/api-contract'
+import type { TemplateContentV2 } from '@careos/api-contract'
 
 import { ChartNote } from './chart-note.aggregate'
-import { extractFieldKeys } from './extract-field-keys'
 import type {
   ChartNoteRepository,
   TemplateRepository,
@@ -92,37 +92,25 @@ export async function initializeChartNote(
     throw new TemplateVersionUnresolvableError(input.discipline, input.appointmentType)
   }
 
-  // 5. Extract field keys from template content
-  const fieldKeys = extractFieldKeys(
-    template.content as {
-      pages: Array<{
-        sections: Array<{
-          rows: Array<{
-            columns: Array<{ key: string }>
-          }>
-        }>
-      }>
-    },
-  )
-
-  // 6. Pre-populate from intake (link only — no values copied)
+  // 5. Pre-populate from intake (link only — no values copied)
   const intakeResult = await intakeLookup.findSignedIntakeForSession(input.sessionId)
 
   const now = clock.now()
 
-  // 7. Initialize the aggregate
+  // 6. Initialize the aggregate — the aggregate derives field keys from
+  // templateContent internally, mirroring saveDraft / acceptAiDraft.
   const chartNote = ChartNote.initialize({
     id: crypto.randomUUID(),
     sessionId: input.sessionId,
     templateVersionId: template.id,
-    fieldKeys,
+    templateContent: template.content as TemplateContentV2,
     initializedAt: now,
     initializedBy: input.practitionerId,
     prePopulatedFromIntakeId: intakeResult?.intakeId ?? null,
     prePopulatedFieldIds: intakeResult?.fieldIds ?? [],
   })
 
-  // 8. Persist — adapter handles conflict idempotently via ON CONFLICT DO NOTHING
+  // 7. Persist — adapter handles conflict idempotently via ON CONFLICT DO NOTHING
   const { row: inserted, created } = await chartNoteRepo.insert({
     id: chartNote.id,
     sessionId: chartNote.sessionId,
@@ -140,7 +128,7 @@ export async function initializeChartNote(
     }
   }
 
-  // 9. Emit events only after successful creation
+  // 8. Emit events only after successful creation
   for (const event of chartNote.getUncommittedEvents()) {
     eventPublisher.publish(event)
   }
