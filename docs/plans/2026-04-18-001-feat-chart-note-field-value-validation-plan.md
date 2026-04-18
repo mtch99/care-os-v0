@@ -348,7 +348,7 @@ Hono app.onError
 
 ---
 
-- [ ] **Unit 6: Extend Hono `app.onError` to surface `FieldValueValidationError.errors`**
+- [x] **Unit 6: Extend Hono `app.onError` to surface `FieldValueValidationError.errors`**
 
 **Goal:** The structured per-field array reaches the client; without this, the generic `DomainError` branch drops it.
 
