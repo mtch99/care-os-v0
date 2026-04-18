@@ -18,7 +18,7 @@ const TEMPLATE_VERSION_ID = '29187424-4563-4ebd-b2ee-c710ce251c70'
 const ACCEPTED_AT = new Date('2026-04-18T10:00:00.000Z')
 
 const TEMPLATE_CONTENT: TemplateContentV2 = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {
@@ -52,8 +52,8 @@ const TEMPLATE_CONTENT: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Traumatique', en: 'Traumatic' },
-                      { fr: 'Progressive', en: 'Gradual' },
+                      { key: 'traumatic', fr: 'Traumatique', en: 'Traumatic' },
+                      { key: 'gradual', fr: 'Progressive', en: 'Gradual' },
                     ],
                   },
                 },
