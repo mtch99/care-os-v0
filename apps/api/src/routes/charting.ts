@@ -1,7 +1,17 @@
 import { Hono } from 'hono'
 import { db } from '@careos/db'
-import { generateAiDraftSchema } from '@careos/api-contract'
-import { generateAiDraft, acceptAiDraft, rejectAiDraft } from '@careos/charting'
+import {
+  generateAiDraftSchema,
+  markReadyForSignatureSchema,
+  reopenChartNoteSchema,
+} from '@careos/api-contract'
+import {
+  generateAiDraft,
+  acceptAiDraft,
+  rejectAiDraft,
+  markReadyForSignature,
+  reopenForEdit,
+} from '@careos/charting'
 import { createAnthropicChartingAdapter } from '@careos/ai'
 import {
   inngest,
@@ -9,6 +19,8 @@ import {
   aiChartDraftGenerated,
   aiChartDraftAccepted,
   aiChartDraftRejected,
+  chartNoteReadyForSignature,
+  chartNoteReopened,
 } from '@careos/inngest/client'
 
 export const chartingRoutes = new Hono()
@@ -30,6 +42,9 @@ chartingRoutes.post('/chart-notes/:id/ai-draft', async (c) => {
     .send([
       rawNotesSubmitted.create(events['rawNotes.submitted']),
       aiChartDraftGenerated.create(events['aiChartDraft.generated']),
+      ...(events['aiChartDraft.rejected']?.map((rejection) =>
+        aiChartDraftRejected.create(rejection),
+      ) ?? []),
     ])
     .catch((error: unknown) => {
       console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
@@ -47,11 +62,13 @@ chartingRoutes.post('/chart-notes/:id/ai-draft/:draftId/accept', async (c) => {
     draftId,
   })
 
-  await inngest
-    .send(aiChartDraftAccepted.create(events['aiChartDraft.accepted']))
-    .catch((error: unknown) => {
-      console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
-    })
+  if (events['aiChartDraft.accepted']) {
+    await inngest
+      .send(aiChartDraftAccepted.create(events['aiChartDraft.accepted']))
+      .catch((error: unknown) => {
+        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+      })
+  }
 
   return c.json({ data: result.chartNote })
 })
@@ -65,7 +82,72 @@ chartingRoutes.post('/chart-notes/:id/ai-draft/:draftId/reject', async (c) => {
     draftId,
   })
 
-  await inngest.send(aiChartDraftRejected.create(events['aiChartDraft.rejected']))
+  if (events['aiChartDraft.rejected']) {
+    await inngest
+      .send(aiChartDraftRejected.create(events['aiChartDraft.rejected']))
+      .catch((error: unknown) => {
+        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+      })
+  }
+
+  return c.json({ data: result })
+})
+
+// Decision: markedBy uses HARDCODED_PRACTITIONER_ID since auth is not implemented (see CLAUDE.md).
+// Same pattern as the scheduling and clinical routes.
+const HARDCODED_PRACTITIONER_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
+
+// POST /chart-notes/:id/mark-ready-for-signature -- lock chart note for review
+chartingRoutes.post('/chart-notes/:id/mark-ready-for-signature', async (c) => {
+  const { id } = c.req.param()
+  const body = markReadyForSignatureSchema.parse(await c.req.json())
+
+  const { result, events } = await markReadyForSignature(db, {
+    chartNoteId: id,
+    version: body.version,
+    markedBy: HARDCODED_PRACTITIONER_ID,
+  })
+
+  // Emit events only when a real transition happened (not idempotent return)
+  if (events['chartNote.readyForSignature']) {
+    await inngest
+      .send(chartNoteReadyForSignature.create(events['chartNote.readyForSignature']))
+      .catch((error: unknown) => {
+        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+      })
+
+    // Auto-rejected drafts also emit individual rejection events
+    if (events['aiChartDraft.rejected']) {
+      for (const rejection of events['aiChartDraft.rejected']) {
+        await inngest.send(aiChartDraftRejected.create(rejection)).catch((error: unknown) => {
+          console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+        })
+      }
+    }
+  }
+
+  return c.json({ data: result })
+})
+
+// POST /chart-notes/:id/reopen -- reopen chart note for editing
+chartingRoutes.post('/chart-notes/:id/reopen', async (c) => {
+  const { id } = c.req.param()
+  const body = reopenChartNoteSchema.parse(await c.req.json())
+
+  const { result, events } = await reopenForEdit(db, {
+    chartNoteId: id,
+    version: body.version,
+    reopenedBy: HARDCODED_PRACTITIONER_ID,
+  })
+
+  // Emit events only when a real transition happened (not idempotent return)
+  if (events['chartNote.reopened']) {
+    await inngest
+      .send(chartNoteReopened.create(events['chartNote.reopened']))
+      .catch((error: unknown) => {
+        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+      })
+  }
 
   return c.json({ data: result })
 })

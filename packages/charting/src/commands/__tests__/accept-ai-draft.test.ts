@@ -76,13 +76,33 @@ describe('acceptAiDraft', () => {
     )
   })
 
-  it('Given draft is already accepted, when accepting, then throws DraftAlreadyResolvedError', async () => {
-    const draft = makeAiDraft({ id: 'draft-1', chartNoteId: 'cn-1', status: 'accepted' })
-    const { db } = createFakeDb({ draft })
+  it('Given draft is already accepted, when accepting, then returns chart note without emitting events', async () => {
+    const chartNote = makeChartNote({
+      version: 2,
+      fieldValues: { chief_complaint: 'Lower back pain', pain_scale: 6 },
+    })
+    const draft = makeAiDraft({
+      id: 'draft-1',
+      chartNoteId: 'cn-1',
+      status: 'accepted',
+      fieldValues: { chief_complaint: 'Lower back pain', pain_scale: 6 },
+    })
+    const { db, mutations } = createFakeDb({ draft, chartNote })
 
-    await expect(acceptAiDraft(db, { chartNoteId: 'cn-1', draftId: 'draft-1' })).rejects.toThrow(
-      DraftAlreadyResolvedError,
-    )
+    const { result, events } = await acceptAiDraft(db, {
+      chartNoteId: 'cn-1',
+      draftId: 'draft-1',
+    })
+
+    expect(result.chartNote.id).toBe('cn-1')
+    expect(result.chartNote.fieldValues).toEqual({
+      chief_complaint: 'Lower back pain',
+      pain_scale: 6,
+    })
+    expect(result.chartNote.version).toBe(2)
+    expect(events).toEqual({})
+    expect(mutations.updatedChartNotes).toHaveLength(0)
+    expect(mutations.updatedDrafts).toHaveLength(0)
   })
 
   it('Given draft is already rejected, when accepting, then throws DraftAlreadyResolvedError', async () => {

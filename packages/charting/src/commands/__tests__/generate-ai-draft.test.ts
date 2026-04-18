@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   ChartNoteNotFoundError,
   ChartNoteNotDraftError,
-  AiDraftAlreadyPendingError,
   AiGenerationFailedError,
 } from '@careos/api-contract'
 import { generateAiDraft } from '../generate-ai-draft'
@@ -29,7 +28,7 @@ describe('generateAiDraft', () => {
     const aiPort = createFakeAiChartingPort(AI_RESULT)
     const { db, mutations } = createFakeDb({
       chartNote,
-      pendingDraft: null,
+      pendingDrafts: [],
       template,
     })
 
@@ -52,7 +51,7 @@ describe('generateAiDraft', () => {
     const aiPort = createFakeAiChartingPort(AI_RESULT)
     const { db } = createFakeDb({
       chartNote,
-      pendingDraft: null,
+      pendingDrafts: [],
       template,
     })
 
@@ -97,22 +96,77 @@ describe('generateAiDraft', () => {
     ).rejects.toThrow(ChartNoteNotDraftError)
   })
 
-  it('Given a pending AI draft already exists, when generating, then throws AiDraftAlreadyPendingError', async () => {
+  it('Given a pending AI draft exists, when generating, then auto-rejects it and creates new draft', async () => {
     const chartNote = makeChartNote()
-    const pendingDraft = makeAiDraft({ status: 'pending' })
-    const aiPort = createFakeAiChartingPort()
-    const { db } = createFakeDb({ chartNote, pendingDraft })
+    const existingDraft = makeAiDraft({ status: 'pending' })
+    const template = makeTemplate()
+    const aiPort = createFakeAiChartingPort(AI_RESULT)
+    const { db, mutations } = createFakeDb({
+      chartNote,
+      pendingDrafts: [existingDraft],
+      template,
+    })
 
-    await expect(
-      generateAiDraft(db, aiPort, { chartNoteId: 'cn-1', rawNotes: 'notes' }),
-    ).rejects.toThrow(AiDraftAlreadyPendingError)
+    const { result } = await generateAiDraft(db, aiPort, {
+      chartNoteId: 'cn-1',
+      rawNotes: 'New notes',
+    })
+
+    expect(result.status).toBe('pending')
+    expect(mutations.updatedDrafts).toHaveLength(1)
+    expect(mutations.updatedDrafts[0].id).toBe('draft-existing-1')
+    expect(mutations.updatedDrafts[0].updates).toEqual({ status: 'rejected' })
+    expect(mutations.insertedDrafts).toHaveLength(1)
+  })
+
+  it('Given a pending AI draft exists, when generating, then emits rejection event', async () => {
+    const chartNote = makeChartNote()
+    const existingDraft = makeAiDraft({ status: 'pending' })
+    const template = makeTemplate()
+    const aiPort = createFakeAiChartingPort(AI_RESULT)
+    const { db } = createFakeDb({
+      chartNote,
+      pendingDrafts: [existingDraft],
+      template,
+    })
+
+    const { events } = await generateAiDraft(db, aiPort, {
+      chartNoteId: 'cn-1',
+      rawNotes: 'New notes',
+    })
+
+    expect(events['aiChartDraft.rejected']).toEqual([
+      {
+        draftId: 'draft-existing-1',
+        chartNoteId: 'cn-1',
+        reason: 'auto-rejected on regenerate',
+      },
+    ])
+  })
+
+  it('Given no pending AI draft exists, when generating, then does not emit rejection event', async () => {
+    const chartNote = makeChartNote()
+    const template = makeTemplate()
+    const aiPort = createFakeAiChartingPort(AI_RESULT)
+    const { db } = createFakeDb({
+      chartNote,
+      pendingDrafts: [],
+      template,
+    })
+
+    const { events } = await generateAiDraft(db, aiPort, {
+      chartNoteId: 'cn-1',
+      rawNotes: 'notes',
+    })
+
+    expect(events['aiChartDraft.rejected']).toBeUndefined()
   })
 
   it('Given the AI service fails, when generating, then throws AiGenerationFailedError', async () => {
     const chartNote = makeChartNote()
     const template = makeTemplate()
     const aiPort = createFakeAiChartingPort(undefined, new Error('LLM timeout'))
-    const { db } = createFakeDb({ chartNote, pendingDraft: null, template })
+    const { db } = createFakeDb({ chartNote, pendingDrafts: [], template })
 
     await expect(
       generateAiDraft(db, aiPort, { chartNoteId: 'cn-1', rawNotes: 'notes' }),
@@ -123,7 +177,7 @@ describe('generateAiDraft', () => {
     const chartNote = makeChartNote()
     const template = makeTemplate()
     const aiPort = createFakeAiChartingPort(AI_RESULT)
-    const { db } = createFakeDb({ chartNote, pendingDraft: null, template })
+    const { db } = createFakeDb({ chartNote, pendingDrafts: [], template })
 
     await generateAiDraft(db, aiPort, {
       chartNoteId: 'cn-1',

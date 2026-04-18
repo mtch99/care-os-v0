@@ -263,8 +263,7 @@ describe('saveDraft', () => {
         expect(err).toBeInstanceOf(VersionConflictError)
         const error = err as VersionConflictError
         expect(error.code).toBe('VERSION_CONFLICT')
-        expect(error.expected).toBe(1)
-        expect(error.actual).toBe(0)
+        expect(error.httpStatus).toBe(409)
       }
     })
   })

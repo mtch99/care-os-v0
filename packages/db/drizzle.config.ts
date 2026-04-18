@@ -5,6 +5,6 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: 'postgresql://postgres:careos@localhost:5432/careos',
+    url: process.env['DATABASE_URL'] ?? 'postgresql://postgres:careos@localhost:5432/careos',
   },
 })

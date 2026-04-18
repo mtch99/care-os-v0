@@ -1,10 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import {
-  DomainError,
-  FieldValueValidationError,
-  type FieldValueError,
-} from '../errors'
+import { DomainError, FieldValueValidationError, type FieldValueError } from '../errors'
 
 describe('FieldValueValidationError', () => {
   it('is an instance of DomainError', () => {
@@ -16,9 +12,7 @@ describe('FieldValueValidationError', () => {
   })
 
   it('has httpStatus 422 and the expected code', () => {
-    const err = new FieldValueValidationError([
-      { path: ['x'], code: 'WRONG_TYPE', message: 'bad' },
-    ])
+    const err = new FieldValueValidationError([{ path: ['x'], code: 'WRONG_TYPE', message: 'bad' }])
     expect(err.httpStatus).toBe(422)
     expect(err.code).toBe('FIELD_VALUE_VALIDATION_ERROR')
   })
@@ -46,8 +40,6 @@ describe('FieldValueValidationError', () => {
   it('throws when constructed with an empty errors array', () => {
     // A validator should never construct this with nothing wrong. Fail loudly
     // rather than surface a misleading "validation failed" response.
-    expect(() => new FieldValueValidationError([])).toThrow(
-      /constructed with no errors/,
-    )
+    expect(() => new FieldValueValidationError([])).toThrow(/constructed with no errors/)
   })
 })

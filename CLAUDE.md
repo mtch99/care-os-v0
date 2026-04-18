@@ -14,19 +14,21 @@ pnpm format             # Prettier format
 pnpm format:check       # Prettier check (CI)
 pnpm test               # Vitest
 
-# Database (Docker Compose)
-pnpm db:up             # start PostgreSQL (docker compose, port 5432)
-pnpm db:down           # stop PostgreSQL (data persisted)
-pnpm db:nuke           # stop + delete volume (fresh start)
+# Database (Docker Compose — worktree-aware)
+pnpm db:up             # start PostgreSQL. Root: fixed port 5432. Worktree: new Compose project on a dynamically assigned host port; DATABASE_URL in apps/api/.env and packages/db/.env is rewritten to match.
+pnpm db:down           # stop PostgreSQL for the current project (data persisted)
+pnpm db:nuke           # stop + delete volume for the current project (fresh start)
+pnpm db:prune          # list orphan DB projects (Compose projects whose worktrees are gone) and remove them after confirmation
 pnpm db:migrate        # generate migrations (drizzle-kit generate)
 pnpm db:migrate:apply  # apply migrations (drizzle-kit migrate)
 pnpm db:seed           # seed database (tsx)
 
 # Lifecycle
 pnpm start                 # bootstrap + dev (all-in-one)
-pnpm stop                  # stop dev services + PostgreSQL
-pnpm bootstrap             # install → db:up → db:migrate:apply → db:seed
-pnpm teardown              # nuke DB + remove all node_modules
+pnpm stop                  # stop dev services + PostgreSQL (current project only)
+pnpm bootstrap             # install → db:up → db:migrate → db:migrate:apply → db:seed
+pnpm teardown              # nuke DB + remove all node_modules (current project only)
+pnpm worktree:remove <slug-or-path>   # nuke a worktree's DB project, run git worktree remove, then db:prune
 
 # Per-package scoping
 pnpm --filter @careos/api dev
@@ -86,6 +88,8 @@ Do not introduce circular dependencies between packages.
 - **`apps/api/src/env.ts` parses `PORT` eagerly** — test setup must provide env vars before importing.
 - **`HARDCODED_PRACTITIONER_ID`** in `apps/api/src/routes/scheduling.ts` — auth is not implemented. Do not build auth flows yet.
 - **`.env` files are gitignored** — `.env.example` files exist in `packages/db/` and `apps/api/`. Copy to `.env` before running. Defaults work with the Docker Compose Postgres.
+- **In a worktree, `DATABASE_URL` in `apps/api/.env` and `packages/db/.env` is rewritten on every `pnpm db:up`** — the host port is dynamically assigned by Docker, so do not hand-edit these lines and expect them to stick. The root checkout continues to use the stable fixed port 5432.
+- **Each worktree has its own Compose project and volume** — switching between worktrees no longer collides on the `careos-pg` container name; running two worktree DBs in parallel is supported. Clean up a worktree with `pnpm worktree:remove <slug>`, not bare `git worktree remove` (which leaks the Compose project).
 
 ## Security Rules
 

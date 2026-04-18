@@ -146,12 +146,6 @@ export class ChartNoteNotDraftError extends DomainError {
   }
 }
 
-export class AiDraftAlreadyPendingError extends DomainError {
-  constructor() {
-    super('AI_DRAFT_ALREADY_PENDING', 'An AI draft is already pending for this chart note.', 409)
-  }
-}
-
 export class AiGenerationFailedError extends DomainError {
   constructor() {
     super('AI_GENERATION_FAILED', 'AI service unavailable. Try again later.', 502)
@@ -170,24 +164,31 @@ export class DraftAlreadyResolvedError extends DomainError {
   }
 }
 
+export class ChartNoteAlreadySignedError extends DomainError {
+  constructor(chartNoteId: string) {
+    super(
+      'CHART_NOTE_ALREADY_SIGNED',
+      `Chart note ${chartNoteId} is signed and cannot be reopened`,
+      409,
+    )
+  }
+}
+
+export class VersionConflictError extends DomainError {
+  constructor(entityId: string, expected: number, actual: number) {
+    super(
+      'VERSION_CONFLICT',
+      `Version conflict on ${entityId}: expected ${String(expected)}, got ${String(actual)}`,
+      409,
+    )
+  }
+}
+
 // --- Chart Note Save Draft errors (CAR-110) ---
 
 export class UnknownFieldIdError extends DomainError {
   constructor(public readonly unknownKeys: string[]) {
     super('UNKNOWN_FIELD_ID', `Unknown field IDs in payload: ${unknownKeys.join(', ')}`, 422)
-  }
-}
-
-export class VersionConflictError extends DomainError {
-  constructor(
-    public readonly expected: number,
-    public readonly actual: number,
-  ) {
-    super(
-      'VERSION_CONFLICT',
-      `Version conflict: expected ${String(expected)}, got ${String(actual)}`,
-      409,
-    )
   }
 }
 
@@ -234,9 +235,7 @@ export class FieldValueValidationError extends DomainError {
     // throw this when nothing actually failed. Fail loudly rather than
     // surface an empty "validation failed" response to a client.
     if (errors.length === 0) {
-      throw new Error(
-        'FieldValueValidationError constructed with no errors — this is a caller bug',
-      )
+      throw new Error('FieldValueValidationError constructed with no errors — this is a caller bug')
     }
     super(
       'FIELD_VALUE_VALIDATION_ERROR',
