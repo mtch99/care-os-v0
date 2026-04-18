@@ -197,6 +197,83 @@ export class ChartNote {
   }
 
   /**
+   * Accept an AI-generated draft into the chart note (overwrite semantics).
+   *
+   * Unlike `saveDraft` (patch / merge), this command replaces `fieldValues`
+   * wholesale with the AI's payload. The AI emits the complete set of fields
+   * it could fill; merging partial stale data risks inconsistency. The
+   * practitioner edits individual fields after acceptance via `saveDraft`.
+   *
+   * Preconditions (enforced here on the aggregate):
+   * - status must be 'draft'
+   * - every key in incomingFieldValues must exist in the template's field IDs
+   * - every incoming value must match its template-declared type and
+   *   per-type constraints (scale range, select options, etc.)
+   *
+   * No optimistic-lock version check — the accept path is guarded by the
+   * AI draft's own lifecycle (pending → accepted / rejected), not by a
+   * client-supplied chart-note version.
+   *
+   * Returns a new ChartNote with bumped version and a chartNote.saved event.
+   */
+  acceptAiDraft(params: {
+    incomingFieldValues: Record<string, FieldValue>
+    templateContent: TemplateContentV2
+    acceptedAt: Date
+    acceptedBy: string
+  }): ChartNote {
+    // Precondition: must be in draft status
+    if (this.status !== 'draft') {
+      throw new ChartNoteNotDraftError()
+    }
+
+    // Precondition: every incoming key must exist in the template's field IDs.
+    // Key-existence is enforced before value-shape so the user sees "this
+    // field doesn't exist" before "this field's value is invalid" — the
+    // latter is meaningless when the key is bogus.
+    const templateFieldSet = collectFieldKeys(params.templateContent)
+    const unknownKeys = Object.keys(params.incomingFieldValues).filter(
+      (key) => !templateFieldSet.has(key),
+    )
+    if (unknownKeys.length > 0) {
+      throw new UnknownFieldIdError(unknownKeys)
+    }
+
+    // Precondition: every incoming value must match its template-declared
+    // type and per-type constraints. Throws FieldValueValidationError with
+    // all per-field errors collected; propagates unchanged.
+    FieldValueSchema.validate(params.incomingFieldValues, params.templateContent)
+
+    // Overwrite: replace fieldValues wholesale (NOT merged with this.fieldValues).
+    const nextVersion = this.version + 1
+    const fieldIdsChanged = Object.keys(params.incomingFieldValues)
+
+    const updated = new ChartNote(
+      this.id,
+      this.sessionId,
+      this.templateVersionId,
+      this.status,
+      params.incomingFieldValues,
+      this.prePopulatedFromIntakeId,
+      this.createdAt,
+      params.acceptedAt,
+      nextVersion,
+    )
+
+    updated.events.push({
+      type: 'chartNote.saved',
+      payload: {
+        chartNoteId: this.id,
+        editedBy: params.acceptedBy,
+        editedAt: params.acceptedAt.toISOString(),
+        fieldIdsChanged,
+      },
+    })
+
+    return updated
+  }
+
+  /**
    * Reconstitute a ChartNote from a persisted row.
    * Used for idempotent returns — no events emitted.
    */
