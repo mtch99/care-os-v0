@@ -4,7 +4,6 @@ import { chartNotes, chartNoteTemplates, aiChartNoteDrafts } from '@careos/db'
 import {
   ChartNoteNotFoundError,
   ChartNoteNotDraftError,
-  AiDraftAlreadyPendingError,
   AiGenerationFailedError,
 } from '@careos/api-contract'
 import type { TemplateContentV2 } from '@careos/api-contract'
@@ -25,6 +24,7 @@ export interface GenerateAiDraftResult {
 export interface GenerateAiDraftEvents {
   'rawNotes.submitted': { chartNoteId: string }
   'aiChartDraft.generated': { draftId: string; chartNoteId: string }
+  'aiChartDraft.rejected'?: Array<{ draftId: string; chartNoteId: string; reason: string }>
 }
 
 export async function generateAiDraft(
@@ -46,16 +46,36 @@ export async function generateAiDraft(
       throw new ChartNoteNotDraftError()
     }
 
-    // 2. Verify no pending AI draft exists for this chart note
-    const existingDraft = await tx.query.aiChartNoteDrafts.findFirst({
+    // 2. Auto-reject any pending AI drafts for this chart note
+    const pendingDrafts = await tx.query.aiChartNoteDrafts.findMany({
       where: and(
         eq(aiChartNoteDrafts.chartNoteId, input.chartNoteId),
         eq(aiChartNoteDrafts.status, 'pending'),
       ),
     })
 
-    if (existingDraft) {
-      throw new AiDraftAlreadyPendingError()
+    const rejectedDraftEvents: Array<{
+      draftId: string
+      chartNoteId: string
+      reason: string
+    }> = []
+
+    for (const draft of pendingDrafts) {
+      try {
+        await tx
+          .update(aiChartNoteDrafts)
+          .set({ status: 'rejected' })
+          .where(eq(aiChartNoteDrafts.id, draft.id))
+
+        rejectedDraftEvents.push({
+          draftId: draft.id,
+          chartNoteId: input.chartNoteId,
+          reason: 'auto-rejected on regenerate',
+        })
+      } catch (error) {
+        // Continue with other drafts even if one fails, and do not fail the entire transaction since this is a best-effort cleanup step
+        console.error(`[AI_CHARTING]: Failed to auto-reject pending draft ${draft.id}`, error)
+      }
     }
 
     // 3. Resolve the template version via the chart note's templateVersionId
@@ -92,6 +112,15 @@ export async function generateAiDraft(
       .returning()
 
     // 6. Return result and events
+    const events: GenerateAiDraftEvents = {
+      'rawNotes.submitted': { chartNoteId: input.chartNoteId },
+      'aiChartDraft.generated': { draftId: aiDraft.id, chartNoteId: input.chartNoteId },
+    }
+
+    if (rejectedDraftEvents.length > 0) {
+      events['aiChartDraft.rejected'] = rejectedDraftEvents
+    }
+
     return {
       result: {
         draftId: aiDraft.id,
@@ -99,10 +128,7 @@ export async function generateAiDraft(
         status: 'pending' as const,
         fieldValues: draft.fields,
       },
-      events: {
-        'rawNotes.submitted': { chartNoteId: input.chartNoteId },
-        'aiChartDraft.generated': { draftId: aiDraft.id, chartNoteId: input.chartNoteId },
-      },
+      events,
     }
   })
 }

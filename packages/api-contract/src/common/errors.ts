@@ -146,12 +146,6 @@ export class ChartNoteNotDraftError extends DomainError {
   }
 }
 
-export class AiDraftAlreadyPendingError extends DomainError {
-  constructor() {
-    super('AI_DRAFT_ALREADY_PENDING', 'An AI draft is already pending for this chart note.', 409)
-  }
-}
-
 export class AiGenerationFailedError extends DomainError {
   constructor() {
     super('AI_GENERATION_FAILED', 'AI service unavailable. Try again later.', 502)
