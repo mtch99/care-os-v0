@@ -33,8 +33,11 @@ const pageSchema = z.object({
   sections: z.array(sectionSchema).min(1),
 })
 
+// schemaVersion bumped 0.2 → 0.3 in CAR-122 when option configs gained a
+// stable `key` field. Naming preserved (TemplateContentV2 / schemaV2) since
+// the type name does not track the minor revision.
 export const templateContentSchemaV2 = z.object({
-  schemaVersion: z.literal('0.2'),
+  schemaVersion: z.literal('0.3'),
   locale: z.array(z.string().min(1)).min(1),
   pages: z.array(pageSchema).min(1),
 })
