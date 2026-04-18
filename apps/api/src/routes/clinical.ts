@@ -13,10 +13,9 @@ import {
   DefaultTemplateNotFoundError,
   CannotArchiveDefaultTemplateError,
   TemplateArchivedError,
-  DefaultAlreadyExistsError,
 } from '@careos/api-contract'
 import { TemplateSchema } from '@careos/clinical'
-import { initializeChartNote, saveDraft } from '@careos/scheduling'
+import { createTemplate, initializeChartNote, saveDraft } from '@careos/scheduling'
 import type { FieldValue } from '@careos/scheduling'
 import { inngest, chartNoteSaved } from '@careos/inngest/client'
 import { makeChartNotePorts } from '../composition/clinical-ports'
@@ -28,35 +27,22 @@ const HARDCODED_PRACTITIONER_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
 
 // POST /templates — create new template
 clinicalRoutes.post('/templates', async (c) => {
+  // Pass 1: Structural validation (Zod)
   const input = createTemplateSchema.parse(await c.req.json())
+  // Pass 2: Semantic validation (unique keys, locale completeness)
   TemplateSchema.validate(input.content)
 
-  if (input.isDefault) {
-    const existing = await db.query.chartNoteTemplates.findFirst({
-      where: and(
-        eq(chartNoteTemplates.discipline, input.discipline),
-        eq(chartNoteTemplates.appointmentType, input.appointmentType),
-        eq(chartNoteTemplates.isDefault, true),
-      ),
-    })
-    if (existing) {
-      throw new DefaultAlreadyExistsError(input.discipline, input.appointmentType)
-    }
-  }
+  // Delegate to transaction script
+  const result = await createTemplate(db, {
+    name: input.name,
+    discipline: input.discipline,
+    appointmentType: input.appointmentType,
+    content: input.content,
+    isDefault: input.isDefault,
+    createdBy: HARDCODED_PRACTITIONER_ID,
+  })
 
-  const [template] = await db
-    .insert(chartNoteTemplates)
-    .values({
-      name: input.name,
-      discipline: input.discipline,
-      appointmentType: input.appointmentType,
-      content: input.content,
-      isDefault: input.isDefault,
-      createdBy: HARDCODED_PRACTITIONER_ID,
-    })
-    .returning()
-
-  return c.json({ data: template }, 201)
+  return c.json({ data: result.template }, 201)
 })
 
 // GET /templates — list templates with optional filters

@@ -11,7 +11,7 @@
     "format:check": "prettier --check src",
     "test": "vitest run --coverage",
     "migrate": "drizzle-kit generate",
-    "migrate:apply": "drizzle-kit migrate",
+    "migrate:apply": "source .env 2>/dev/null; drizzle-kit migrate",
     "seed": "tsx --env-file=.env src/seed.ts"
   },
   "exports": {

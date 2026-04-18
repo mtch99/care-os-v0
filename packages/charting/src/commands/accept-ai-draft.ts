@@ -41,7 +41,7 @@ export interface AcceptAiDraftEvents {
 export async function acceptAiDraft(
   db: DrizzleDB,
   input: AcceptAiDraftInput,
-): Promise<{ result: AcceptAiDraftResult; events: AcceptAiDraftEvents }> {
+): Promise<{ result: AcceptAiDraftResult; events: Partial<AcceptAiDraftEvents> }> {
   return db.transaction(async (tx) => {
     // 1. Load AI draft, verify it exists and belongs to the chart note
     const draft = await tx.query.aiChartNoteDrafts.findFirst({
@@ -52,6 +52,34 @@ export async function acceptAiDraft(
       throw new DraftNotFoundError()
     }
 
+    // Idempotent: repeat accept on an already-accepted draft returns current state
+    if (draft.status === 'accepted') {
+      const chartNote = await tx.query.chartNotes.findFirst({
+        where: eq(chartNotes.id, input.chartNoteId),
+      })
+
+      if (!chartNote) {
+        throw new ChartNoteNotFoundError(input.chartNoteId)
+      }
+
+      return {
+        result: {
+          chartNote: {
+            id: chartNote.id,
+            sessionId: chartNote.sessionId,
+            templateVersionId: chartNote.templateVersionId,
+            status: chartNote.status,
+            fieldValues: chartNote.fieldValues,
+            version: chartNote.version,
+            createdAt: chartNote.createdAt,
+            updatedAt: chartNote.updatedAt,
+          },
+        },
+        events: {},
+      }
+    }
+
+    // Contradicting action: draft was resolved to a different status
     if (draft.status !== 'pending') {
       throw new DraftAlreadyResolvedError()
     }

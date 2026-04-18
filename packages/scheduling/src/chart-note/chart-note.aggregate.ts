@@ -126,7 +126,7 @@ export class ChartNote {
 
     // Precondition: optimistic lock — version must match
     if (params.incomingVersion !== this.version) {
-      throw new VersionConflictError(this.version, params.incomingVersion)
+      throw new VersionConflictError(this.id, params.incomingVersion, this.version)
     }
 
     // Precondition: every incoming key must exist in the template's field IDs

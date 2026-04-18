@@ -20,7 +20,7 @@ export interface RejectAiDraftEvents {
 export async function rejectAiDraft(
   db: DrizzleDB,
   input: RejectAiDraftInput,
-): Promise<{ result: RejectAiDraftResult; events: RejectAiDraftEvents }> {
+): Promise<{ result: RejectAiDraftResult; events: Partial<RejectAiDraftEvents> }> {
   return db.transaction(async (tx) => {
     // 1. Load AI draft, verify it exists and belongs to the chart note
     const draft = await tx.query.aiChartNoteDrafts.findFirst({
@@ -31,7 +31,18 @@ export async function rejectAiDraft(
       throw new DraftNotFoundError()
     }
 
-    // 2. Verify draft is still pending
+    // Idempotent: repeat reject on an already-rejected draft returns current state
+    if (draft.status === 'rejected') {
+      return {
+        result: {
+          draftId: input.draftId,
+          status: 'rejected' as const,
+        },
+        events: {},
+      }
+    }
+
+    // Contradicting action: draft was resolved to a different status
     if (draft.status !== 'pending') {
       throw new DraftAlreadyResolvedError()
     }

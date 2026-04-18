@@ -44,6 +44,14 @@ export const generateAiDraftSchema = z.object({
   rawNotes: z.string().min(1),
 })
 
+export const markReadyForSignatureSchema = z.object({
+  version: z.number().int().positive(),
+})
+
+export const reopenChartNoteSchema = z.object({
+  version: z.number().int().positive(),
+})
+
 export const saveDraftSchema = z.object({
   fieldValues: z.record(z.string(), z.unknown()),
   version: z.number().int().positive(),

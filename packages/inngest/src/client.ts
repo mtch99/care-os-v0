@@ -44,6 +44,24 @@ export const aiChartDraftRejected = eventType('charting/aiChartDraft.rejected', 
   }),
 })
 
+// --- Chart Note lifecycle events (CAR-111) ---
+
+export const chartNoteReadyForSignature = eventType('charting/chartNote.readyForSignature', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    markedBy: z.string(),
+    markedAt: z.string(),
+  }),
+})
+
+export const chartNoteReopened = eventType('charting/chartNote.reopened', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    reopenedBy: z.string(),
+    reopenedAt: z.string(),
+  }),
+})
+
 // --- Chart Note Save Draft events (CAR-110) ---
 
 export const chartNoteSaved = eventType('charting/chartNote.saved', {

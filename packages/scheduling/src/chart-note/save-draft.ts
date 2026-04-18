@@ -116,7 +116,7 @@ export async function saveDraft(
   // client, but another writer may have bumped the DB version in between.
   if (!persisted) {
     const current = await chartNoteRepo.findById(input.chartNoteId)
-    throw new VersionConflictError(current?.version ?? -1, input.version)
+    throw new VersionConflictError(input.chartNoteId, input.version, current?.version ?? 0)
   }
 
   // 6. Emit events

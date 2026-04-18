@@ -62,12 +62,18 @@ describe('rejectAiDraft', () => {
     )
   })
 
-  it('Given draft is already rejected, when rejecting, then throws DraftAlreadyResolvedError', async () => {
+  it('Given draft is already rejected, when rejecting, then returns rejected status without emitting events', async () => {
     const draft = makeAiDraft({ id: 'draft-1', chartNoteId: 'cn-1', status: 'rejected' })
-    const { db } = createFakeDb({ draft })
+    const { db, mutations } = createFakeDb({ draft })
 
-    await expect(rejectAiDraft(db, { chartNoteId: 'cn-1', draftId: 'draft-1' })).rejects.toThrow(
-      DraftAlreadyResolvedError,
-    )
+    const { result, events } = await rejectAiDraft(db, {
+      chartNoteId: 'cn-1',
+      draftId: 'draft-1',
+    })
+
+    expect(result.draftId).toBe('draft-1')
+    expect(result.status).toBe('rejected')
+    expect(events).toEqual({})
+    expect(mutations.updatedDrafts).toHaveLength(0)
   })
 })

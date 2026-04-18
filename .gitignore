@@ -38,7 +38,7 @@ coverage/
 
 # Claude Code settings
 .claude/settings.local.json
-.claude/worktrees/*
+.worktrees/*
 
 # Plans
 docs/plans/*
