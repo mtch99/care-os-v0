@@ -36,6 +36,7 @@ chartingRoutes.post('/chart-notes/:id/ai-draft', async (c) => {
     .send([
       rawNotesSubmitted.create(events['rawNotes.submitted']),
       aiChartDraftGenerated.create(events['aiChartDraft.generated']),
+      ...(events['aiChartDraft.rejected']?.map((rejection) => aiChartDraftRejected.create(rejection)) ?? []),
     ])
     .catch((error: unknown) => {
       console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)

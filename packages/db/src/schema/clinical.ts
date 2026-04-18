@@ -119,12 +119,7 @@ export const aiChartNoteDrafts = pgTable(
     status: aiChartNoteDraftStatusEnum('status').notNull().default('pending'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('ai_chart_note_drafts_chart_note_idx').on(table.chartNoteId),
-    uniqueIndex('ai_chart_note_drafts_pending_idx')
-      .on(table.chartNoteId)
-      .where(sql`${table.status} = 'pending'`),
-  ],
+  (table) => [index('ai_chart_note_drafts_chart_note_idx').on(table.chartNoteId)],
 )
 
 export type Session = typeof sessions.$inferSelect
