@@ -23,6 +23,7 @@ import {
   aiChartDraftRejected,
   chartNoteReadyForSignature,
   chartNoteReopened,
+  chartNoteSaved,
   chartNoteSigned,
 } from '@careos/inngest/client'
 
@@ -70,12 +71,17 @@ chartingRoutes.post('/chart-notes/:id/ai-draft/:draftId/accept', async (c) => {
     acceptedBy: HARDCODED_PRACTITIONER_ID,
   })
 
-  if (events['aiChartDraft.accepted']) {
-    await inngest
-      .send(aiChartDraftAccepted.create(events['aiChartDraft.accepted']))
-      .catch((error: unknown) => {
-        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
-      })
+  const toSend = [
+    ...(events['aiChartDraft.accepted']
+      ? [aiChartDraftAccepted.create(events['aiChartDraft.accepted'])]
+      : []),
+    ...(events['chartNote.saved'] ? [chartNoteSaved.create(events['chartNote.saved'])] : []),
+  ]
+
+  if (toSend.length > 0) {
+    await inngest.send(toSend).catch((error: unknown) => {
+      console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+    })
   }
 
   return c.json({ data: result.chartNote })
