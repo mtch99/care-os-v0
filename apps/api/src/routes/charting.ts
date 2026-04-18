@@ -1,11 +1,16 @@
 import { Hono } from 'hono'
 import { db } from '@careos/db'
-import { generateAiDraftSchema, markReadyForSignatureSchema } from '@careos/api-contract'
+import {
+  generateAiDraftSchema,
+  markReadyForSignatureSchema,
+  reopenChartNoteSchema,
+} from '@careos/api-contract'
 import {
   generateAiDraft,
   acceptAiDraft,
   rejectAiDraft,
   markReadyForSignature,
+  reopenForEdit,
 } from '@careos/charting'
 import { createAnthropicChartingAdapter } from '@careos/ai'
 import {
@@ -15,6 +20,7 @@ import {
   aiChartDraftAccepted,
   aiChartDraftRejected,
   chartNoteReadyForSignature,
+  chartNoteReopened,
 } from '@careos/inngest/client'
 
 export const chartingRoutes = new Hono()
@@ -115,6 +121,29 @@ chartingRoutes.post('/chart-notes/:id/mark-ready-for-signature', async (c) => {
         })
       }
     }
+  }
+
+  return c.json({ data: result })
+})
+
+// POST /chart-notes/:id/reopen -- reopen chart note for editing
+chartingRoutes.post('/chart-notes/:id/reopen', async (c) => {
+  const { id } = c.req.param()
+  const body = reopenChartNoteSchema.parse(await c.req.json())
+
+  const { result, events } = await reopenForEdit(db, {
+    chartNoteId: id,
+    version: body.version,
+    reopenedBy: HARDCODED_PRACTITIONER_ID,
+  })
+
+  // Emit events only when a real transition happened (not idempotent return)
+  if (events['chartNote.reopened']) {
+    await inngest
+      .send(chartNoteReopened.create(events['chartNote.reopened']))
+      .catch((error: unknown) => {
+        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+      })
   }
 
   return c.json({ data: result })
