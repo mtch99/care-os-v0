@@ -1,7 +1,7 @@
 ---
 title: 'feat: Chart Note Field-Value Validation Against Template'
 type: feat
-status: active
+status: completed
 date: 2026-04-18
 origin: docs/brainstorms/2026-04-18-chart-note-field-value-validation-requirements.md
 ---
@@ -408,7 +408,7 @@ Hono app.onError
 
 ---
 
-- [ ] **Unit 8: Document the pattern in `docs/solutions/`**
+- [x] **Unit 8: Document the pattern in `docs/solutions/`**
 
 **Goal:** Capture the validator pattern as the second-ever entry in `docs/solutions/`, establishing the bar for future writeups.
 
