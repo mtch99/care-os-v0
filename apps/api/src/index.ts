@@ -5,6 +5,7 @@ import { ZodError } from 'zod'
 import { DomainError } from '@careos/api-contract'
 import { schedulingRoutes } from './routes/scheduling'
 import { clinicalRoutes } from './routes/clinical'
+import { chartingRoutes } from './routes/charting'
 import { env } from './env'
 import { serve as serveInngest } from 'inngest/hono'
 import { inngest } from '@careos/inngest/client'
@@ -30,6 +31,7 @@ app.onError((err, c) => {
 
 app.route('/api/scheduling', schedulingRoutes)
 app.route('/api/clinical', clinicalRoutes)
+app.route('/api/charting', chartingRoutes)
 
 app.get('/health', (c) => c.json({ status: 'ok' }))
 

@@ -12,6 +12,10 @@ import { env } from './env'
  * typed as AIChartingPort.
  */
 export function createAnthropicChartingAdapter(): AIChartingPort {
+  console.log(
+    '[ANTHROPIC_CHARTING_ADDAPTER]: Creating AnthropicChartingAdapter with model:',
+    env.ANTHROPIC_MODEL,
+  )
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
   return new AnthropicChartingAdapter(client, env.ANTHROPIC_MODEL)
 }

@@ -76,6 +76,7 @@ Do not introduce circular dependencies between packages.
 - Zod v4 for all validation — no manual type guards
 - Drizzle ORM for all DB access — no raw SQL
 - Env vars parsed with Zod schemas at module load time (see `env.ts` files)
+- Test files live in `__tests__/` directories colocated next to the code they cover (e.g. `src/commands/__tests__/foo.test.ts` tests `src/commands/foo.ts`) — never next to source files
 - Conventional commits: `feat(scope):`, `fix(scope):`, `chore(scope):`
 
 ## Known Constraints
