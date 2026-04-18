@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/pg-core'
 import { appointmentTypeEnum } from './scheduling'
 import { chartNoteTemplates } from './clinical'
+import { practitioners } from './shared'
 
 export const aiTemplateDraftStatusEnum = pgEnum('ai_template_draft_status', [
   'pending',
@@ -30,6 +31,9 @@ export const aiTemplateDrafts = pgTable(
     preferences: text('preferences').notNull(),
     content: jsonb('content').notNull(),
     status: aiTemplateDraftStatusEnum('status').notNull().default('pending'),
+    createdBy: uuid('created_by')
+      .notNull()
+      .references(() => practitioners.id),
     acceptedTemplateId: uuid('accepted_template_id').references(() => chartNoteTemplates.id),
     expiresAt: timestamp('expires_at').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
