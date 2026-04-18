@@ -37,12 +37,13 @@ const TEMPLATE_SYSTEM_PROMPT = `You are a clinical charting template designer fo
 You generate structured chart note templates by calling the ${TEMPLATE_TOOL_NAME} tool.
 
 Rules:
-- schemaVersion must be "0.2"
+- schemaVersion must be "0.3"
 - Every field key must be unique across the entire template
 - Every page key and section key must be unique
 - Labels must include all locales specified in the locale array
 - Use appropriate field types: narrative for long text, text for short text, scale for numeric ranges, select/radio for choices, checkboxGroup for multi-select, checkboxWithText for checkboxes with optional notes, date for dates, repeaterTable for dynamic rows, table for fixed grids, legend for read-only text, bodyDiagram/romDiagram for visual input, signature for signatures
 - config must match the field type (e.g. scale needs min/max, select needs options array)
+- For select / radio / checkboxGroup fields: every option in the options array must include a stable "key" field alongside "fr" and "en". The key is a snake_case slug of the English label (e.g. "Traumatic" → "traumatic", "Post-surgical" → "post_surgical", "Sit to Stand" → "sit_to_stand"). Once written, the key is contract — do not rename it to follow a label edit. Within a single options array, keys must be unique; across fields the same key can appear and is scoped to its containing field.
 - Structure the template logically with meaningful page/section organization for the given discipline and appointment type`
 
 const CHART_NOTE_SYSTEM_PROMPT = `You are a clinical charting assistant for healthcare practitioners.
@@ -54,8 +55,9 @@ Rules:
 - Use the correct value type for each field type:
   - narrative, text, date fields: string value
   - scale fields: number value
-  - select, radio, checkboxGroup fields: string array of selected options
-  - checkboxWithText fields: array of {key, checked, text?} objects
+  - select, radio fields: the option.key (stable identifier, never the localized fr/en label) of the selected option
+  - checkboxGroup fields: array of option.key values (stable identifiers, never localized labels) for each selected option
+  - checkboxWithText fields: array of {key, checked, text?} objects — key must match one of the field's items[].key
   - repeaterTable fields: array of {columnKey: value} row objects
   - table fields: {rowKey: value} object
   - bodyDiagram, romDiagram, signature fields: null (AI cannot fill these)
