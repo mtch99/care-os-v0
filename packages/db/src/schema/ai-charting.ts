@@ -1,13 +1,4 @@
-import {
-  pgTable,
-  pgEnum,
-  uuid,
-  varchar,
-  text,
-  timestamp,
-  jsonb,
-  index,
-} from 'drizzle-orm/pg-core'
+import { pgTable, pgEnum, uuid, varchar, text, timestamp, jsonb, index } from 'drizzle-orm/pg-core'
 import { appointmentTypeEnum } from './scheduling'
 import { chartNoteTemplates } from './clinical'
 import { practitioners } from './shared'
