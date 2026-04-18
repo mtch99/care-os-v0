@@ -39,3 +39,7 @@ export const initializeChartNoteSchema = z.object({
   discipline: disciplineEnum,
   appointmentType: appointmentTypeEnum,
 })
+
+export const generateAiDraftSchema = z.object({
+  rawNotes: z.string().min(1),
+})

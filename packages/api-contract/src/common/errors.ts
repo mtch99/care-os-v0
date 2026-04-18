@@ -132,3 +132,40 @@ export class ChartNoteAlreadyExistsError extends DomainError {
     super('CHART_NOTE_ALREADY_EXISTS', `A chart note already exists for session ${sessionId}`, 409)
   }
 }
+// --- AI Chart Note Draft errors (CAR-98) ---
+
+export class ChartNoteNotFoundError extends DomainError {
+  constructor(chartNoteId: string) {
+    super('CHART_NOTE_NOT_FOUND', `Chart note ${chartNoteId} not found`, 404)
+  }
+}
+
+export class ChartNoteNotDraftError extends DomainError {
+  constructor() {
+    super('CHART_NOTE_NOT_DRAFT', 'Chart note must be in draft status.', 409)
+  }
+}
+
+export class AiDraftAlreadyPendingError extends DomainError {
+  constructor() {
+    super('AI_DRAFT_ALREADY_PENDING', 'An AI draft is already pending for this chart note.', 409)
+  }
+}
+
+export class AiGenerationFailedError extends DomainError {
+  constructor() {
+    super('AI_GENERATION_FAILED', 'AI service unavailable. Try again later.', 502)
+  }
+}
+
+export class DraftNotFoundError extends DomainError {
+  constructor() {
+    super('DRAFT_NOT_FOUND', 'AI draft not found.', 404)
+  }
+}
+
+export class DraftAlreadyResolvedError extends DomainError {
+  constructor() {
+    super('DRAFT_ALREADY_RESOLVED', 'This draft was already accepted or rejected.', 409)
+  }
+}

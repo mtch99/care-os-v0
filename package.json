@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=@careos/api",
     "lint": "turbo run lint",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
