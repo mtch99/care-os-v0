@@ -46,3 +46,6 @@ docs/brainstorms/
 
 # pnpm store
 .pnpm-store/
+
+# Any temp folder
+**/temp/*
