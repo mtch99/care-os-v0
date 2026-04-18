@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch",
     "build": "tsc",
     "lint": "eslint src",
     "format": "prettier --write src",
