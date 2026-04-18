@@ -47,11 +47,13 @@ chartingRoutes.post('/chart-notes/:id/ai-draft/:draftId/accept', async (c) => {
     draftId,
   })
 
-  await inngest
-    .send(aiChartDraftAccepted.create(events['aiChartDraft.accepted']))
-    .catch((error: unknown) => {
-      console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
-    })
+  if (events['aiChartDraft.accepted']) {
+    await inngest
+      .send(aiChartDraftAccepted.create(events['aiChartDraft.accepted']))
+      .catch((error: unknown) => {
+        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+      })
+  }
 
   return c.json({ data: result.chartNote })
 })
@@ -65,7 +67,13 @@ chartingRoutes.post('/chart-notes/:id/ai-draft/:draftId/reject', async (c) => {
     draftId,
   })
 
-  await inngest.send(aiChartDraftRejected.create(events['aiChartDraft.rejected']))
+  if (events['aiChartDraft.rejected']) {
+    await inngest
+      .send(aiChartDraftRejected.create(events['aiChartDraft.rejected']))
+      .catch((error: unknown) => {
+        console.error('[INNGEST_ERROR]: Failed to send events to Inngest', error)
+      })
+  }
 
   return c.json({ data: result })
 })
