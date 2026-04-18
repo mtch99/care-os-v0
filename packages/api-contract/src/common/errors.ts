@@ -183,3 +183,17 @@ export class VersionConflictError extends DomainError {
     )
   }
 }
+
+// --- Chart Note Save Draft errors (CAR-110) ---
+
+export class UnknownFieldIdError extends DomainError {
+  constructor(public readonly unknownKeys: string[]) {
+    super('UNKNOWN_FIELD_ID', `Unknown field IDs in payload: ${unknownKeys.join(', ')}`, 422)
+  }
+}
+
+export class NotSessionOwnerError extends DomainError {
+  constructor(practitionerId: string) {
+    super('NOT_SESSION_OWNER', `Practitioner ${practitionerId} is not the session owner`, 403)
+  }
+}

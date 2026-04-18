@@ -8,13 +8,16 @@ import {
   listTemplatesQuerySchema,
   defaultTemplateQuerySchema,
   initializeChartNoteSchema,
+  saveDraftSchema,
   TemplateNotFoundError,
   DefaultTemplateNotFoundError,
   CannotArchiveDefaultTemplateError,
   TemplateArchivedError,
 } from '@careos/api-contract'
 import { TemplateSchema } from '@careos/clinical'
-import { initializeChartNote, createTemplate } from '@careos/scheduling'
+import { createTemplate, initializeChartNote, saveDraft } from '@careos/scheduling'
+import type { FieldValue } from '@careos/scheduling'
+import { inngest, chartNoteSaved } from '@careos/inngest/client'
 import { makeChartNotePorts } from '../composition/clinical-ports'
 
 export const clinicalRoutes = new Hono()
@@ -252,4 +255,36 @@ clinicalRoutes.post('/chart-notes/initialize', async (c) => {
   )
   const status = result.created ? 201 : 200
   return c.json(result, status as ContentfulStatusCode)
+})
+
+// ── Chart Note Save Draft (CAR-110) ──
+
+clinicalRoutes.patch('/chart-notes/:id', async (c) => {
+  const { id } = c.req.param()
+  const body = saveDraftSchema.parse(await c.req.json())
+
+  const result = await saveDraft(
+    {
+      chartNoteId: id,
+      fieldValues: body.fieldValues as Record<string, FieldValue>,
+      version: body.version,
+      practitionerId: body.practitionerId,
+    },
+    ports,
+  )
+
+  await inngest
+    .send(
+      chartNoteSaved.create({
+        chartNoteId: result.chartNote.id,
+        editedBy: body.practitionerId,
+        editedAt: result.chartNote.updatedAt,
+        fieldIdsChanged: Object.keys(body.fieldValues),
+      }),
+    )
+    .catch((error: unknown) => {
+      console.error('[INNGEST_ERROR]: Failed to send chartNote.saved event', error)
+    })
+
+  return c.json({ chartNote: result.chartNote })
 })

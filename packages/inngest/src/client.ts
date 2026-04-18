@@ -62,6 +62,17 @@ export const chartNoteReopened = eventType('charting/chartNote.reopened', {
   }),
 })
 
+// --- Chart Note Save Draft events (CAR-110) ---
+
+export const chartNoteSaved = eventType('charting/chartNote.saved', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    editedBy: z.string(),
+    editedAt: z.string(),
+    fieldIdsChanged: z.array(z.string()),
+  }),
+})
+
 export const inngest = new Inngest({
   id: 'my-app',
 })

@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/require-await,  */
 /**
- * In-memory fake ports for testing the ChartNote aggregate and initialize command.
+ * In-memory fake ports for testing the ChartNote aggregate and commands.
  * Deterministic and reusable across tests. No real DB, no real HTTP.
  */
 import type {
   ChartNoteRepository,
   ChartNoteRow,
+  FieldValue,
   TemplateRepository,
   TemplateRow,
   TemplateListItem,
@@ -23,12 +24,16 @@ export class FakeChartNoteRepository implements ChartNoteRepository {
     return this.store.find((r) => r.sessionId === sessionId) ?? null
   }
 
+  async findById(id: string): Promise<ChartNoteRow | null> {
+    return this.store.find((r) => r.id === id) ?? null
+  }
+
   async insert(data: {
     id: string
     sessionId: string
     templateVersionId: string
     status: 'draft'
-    fieldValues: Record<string, null>
+    fieldValues: Record<string, FieldValue>
     prePopulatedFromIntakeId: string | null
     version: number
   }): Promise<{ row: ChartNoteRow; created: boolean }> {
@@ -54,6 +59,28 @@ export class FakeChartNoteRepository implements ChartNoteRepository {
     return { row, created: true }
   }
 
+  async updateFieldValues(data: {
+    id: string
+    fieldValues: Record<string, FieldValue>
+    updatedAt: Date
+    expectedVersion: number
+  }): Promise<ChartNoteRow | null> {
+    const idx = this.store.findIndex((r) => r.id === data.id)
+    if (idx === -1) return null
+
+    const row = this.store[idx]
+    if (row.version !== data.expectedVersion) return null
+
+    const updated: ChartNoteRow = {
+      ...row,
+      fieldValues: data.fieldValues,
+      updatedAt: data.updatedAt,
+      version: row.version + 1,
+    }
+    this.store[idx] = updated
+    return updated
+  }
+
   seed(row: ChartNoteRow): void {
     this.store.push(row)
   }
@@ -66,6 +93,7 @@ export class FakeChartNoteRepository implements ChartNoteRepository {
 export class FakeTemplateRepository implements TemplateRepository {
   private defaults: TemplateRow[] = []
   private allTemplates: TemplateListItem[] = []
+  private byId: Map<string, TemplateRow> = new Map()
 
   async findDefault(discipline: string, appointmentType: string): Promise<TemplateRow | null> {
     return (
@@ -73,6 +101,10 @@ export class FakeTemplateRepository implements TemplateRepository {
         (t) => t.discipline === discipline && t.appointmentType === appointmentType && t.isDefault,
       ) ?? null
     )
+  }
+
+  async findById(id: string): Promise<TemplateRow | null> {
+    return this.byId.get(id) ?? this.defaults.find((t) => t.id === id) ?? null
   }
 
   async listByDisciplineAndType(
@@ -86,6 +118,11 @@ export class FakeTemplateRepository implements TemplateRepository {
 
   seedDefault(template: TemplateRow): void {
     this.defaults.push(template)
+    this.byId.set(template.id, template)
+  }
+
+  seedById(template: TemplateRow): void {
+    this.byId.set(template.id, template)
   }
 
   seedList(templates: TemplateListItem[]): void {
@@ -109,14 +146,14 @@ export class FakeIntakeLookup implements IntakeLookupPort {
 }
 
 export class FakeSessionLookup implements SessionLookupPort {
-  private sessions: Map<string, { id: string }> = new Map()
+  private sessions: Map<string, { id: string; practitionerId: string }> = new Map()
 
-  async findById(sessionId: string): Promise<{ id: string } | null> {
+  async findById(sessionId: string): Promise<{ id: string; practitionerId: string } | null> {
     return this.sessions.get(sessionId) ?? null
   }
 
-  seed(sessionId: string): void {
-    this.sessions.set(sessionId, { id: sessionId })
+  seed(sessionId: string, practitionerId = 'default-practitioner-id'): void {
+    this.sessions.set(sessionId, { id: sessionId, practitionerId })
   }
 }
 

@@ -51,3 +51,9 @@ export const markReadyForSignatureSchema = z.object({
 export const reopenChartNoteSchema = z.object({
   version: z.number().int().positive(),
 })
+
+export const saveDraftSchema = z.object({
+  fieldValues: z.record(z.string(), z.unknown()),
+  version: z.number().int().positive(),
+  practitionerId: z.uuid(),
+})

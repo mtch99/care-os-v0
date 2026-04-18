@@ -12,9 +12,7 @@ function listComposeProjects() {
     encoding: 'utf8',
   })
   const parsed = JSON.parse(out)
-  return parsed
-    .map((entry) => entry.Name)
-    .filter((name) => CAREOS_PROJECT_RE.test(name))
+  return parsed.map((entry) => entry.Name).filter((name) => CAREOS_PROJECT_RE.test(name))
 }
 
 function listWorktreePaths() {
