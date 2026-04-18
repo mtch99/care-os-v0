@@ -213,3 +213,50 @@ export class NotSessionOwnerError extends DomainError {
     super('NOT_SESSION_OWNER', `Practitioner ${practitionerId} is not the session owner`, 403)
   }
 }
+
+// --- Chart Note Field-Value Validation (CAR-120) ---
+
+/**
+ * One entry in a FieldValueValidationError's `errors` array.
+ *
+ * `path` is modelled after Zod's `ZodIssue.path` so a client can point to the
+ * exact offending leaf — including nested cells inside a repeaterTable row,
+ * e.g. ['painLog', 2, 'col_b']. Leaf errors have a single-element path
+ * ([fieldKey]); nested errors have [fieldKey, rowIndex, columnKey] or similar.
+ */
+export interface FieldValueError {
+  readonly path: ReadonlyArray<string | number>
+  readonly code: string
+  readonly message: string
+}
+
+/**
+ * Thrown when `saveDraft` (or any future caller of FieldValueSchema) receives
+ * a payload whose values do not match their template-declared type or
+ * per-type constraints.
+ *
+ * This is the value-validation counterpart to `UnknownFieldIdError` (which
+ * guards the aggregate's key-existence invariant). Both surface as HTTP 422,
+ * matching the existing semantic-validation convention in this file
+ * (see TemplateValidationError). The two are distinguished by `code` and by
+ * their concrete subclass, not by status.
+ *
+ * Collects all per-field errors before throwing so a client can surface
+ * every invalid field in a single response rather than the "fix-one,
+ * discover-another" loop.
+ */
+export class FieldValueValidationError extends DomainError {
+  constructor(public readonly errors: ReadonlyArray<FieldValueError>) {
+    // Empty-errors construction is a caller bug — a validator should never
+    // throw this when nothing actually failed. Fail loudly rather than
+    // surface an empty "validation failed" response to a client.
+    if (errors.length === 0) {
+      throw new Error('FieldValueValidationError constructed with no errors — this is a caller bug')
+    }
+    super(
+      'FIELD_VALUE_VALIDATION_ERROR',
+      `${String(errors.length)} field value(s) failed validation`,
+      422,
+    )
+  }
+}

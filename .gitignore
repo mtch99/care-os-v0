@@ -41,7 +41,6 @@ coverage/
 .worktrees/*
 
 # Plans
-docs/plans/*
 docs/brainstorms/
 
 # pnpm store

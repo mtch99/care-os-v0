@@ -53,7 +53,7 @@ packages/
 ### Dependency Direction
 
 - `apps/api` → imports from all `packages/*`
-- `packages/scheduling` → `db`, `api-contract`
+- `packages/scheduling` → `db`, `api-contract`, `clinical` (for `FieldValueSchema` used inside the `ChartNote` aggregate's `saveDraft`)
 - `packages/clinical` → `api-contract`, `zod`
 - `packages/inngest` → `clinical`
 - `packages/api-contract` → standalone, no internal deps

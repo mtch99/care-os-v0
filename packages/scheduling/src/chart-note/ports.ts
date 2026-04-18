@@ -5,7 +5,27 @@
  * Zero infrastructure imports — only domain types.
  */
 
-export type FieldValue = string | number | boolean | null | Record<string, unknown>
+/**
+ * The runtime shape of a single field's saved value inside a chart note.
+ *
+ * The union must admit every concrete shape the template content schema
+ * (packages/api-contract/src/clinical/field-configs.ts) permits at runtime:
+ *
+ *   - narrative, text, select, radio, date, signature  → string
+ *   - scale                                             → number
+ *   - checkboxGroup                                     → string[]             (array of option strings)
+ *   - checkboxWithText                                  → unknown[]            (array of { key, checked, text? })
+ *   - repeaterTable                                     → unknown[]            (array of { [columnKey]: value })
+ *   - table                                             → Record<string, ...>  (already covered)
+ *   - bodyDiagram, romDiagram                           → Record<string, ...>  (opaque; passthrough)
+ *   - legend                                            → null                 (display-only)
+ *
+ * `unknown[]` (rather than a tighter per-type variant) keeps this type
+ * declarative without forcing every consumer to narrow. The field-value
+ * validator (`@careos/clinical`'s FieldValueSchema) narrows to the correct
+ * per-type shape at runtime before persistence.
+ */
+export type FieldValue = string | number | boolean | null | Record<string, unknown> | unknown[]
 
 export interface ChartNoteRow {
   id: string

@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CAR-120 · Chart-Note Field-Value Validation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f3ece1;
+        --paper-2: #ede4d3;
+        --ink: #1a1712;
+        --ink-2: #3b342c;
+        --muted: #7a7065;
+        --rule: #d8cdb8;
+        --accent: #c9431f;
+        --accent-2: #efb24b;
+        --ok: #4a7a3f;
+        --code-bg: #1d1a15;
+        --code-fg: #f3ece1;
+        --code-dim: #8b8275;
+        --shadow: 0 1px 0 rgba(26, 23, 18, 0.06);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        font-size: 16.5px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      ::selection {
+        background: var(--accent);
+        color: var(--paper);
+      }
+      a {
+        color: inherit;
+      }
+      code,
+      pre {
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.88em;
+      }
+      kbd {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8em;
+        background: var(--paper-2);
+        border: 1px solid var(--rule);
+        border-radius: 4px;
+        padding: 1px 6px;
+      }
+
+      /* ───────── layout ───────── */
+      .shell {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        max-width: 1240px;
+        margin: 0 auto;
+        gap: 0;
+      }
+      @media (max-width: 900px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+        .sidenav {
+          position: static !important;
+          border-right: 0 !important;
+          border-bottom: 1px solid var(--rule);
+        }
+      }
+
+      /* ───────── sidenav ───────── */
+      .sidenav {
+        position: sticky;
+        top: 0;
+        align-self: start;
+        height: 100vh;
+        padding: 32px 22px 32px 28px;
+        border-right: 1px solid var(--rule);
+        overflow-y: auto;
+      }
+      .brand {
+        font-family: 'Fraunces', serif;
+        font-weight: 600;
+        font-variation-settings: 'opsz' 14;
+        font-size: 15px;
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 4px;
+      }
+      .brand .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 2px;
+        background: var(--accent);
+        display: inline-block;
+      }
+      .brand .sub {
+        color: var(--muted);
+        font-weight: 400;
+        font-style: italic;
+        font-size: 13px;
+      }
+      .issue-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        margin: 24px 0 10px;
+        text-transform: uppercase;
+      }
+      .sidenav ol {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        counter-reset: item;
+      }
+      .sidenav li {
+        counter-increment: item;
+      }
+      .sidenav a {
+        display: block;
+        padding: 8px 0 8px 28px;
+        color: var(--ink-2);
+        text-decoration: none;
+        font-size: 14.5px;
+        position: relative;
+        border-left: 2px solid transparent;
+        margin-left: -2px;
+        transition:
+          color 120ms,
+          border-color 120ms;
+      }
+      .sidenav a::before {
+        content: counter(item, decimal-leading-zero);
+        position: absolute;
+        left: 0;
+        top: 9px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .sidenav a:hover {
+        color: var(--ink);
+      }
+      .sidenav a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+      }
+      .sidenav a.active::before {
+        color: var(--accent);
+      }
+      .sidenav .foot {
+        position: absolute;
+        bottom: 24px;
+        left: 28px;
+        right: 22px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.45;
+        border-top: 1px solid var(--rule);
+        padding-top: 14px;
+      }
+
+      /* ───────── main ───────── */
+      main {
+        padding: 64px 56px 120px;
+        min-width: 0;
+      }
+      @media (max-width: 700px) {
+        main {
+          padding: 40px 24px 80px;
+        }
+      }
+      section {
+        padding: 56px 0;
+        border-bottom: 1px solid var(--rule);
+      }
+      section:last-of-type {
+        border-bottom: 0;
+      }
+      section:first-of-type {
+        padding-top: 0;
+      }
+
+      .eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: 'Fraunces', serif;
+        font-weight: 420;
+        font-variation-settings: 'opsz' 96;
+        letter-spacing: -0.015em;
+        line-height: 1.05;
+        margin: 0 0 18px;
+      }
+      h1 {
+        font-size: clamp(42px, 5.2vw, 72px);
+        font-weight: 380;
+      }
+      h1 em {
+        font-style: italic;
+        color: var(--accent);
+      }
+      h2 {
+        font-size: clamp(28px, 3.2vw, 40px);
+      }
+      h3 {
+        font-size: 22px;
+        font-variation-settings: 'opsz' 36;
+        font-weight: 500;
+      }
+      .lede {
+        font-family: 'Fraunces', serif;
+        font-variation-settings: 'opsz' 24;
+        font-size: 21px;
+        line-height: 1.42;
+        color: var(--ink-2);
+        max-width: 66ch;
+        margin: 0 0 32px;
+      }
+      p {
+        max-width: 68ch;
+      }
+      .muted {
+        color: var(--muted);
+      }
+
+      /* ───────── hero meta strip ───────── */
+      .metastrip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0;
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        margin-top: 44px;
+      }
+      .metastrip > div {
+        padding: 18px 22px 18px 0;
+        border-right: 1px solid var(--rule);
+      }
+      .metastrip > div:last-child {
+        border-right: 0;
+      }
+      .metastrip .k {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .metastrip .v {
+        font-family: 'Fraunces', serif;
+        font-variation-settings: 'opsz' 48;
+        font-size: 30px;
+        line-height: 1;
+        font-weight: 480;
+      }
+      .metastrip .v small {
+        font-family: 'Instrument Sans', sans-serif;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        margin-left: 6px;
+      }
+      @media (max-width: 700px) {
+        .metastrip {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .metastrip > div:nth-child(2n) {
+          border-right: 0;
+        }
+      }
+
+      /* ───────── callouts ───────── */
+      .callout {
+        border-left: 3px solid var(--accent);
+        padding: 14px 20px;
+        background: var(--paper-2);
+        margin: 20px 0;
+        border-radius: 0 6px 6px 0;
+      }
+      .callout .label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 4px;
+      }
+
+      /* ───────── before / after cards ───────── */
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      @media (max-width: 700px) {
+        .compare {
+          grid-template-columns: 1fr;
+        }
+      }
+      .code-card {
+        background: var(--code-bg);
+        color: var(--code-fg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 0 rgba(26, 23, 18, 0.08);
+      }
+      .code-card header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--code-dim);
+      }
+      .code-card header .pill {
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(201, 67, 31, 0.18);
+        color: #f1a488;
+        font-size: 10px;
+      }
+      .code-card.ok header .pill {
+        background: rgba(74, 122, 63, 0.22);
+        color: #a8cf9e;
+      }
+      .code-card pre {
+        margin: 0;
+        padding: 18px 20px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .tok-key {
+        color: #efb24b;
+      }
+      .tok-str {
+        color: #a8cf9e;
+      }
+      .tok-num {
+        color: #9bc6e5;
+      }
+      .tok-cmt {
+        color: var(--code-dim);
+        font-style: italic;
+      }
+      .tok-bad {
+        color: #f1a488;
+        text-decoration: underline wavy rgba(241, 164, 136, 0.6);
+        text-underline-offset: 4px;
+      }
+
+      /* ───────── precondition flow ───────── */
+      .flow {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+        margin: 28px 0 18px;
+        max-width: 760px;
+      }
+      .flow .step {
+        display: grid;
+        grid-template-columns: 48px 1fr 260px;
+        align-items: center;
+        gap: 18px;
+        padding: 14px 16px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        background: #fbf6ec;
+        position: relative;
+        transition: transform 220ms ease, box-shadow 220ms ease;
+      }
+      .flow .step:hover {
+        transform: translateX(3px);
+        box-shadow: var(--shadow);
+      }
+      .flow .step::after {
+        content: '';
+        position: absolute;
+        left: 36px;
+        top: 100%;
+        width: 1px;
+        height: 10px;
+        background: var(--rule);
+      }
+      .flow .step:last-child::after {
+        display: none;
+      }
+      .flow .step .idx {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: var(--muted);
+        text-align: center;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 6px 0;
+      }
+      .flow .step .title {
+        font-family: 'Fraunces', serif;
+        font-variation-settings: 'opsz' 32;
+        font-size: 18px;
+        font-weight: 500;
+      }
+      .flow .step .title small {
+        font-family: 'Instrument Sans', sans-serif;
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 13px;
+        margin-left: 8px;
+      }
+      .flow .step .err {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11.5px;
+        text-align: right;
+        color: var(--ink-2);
+      }
+      .flow .step .err .code {
+        color: var(--accent);
+      }
+      .flow .step.new {
+        border-color: var(--accent);
+        background: #fff4eb;
+        box-shadow: 0 0 0 3px rgba(201, 67, 31, 0.08);
+      }
+      .flow .step.new .idx {
+        background: var(--accent);
+        color: var(--paper);
+        border-color: var(--accent);
+      }
+      .flow .step .badge-new {
+        position: absolute;
+        right: -12px;
+        top: -10px;
+        background: var(--accent);
+        color: var(--paper);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        padding: 3px 8px;
+        border-radius: 999px;
+        text-transform: uppercase;
+      }
+      @media (max-width: 700px) {
+        .flow .step {
+          grid-template-columns: 40px 1fr;
+        }
+        .flow .step .err {
+          grid-column: 1 / -1;
+          text-align: left;
+          padding-left: 58px;
+          padding-top: 4px;
+        }
+      }
+
+      /* ───────── dep graph ───────── */
+      .depgraph {
+        background: #fbf6ec;
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 36px 28px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto auto auto;
+        gap: 28px 36px;
+        position: relative;
+        margin-top: 24px;
+      }
+      .node {
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 14px 16px;
+        background: var(--paper);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13.5px;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+      .node .pkg-tag {
+        display: block;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-top: 3px;
+        font-family: 'Instrument Sans', sans-serif;
+      }
+      .node.spotlight {
+        border-color: var(--accent);
+        background: #fff4eb;
+        box-shadow: 0 0 0 3px rgba(201, 67, 31, 0.1);
+      }
+      .depgraph svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .depgraph .legend {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        margin-top: 4px;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .legend .sw {
+        display: inline-block;
+        width: 22px;
+        height: 2px;
+        vertical-align: middle;
+        margin-right: 6px;
+      }
+      @media (max-width: 700px) {
+        .depgraph {
+          grid-template-columns: 1fr;
+        }
+        .depgraph svg {
+          display: none;
+        }
+      }
+
+      /* ───────── 14 field types grid ───────── */
+      .types {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+      .type {
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 14px 16px;
+        background: #fbf6ec;
+        cursor: default;
+        position: relative;
+        overflow: hidden;
+        min-height: 110px;
+        transition: border-color 160ms, transform 160ms;
+      }
+      .type:hover {
+        border-color: var(--ink);
+        transform: translateY(-2px);
+      }
+      .type .name {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: var(--ink);
+        margin-bottom: 8px;
+      }
+      .type .rule {
+        font-size: 13px;
+        color: var(--ink-2);
+        line-height: 1.45;
+      }
+      .type .tag {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .type.passthrough {
+        background: repeating-linear-gradient(
+          -45deg,
+          #fbf6ec,
+          #fbf6ec 7px,
+          #f1e8d3 7px,
+          #f1e8d3 8px
+        );
+      }
+      .type.passthrough .tag {
+        color: var(--accent);
+      }
+      .type.strict {
+        border-color: var(--ink);
+      }
+
+      /* ───────── envelope JSON ───────── */
+      .envelope {
+        display: grid;
+        grid-template-columns: 1fr minmax(0, 320px);
+        gap: 28px;
+        margin-top: 14px;
+      }
+      @media (max-width: 820px) {
+        .envelope {
+          grid-template-columns: 1fr;
+        }
+      }
+      .envelope .annotations {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .annot {
+        border-left: 2px solid var(--accent);
+        padding: 4px 12px;
+        font-size: 13.5px;
+        line-height: 1.5;
+      }
+      .annot strong {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--accent);
+        display: block;
+      }
+      .hl {
+        background: rgba(239, 178, 75, 0.18);
+        border-radius: 3px;
+        padding: 0 3px;
+      }
+      .hl-path {
+        background: rgba(201, 67, 31, 0.22);
+        border-radius: 3px;
+        padding: 0 3px;
+      }
+      .hl-code {
+        background: rgba(155, 198, 229, 0.18);
+        border-radius: 3px;
+        padding: 0 3px;
+      }
+
+      /* ───────── units timeline ───────── */
+      .units {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-top: 22px;
+      }
+      .unit {
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        align-items: center;
+        gap: 18px;
+        padding: 14px 18px;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        background: #fbf6ec;
+      }
+      .unit .n {
+        font-family: 'Fraunces', serif;
+        font-variation-settings: 'opsz' 48;
+        font-size: 30px;
+        font-weight: 480;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .unit .what {
+        font-size: 15px;
+      }
+      .unit .what b {
+        font-weight: 600;
+      }
+      .unit .what small {
+        display: block;
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 3px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .unit .state {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ok);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .unit .state::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--ok);
+        border-radius: 50%;
+        display: inline-block;
+      }
+      @media (max-width: 600px) {
+        .unit {
+          grid-template-columns: 44px 1fr;
+        }
+        .unit .state {
+          grid-column: 1 / -1;
+          padding-left: 62px;
+        }
+      }
+
+      /* ───────── files-changed stat ───────── */
+      .filegrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .fileblock {
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 14px 16px;
+        background: #fbf6ec;
+      }
+      .fileblock .pkg {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+        margin-bottom: 8px;
+      }
+      .fileblock .bar {
+        height: 6px;
+        background: var(--paper-2);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 6px;
+      }
+      .fileblock .bar > span {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+      }
+      .fileblock .count {
+        font-family: 'Fraunces', serif;
+        font-variation-settings: 'opsz' 32;
+        font-size: 24px;
+        font-weight: 480;
+      }
+      .fileblock .count small {
+        font-family: 'Instrument Sans', sans-serif;
+        color: var(--muted);
+        font-size: 12px;
+        margin-left: 4px;
+        font-weight: 400;
+      }
+
+      /* ───────── gaps list ───────── */
+      .gaps {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .gap {
+        border: 1px dashed var(--rule);
+        border-radius: 8px;
+        padding: 14px 16px;
+      }
+      .gap .tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 6px;
+      }
+      .gap .what {
+        font-size: 14.5px;
+        line-height: 1.45;
+      }
+
+      /* ───────── reveal animation ───────── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(16px);
+        transition: opacity 600ms ease, transform 600ms ease;
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+
+      /* ───────── footer ───────── */
+      footer.end {
+        padding: 40px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+        max-width: 68ch;
+      }
+      footer.end hr {
+        border: 0;
+        border-top: 1px solid var(--rule);
+        margin: 24px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidenav" aria-label="Section navigation">
+        <div class="brand">
+          <span class="dot"></span>
+          <span>careOS <span class="sub">/ explainer</span></span>
+        </div>
+        <div class="issue-tag">CAR-120 · In review</div>
+        <nav>
+          <ol>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#before-after">Before / After</a></li>
+            <li><a href="#flow">Precondition chain</a></li>
+            <li><a href="#dep-graph">Dependency edge</a></li>
+            <li><a href="#types">14 field types</a></li>
+            <li><a href="#envelope">Error envelope</a></li>
+            <li><a href="#units">Implementation units</a></li>
+            <li><a href="#files">What changed</a></li>
+            <li><a href="#gaps">Known gaps</a></li>
+          </ol>
+        </nav>
+        <div class="foot">
+          <div>
+            Plan · <em>2026-04-18-001</em><br />
+            Branch ·
+            <code style="font-size: 10.5px">feature/car-120-…</code>
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <!-- ─────── HERO ─────── -->
+        <section id="overview" aria-labelledby="title">
+          <div class="eyebrow">CAR-120 · Feature</div>
+          <h1 id="title">
+            Chart notes now <em>reject</em><br />
+            garbage field values.
+          </h1>
+          <p class="lede">
+            Before this PR, <code>saveDraft</code> accepted
+            <code>pain_scale: "seven and a half"</code> against a 0&#8239;–&#8239;10 numeric
+            <code>scale</code> without complaint. JSONB blobs accumulated garbage that every
+            downstream consumer — PDF, signed-note display, the future signature gate, AI
+            round-trips — had to defend against on its own. This PR closes that gap at the
+            aggregate.
+          </p>
+
+          <div class="metastrip" role="list">
+            <div role="listitem">
+              <div class="k">Field types covered</div>
+              <div class="v">14 <small>all of <code>fieldTypeEnum</code></small></div>
+            </div>
+            <div role="listitem">
+              <div class="k">Implementation units</div>
+              <div class="v">8 <small>complete</small></div>
+            </div>
+            <div role="listitem">
+              <div class="k">New error class</div>
+              <div class="v">1 <small>422 · with <code>errors[]</code></small></div>
+            </div>
+            <div role="listitem">
+              <div class="k">Manual test scripts</div>
+              <div class="v">13 <small>curl, per-scenario</small></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ─────── BEFORE / AFTER ─────── -->
+        <section id="before-after" class="reveal">
+          <div class="eyebrow">Before · After</div>
+          <h2>A lie the old API used to tell.</h2>
+          <p>
+            Same request, same template, same chart note. The only thing that changed is where
+            the invariant lives.
+          </p>
+
+          <div class="compare">
+            <div class="code-card">
+              <header>
+                <span class="pill">Before · 200 OK</span>
+                <span>PATCH /chart-notes/:id</span>
+              </header>
+              <pre><code>{
+  <span class="tok-key">"incomingFieldValues"</span>: {
+    <span class="tok-key">"pain_scale"</span>: <span class="tok-bad">"seven and a half"</span>,
+    <span class="tok-key">"mechanism"</span>: <span class="tok-bad">"Traumatisque"</span>,
+    <span class="tok-key">"rom_log"</span>:   <span class="tok-bad">[{"col_b": 12}]</span>
+  },
+  <span class="tok-key">"version"</span>: <span class="tok-num">3</span>
+}
+
+<span class="tok-cmt">→ 200 OK, version bumped to 4</span>
+<span class="tok-cmt">  garbage persisted in JSONB</span></code></pre>
+            </div>
+
+            <div class="code-card ok">
+              <header>
+                <span class="pill">After · 422 Validation</span>
+                <span>PATCH /chart-notes/:id</span>
+              </header>
+              <pre><code>{
+  <span class="tok-key">"error"</span>: {
+    <span class="tok-key">"code"</span>: <span class="tok-str">"FIELD_VALUE_VALIDATION_ERROR"</span>,
+    <span class="tok-key">"message"</span>: <span class="tok-str">"3 field value(s) failed validation"</span>,
+    <span class="tok-key">"errors"</span>: [
+      { <span class="tok-key">"path"</span>: [<span class="tok-str">"pain_scale"</span>],            <span class="tok-key">"code"</span>: <span class="tok-str">"WRONG_TYPE"</span> },
+      { <span class="tok-key">"path"</span>: [<span class="tok-str">"mechanism"</span>],             <span class="tok-key">"code"</span>: <span class="tok-str">"NOT_IN_OPTIONS"</span> },
+      { <span class="tok-key">"path"</span>: [<span class="tok-str">"rom_log"</span>,<span class="tok-num">0</span>,<span class="tok-str">"col_b"</span>],     <span class="tok-key">"code"</span>: <span class="tok-str">"WRONG_TYPE"</span> }
+    ]
+  }
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="callout">
+            <div class="label">Why it matters</div>
+            The client receives <em>every</em> violation in one response — no fix-one-discover-another
+            loop — and each <code>path</code> points at the exact offending cell, including
+            <code>[fieldKey, rowIndex, columnKey]</code> inside a <code>repeaterTable</code>.
+          </div>
+        </section>
+
+        <!-- ─────── PRECONDITION FLOW ─────── -->
+        <section id="flow" class="reveal">
+          <div class="eyebrow">Aggregate · Precondition chain</div>
+          <h2>Where the new check slots in.</h2>
+          <p>
+            <code>ChartNote.saveDraft</code> already owned a chain of invariants. Value
+            validation lands <em>after</em> the cheap, surgical checks — identity, state,
+            concurrency, key-existence — so a stale version or a typo still short-circuits
+            before any per-field Zod work runs.
+          </p>
+
+          <div class="flow" role="list">
+            <div class="step" role="listitem">
+              <div class="idx">01</div>
+              <div class="title">
+                Chart note loaded
+                <small>by id</small>
+              </div>
+              <div class="err"><span class="code">ChartNoteNotFoundError</span> · 404</div>
+            </div>
+            <div class="step" role="listitem">
+              <div class="idx">02</div>
+              <div class="title">
+                Session ownership
+                <small>practitioner matches</small>
+              </div>
+              <div class="err"><span class="code">NotSessionOwnerError</span> · 403</div>
+            </div>
+            <div class="step" role="listitem">
+              <div class="idx">03</div>
+              <div class="title">
+                Status is <code>draft</code>
+                <small>not signed / ready</small>
+              </div>
+              <div class="err"><span class="code">ChartNoteNotDraftError</span> · 409</div>
+            </div>
+            <div class="step" role="listitem">
+              <div class="idx">04</div>
+              <div class="title">
+                Version matches
+                <small>optimistic lock</small>
+              </div>
+              <div class="err"><span class="code">VersionConflictError</span> · 409</div>
+            </div>
+            <div class="step" role="listitem">
+              <div class="idx">05</div>
+              <div class="title">
+                Every key exists in template
+                <small>throws on first</small>
+              </div>
+              <div class="err"><span class="code">UnknownFieldIdError</span> · 422</div>
+            </div>
+            <div class="step new" role="listitem">
+              <span class="badge-new">New</span>
+              <div class="idx">06</div>
+              <div class="title">
+                Every value fits its type
+                <small>collects <em>all</em> violations</small>
+              </div>
+              <div class="err">
+                <span class="code">FieldValueValidationError</span> · 422<br />
+                <span class="muted">with structured <code>errors[]</code></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <div class="label">Self-defending aggregate</div>
+            Validation lives <em>inside</em> <code>ChartNote.saveDraft</code>, not in the
+            handler. Cost: the aggregate now takes <code>templateContent: TemplateContentV2</code>
+            instead of a string array. Benefit: no future caller can bypass the invariant by
+            forgetting to call a helper.
+          </div>
+        </section>
+
+        <!-- ─────── DEPENDENCY GRAPH ─────── -->
+        <section id="dep-graph" class="reveal">
+          <div class="eyebrow">Package graph · One new edge</div>
+          <h2>
+            <code>scheduling</code> now depends on <code>clinical</code>.
+          </h2>
+          <p>
+            The validator ships in <code>@careos/clinical</code> alongside the existing
+            <code>TemplateSchema</code> — a sibling module, not a method on the schema. The
+            aggregate in <code>@careos/scheduling</code> imports <code>FieldValueSchema</code>
+            and runs it inline. That introduces one new edge in the package graph.
+          </p>
+
+          <div class="depgraph" aria-hidden="true">
+            <div class="node" style="grid-column: 2; grid-row: 1">
+              apps/api
+              <span class="pkg-tag">Hono routes + onError</span>
+            </div>
+
+            <div class="node spotlight" style="grid-column: 1; grid-row: 2">
+              scheduling
+              <span class="pkg-tag">ChartNote aggregate</span>
+            </div>
+            <div class="node" style="grid-column: 2; grid-row: 2">
+              clinical
+              <span class="pkg-tag">TemplateSchema · FieldValueSchema</span>
+            </div>
+            <div class="node" style="grid-column: 3; grid-row: 2">
+              api-contract
+              <span class="pkg-tag">DomainError · Zod schemas</span>
+            </div>
+
+            <div class="node" style="grid-column: 1; grid-row: 3">
+              db
+              <span class="pkg-tag">Drizzle · repos</span>
+            </div>
+            <div class="node" style="grid-column: 2; grid-row: 3">
+              charting
+              <span class="pkg-tag">AI-fill (out of scope here)</span>
+            </div>
+
+            <svg viewBox="0 0 600 320" preserveAspectRatio="none">
+              <defs>
+                <marker
+                  id="arr"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="7"
+                  refY="4"
+                  orient="auto"
+                >
+                  <path d="M0,0 L7,4 L0,8 z" fill="#7a7065" />
+                </marker>
+                <marker
+                  id="arr-acc"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="7"
+                  refY="4"
+                  orient="auto"
+                >
+                  <path d="M0,0 L7,4 L0,8 z" fill="#c9431f" />
+                </marker>
+              </defs>
+              <!-- existing edges: apps/api → scheduling, apps/api → clinical, apps/api → api-contract, scheduling → db, scheduling → api-contract, clinical → api-contract -->
+              <path
+                d="M 300 50 L 110 150"
+                fill="none"
+                stroke="#7a7065"
+                stroke-width="1"
+                marker-end="url(#arr)"
+              />
+              <path
+                d="M 300 50 L 300 150"
+                fill="none"
+                stroke="#7a7065"
+                stroke-width="1"
+                marker-end="url(#arr)"
+              />
+              <path
+                d="M 300 50 L 490 150"
+                fill="none"
+                stroke="#7a7065"
+                stroke-width="1"
+                marker-end="url(#arr)"
+              />
+              <path
+                d="M 110 180 L 110 260"
+                fill="none"
+                stroke="#7a7065"
+                stroke-width="1"
+                marker-end="url(#arr)"
+              />
+              <path
+                d="M 110 180 L 480 160"
+                fill="none"
+                stroke="#7a7065"
+                stroke-width="1"
+                stroke-dasharray="3 3"
+                marker-end="url(#arr)"
+              />
+              <path
+                d="M 300 180 L 485 180"
+                fill="none"
+                stroke="#7a7065"
+                stroke-width="1"
+                marker-end="url(#arr)"
+              />
+              <!-- NEW edge: scheduling → clinical -->
+              <path
+                d="M 145 165 L 260 165"
+                fill="none"
+                stroke="#c9431f"
+                stroke-width="2"
+                marker-end="url(#arr-acc)"
+              />
+            </svg>
+
+            <div class="legend">
+              <span><span class="sw" style="background: #7a7065"></span>existing dependency</span>
+              <span
+                ><span class="sw" style="background: #c9431f; height: 3px"></span>new in this PR
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ─────── 14 FIELD TYPES ─────── -->
+        <section id="types" class="reveal">
+          <div class="eyebrow">Coverage · Every template field type</div>
+          <h2>One validator, fourteen shapes.</h2>
+          <p>
+            Each field type dispatches to its own rule, derived from the constraints already
+            declared in <code>field-configs.ts</code>. An <code>assertNever</code> default
+            makes a future 15th type a <em>compile</em> error, not a runtime passthrough.
+          </p>
+
+          <div class="types">
+            <div class="type strict"><div class="tag">strict</div><div class="name">text</div><div class="rule">Must be <code>string</code>. No further constraint.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">narrative</div><div class="rule">Must be <code>string</code>. No further constraint.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">scale</div><div class="rule">Number in <code>[min, max]</code>, aligned to <code>step</code> (float-safe).</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">date</div><div class="rule">String parseable by <code>Date.parse</code> to a finite timestamp.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">select</div><div class="rule">Matches <code>option.fr</code> <em>or</em> <code>option.en</code>.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">radio</div><div class="rule">Parallel to <code>select</code> — fr or en.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">checkboxGroup</div><div class="rule"><code>string[]</code>, each in options, no duplicates.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">checkboxWithText</div><div class="rule">Array of <code>{ key, checked, text? }</code>; key must be declared.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">repeaterTable</div><div class="rule">Rows of cells; each cell typed per column (<code>text | select | narrative</code>).</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">table</div><div class="rule">Keys within declared rows/columns; cells must be strings.</div></div>
+            <div class="type strict"><div class="tag">strict</div><div class="name">legend</div><div class="rule">Display-only. Rejects any non-<code>null</code> value.</div></div>
+            <div class="type passthrough"><div class="tag">passthrough</div><div class="name">bodyDiagram</div><div class="rule">Accepts <code>null</code> or any value until a frontend defines a shape.</div></div>
+            <div class="type passthrough"><div class="tag">passthrough</div><div class="name">romDiagram</div><div class="rule">Accepts <code>null</code> or any value until a frontend defines a shape.</div></div>
+            <div class="type passthrough"><div class="tag">passthrough</div><div class="name">signature</div><div class="rule">Accepts <code>null</code> or any value until a frontend defines a shape.</div></div>
+          </div>
+
+          <div class="callout">
+            <div class="label">Always valid</div>
+            <code>null</code> for any field is accepted — drafts are incomplete by design
+            (<em>required-ness</em> is the future signature-gate's problem, not this PR's). On
+            a collection-typed field, <code>null</code> <em>clears</em> the collection; clients
+            must send <code>[]</code> to keep-as-empty. Documented foot-gun.
+          </div>
+        </section>
+
+        <!-- ─────── ERROR ENVELOPE ─────── -->
+        <section id="envelope" class="reveal">
+          <div class="eyebrow">API · Error envelope</div>
+          <h2>Structured errors, one envelope.</h2>
+          <p>
+            A fourth branch in Hono's <code>app.onError</code> forwards the per-leaf
+            <code>errors[]</code> array. The generic <code>DomainError</code> branch would
+            have dropped it.
+          </p>
+
+          <div class="envelope">
+            <div class="code-card">
+              <header>
+                <span class="pill">HTTP 422</span>
+                <span>Response · application/json</span>
+              </header>
+              <pre><code>{
+  <span class="tok-key">"error"</span>: {
+    <span class="tok-key">"code"</span>: <span class="tok-str hl-code">"FIELD_VALUE_VALIDATION_ERROR"</span>,
+    <span class="tok-key">"message"</span>: <span class="tok-str">"3 field value(s) failed validation"</span>,
+    <span class="tok-key">"errors"</span>: [
+      {
+        <span class="tok-key">"path"</span>:    [<span class="tok-str hl-path">"rom_log"</span>, <span class="tok-num hl-path">2</span>, <span class="tok-str hl-path">"col_b"</span>],
+        <span class="tok-key">"code"</span>:    <span class="tok-str hl">"WRONG_TYPE"</span>,
+        <span class="tok-key">"message"</span>: <span class="tok-str">"expected string, got number"</span>
+      }
+    ]
+  }
+}</code></pre>
+            </div>
+
+            <div class="annotations">
+              <div class="annot">
+                <strong>code</strong>
+                Discriminator for the client. Distinguishes <code>FIELD_VALUE_VALIDATION_ERROR</code>
+                from the still-thrown <code>UNKNOWN_FIELD_ID</code>.
+              </div>
+              <div class="annot">
+                <strong>path</strong>
+                Mirrors <code>ZodIssue.path</code>. Leaves are <code>[fieldKey]</code>; repeater
+                cells are <code>[fieldKey, rowIndex, columnKey]</code>. Verbatim, never flattened.
+              </div>
+              <div class="annot">
+                <strong>errors[]</strong>
+                Every violation in one response — no
+                fix-one-discover-another loop for the UI. The client highlights each cell
+                directly from <code>path</code>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ─────── UNITS ─────── -->
+        <section id="units" class="reveal">
+          <div class="eyebrow">Implementation · Eight units</div>
+          <h2>How the PR is composed.</h2>
+          <p>
+            Every unit landed as its own commit, in dependency order. Units 1–7 are the code;
+            Unit 8 is the pattern writeup in <code>docs/solutions/</code>.
+          </p>
+
+          <div class="units">
+            <div class="unit"><div class="n">1</div><div class="what"><b>FieldValueValidationError</b> in <code>@careos/api-contract</code><small>httpStatus 422 · public readonly <code>errors[]</code></small></div><div class="state">Done</div></div>
+            <div class="unit"><div class="n">2</div><div class="what"><b>Widen <code>FieldValue</code></b> to admit array-shaped values<small>purely typed; routes keep accepting <code>Record&lt;string, unknown&gt;</code></small></div><div class="state">Done</div></div>
+            <div class="unit"><div class="n">3</div><div class="what"><b>FieldValueSchema validator</b> in <code>@careos/clinical</code><small>14 field types · <code>assertNever</code> default · path-based errors</small></div><div class="state">Done</div></div>
+            <div class="unit"><div class="n">4</div><div class="what"><b>Wire into <code>ChartNote.saveDraft</code></b> aggregate<small>precondition chain · widens signature to <code>TemplateContentV2</code></small></div><div class="state">Done</div></div>
+            <div class="unit"><div class="n">5</div><div class="what"><b>Update save-draft handler</b> to pass <code>templateContent</code><small>drops inline <code>extractFieldKeys</code> call</small></div><div class="state">Done</div></div>
+            <div class="unit"><div class="n">6</div><div class="what"><b>Hono <code>onError</code> branch</b> for the new error<small>forwards <code>errors[]</code> verbatim · generic branch untouched</small></div><div class="state">Done</div></div>
+            <div class="unit"><div class="n">7</div><div class="what"><b>CLAUDE.md dependency direction</b> update<small><code>scheduling → db, api-contract, clinical</code></small></div><div class="state">Done</div></div>
+            <div class="unit"><div class="n">8</div><div class="what"><b>Pattern writeup</b> in <code>docs/solutions/best-practices/</code><small>sibling-module shape · self-defending aggregate · path-based errors</small></div><div class="state">Done</div></div>
+          </div>
+        </section>
+
+        <!-- ─────── FILES CHANGED ─────── -->
+        <section id="files" class="reveal">
+          <div class="eyebrow">Diff shape</div>
+          <h2>Where the weight sits.</h2>
+          <p class="muted">
+            Figures below cover files touched by this feature's commits only (merge-in changes
+            from the parent branch excluded). The bar is proportional to files-changed within
+            this section.
+          </p>
+
+          <div class="filegrid">
+            <div class="fileblock"><div class="pkg">packages/clinical</div><div class="count">5 <small>files</small></div><div class="bar"><span style="width: 100%"></span></div></div>
+            <div class="fileblock"><div class="pkg">packages/scheduling</div><div class="count">3 <small>files</small></div><div class="bar"><span style="width: 60%"></span></div></div>
+            <div class="fileblock"><div class="pkg">packages/api-contract</div><div class="count">3 <small>files</small></div><div class="bar"><span style="width: 60%"></span></div></div>
+            <div class="fileblock"><div class="pkg">apps/api</div><div class="count">2 <small>files</small></div><div class="bar"><span style="width: 40%"></span></div></div>
+            <div class="fileblock"><div class="pkg">docs/solutions + docs/plans</div><div class="count">2 <small>files</small></div><div class="bar"><span style="width: 40%"></span></div></div>
+            <div class="fileblock"><div class="pkg">scripts/test-car-120-…</div><div class="count">14 <small>scripts + README</small></div><div class="bar"><span style="width: 80%"></span></div></div>
+          </div>
+        </section>
+
+        <!-- ─────── GAPS ─────── -->
+        <section id="gaps" class="reveal">
+          <div class="eyebrow">Scope boundaries · Known gaps</div>
+          <h2>What this PR does <em>not</em> do.</h2>
+          <p>
+            Each gap is filed (or fileable) as its own Linear issue. Keeping them out of this
+            PR is what lets it stay reviewable.
+          </p>
+
+          <div class="gaps">
+            <div class="gap">
+              <div class="tag">Follow-up</div>
+              <div class="what">
+                Wire the validator into <code>acceptAiDraft</code> — the AI-fill path currently
+                bypasses both key and value checks.
+              </div>
+            </div>
+            <div class="gap">
+              <div class="tag">Follow-up</div>
+              <div class="what">
+                Wire the validator into <code>initialize-chart-note</code> so new chart notes
+                defend against invalid seed values.
+              </div>
+            </div>
+            <div class="gap">
+              <div class="tag">Deferred</div>
+              <div class="what">
+                Required-ness enforcement lives with the future "ready for signature" gate —
+                drafts stay incomplete by design.
+              </div>
+            </div>
+            <div class="gap">
+              <div class="tag">Deferred</div>
+              <div class="what">
+                Stale-data audit: pre-existing JSONB blobs are not migrated. The next save
+                touching an invalid field will fail loudly; others persist as-is.
+              </div>
+            </div>
+            <div class="gap">
+              <div class="tag">Schema</div>
+              <div class="what">
+                <code>select</code>/<code>radio</code>/<code>checkboxGroup</code> options have
+                no stable key — values are locale-pinned until the schema grows one.
+              </div>
+            </div>
+            <div class="gap">
+              <div class="tag">Schema</div>
+              <div class="what">
+                <code>bodyDiagram</code>, <code>romDiagram</code>, <code>signature</code>
+                accept any non-null value; tighten when a frontend emits a real shape.
+              </div>
+            </div>
+          </div>
+
+          <footer class="end">
+            <hr />
+            CAR-120 · feat: validate chart-note field values against template · plan
+            <em>2026-04-18-001</em> · pattern writeup
+            <code>docs/solutions/best-practices/field-value-validation-mirrors-template-schema.md</code>.
+            Curl scripts for every scenario live alongside this artifact in
+            <code>scripts/test-car-120-field-value-validation/</code>.
+          </footer>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // Scrollspy: highlight the active section in the side nav.
+      const links = Array.from(document.querySelectorAll('.sidenav a'));
+      const map = new Map();
+      links.forEach((a) => {
+        const id = a.getAttribute('href').slice(1);
+        const target = document.getElementById(id);
+        if (target) map.set(target, a);
+      });
+
+      const spy = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            links.forEach((l) => l.classList.remove('active'));
+            const link = map.get(e.target);
+            if (link) link.classList.add('active');
+          });
+        },
+        { rootMargin: '-30% 0px -65% 0px', threshold: 0 }
+      );
+      map.forEach((_link, target) => spy.observe(target));
+
+      // Reveal on scroll.
+      const reveal = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              reveal.unobserve(e.target);
+            }
+          });
+        },
+        { rootMargin: '0px 0px -10% 0px', threshold: 0.08 }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => reveal.observe(el));
+    </script>
+  </body>
+</html>

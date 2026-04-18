@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import {
   ChartNoteNotFoundError,
   ChartNoteNotDraftError,
+  FieldValueValidationError,
   UnknownFieldIdError,
   VersionConflictError,
   NotSessionOwnerError,
@@ -330,6 +331,126 @@ describe('saveDraft', () => {
       }
 
       expect(eventPublisher.getPublished()).toHaveLength(0)
+    })
+  })
+
+  // -- Value validation: per-field type + constraint checks --
+
+  describe('Given a payload with an out-of-range scale value, when saving draft', () => {
+    it('then throws FieldValueValidationError with OUT_OF_RANGE at the field path', async () => {
+      const input = makeInput({ fieldValues: { pain_scale: 42 } })
+
+      try {
+        await saveDraft(input, makePorts())
+        expect.fail('Should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(FieldValueValidationError)
+        const error = err as FieldValueValidationError
+        expect(error.code).toBe('FIELD_VALUE_VALIDATION_ERROR')
+        expect(error.httpStatus).toBe(422)
+        expect(error.errors).toHaveLength(1)
+        expect(error.errors[0].code).toBe('OUT_OF_RANGE')
+        expect(error.errors[0].path).toEqual(['pain_scale'])
+      }
+    })
+
+    it('then no events are emitted and chart note is unchanged', async () => {
+      const input = makeInput({ fieldValues: { pain_scale: 42 } })
+
+      try {
+        await saveDraft(input, makePorts())
+      } catch {
+        // expected
+      }
+
+      expect(eventPublisher.getPublished()).toHaveLength(0)
+      const current = await chartNoteRepo.findById(CHART_NOTE_ID)
+      expect(current?.version).toBe(1)
+      expect(current?.fieldValues?.pain_scale).toBeNull()
+    })
+  })
+
+  describe('Given a payload with a wrong-typed value, when saving draft', () => {
+    it('then throws FieldValueValidationError with WRONG_TYPE', async () => {
+      const input = makeInput({ fieldValues: { chief_complaint: 123 } })
+
+      try {
+        await saveDraft(input, makePorts())
+        expect.fail('Should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(FieldValueValidationError)
+        const error = err as FieldValueValidationError
+        expect(error.errors[0].code).toBe('WRONG_TYPE')
+        expect(error.errors[0].path).toEqual(['chief_complaint'])
+      }
+    })
+  })
+
+  describe('Given a payload with multiple invalid values, when saving draft', () => {
+    it('then throws a single FieldValueValidationError collecting every error', async () => {
+      const input = makeInput({
+        fieldValues: { chief_complaint: 99, pain_scale: 42 },
+      })
+
+      try {
+        await saveDraft(input, makePorts())
+        expect.fail('Should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(FieldValueValidationError)
+        const error = err as FieldValueValidationError
+        expect(error.errors).toHaveLength(2)
+        expect(error.errors.map((e) => e.code).sort()).toEqual(['OUT_OF_RANGE', 'WRONG_TYPE'])
+      }
+    })
+  })
+
+  describe('Given a payload with both an unknown key AND an invalid value, when saving draft', () => {
+    it('then throws UnknownFieldIdError (key check short-circuits the value check)', async () => {
+      const input = makeInput({
+        fieldValues: { nonexistent_field: 'x', pain_scale: 42 },
+      })
+
+      try {
+        await saveDraft(input, makePorts())
+        expect.fail('Should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(UnknownFieldIdError)
+      }
+    })
+  })
+
+  describe('Given null for any field, when saving draft', () => {
+    it('then value validation passes (drafts are incomplete by design)', async () => {
+      const input = makeInput({ fieldValues: { pain_scale: null } })
+      await expect(saveDraft(input, makePorts())).resolves.toBeDefined()
+    })
+  })
+
+  describe('Given a payload valid against per-type constraints, when saving draft', () => {
+    it('then the chart note is updated and the event is emitted', async () => {
+      const input = makeInput({ fieldValues: { pain_scale: 7 } })
+      const result = await saveDraft(input, makePorts())
+
+      expect(result.chartNote.fieldValues.pain_scale).toBe(7)
+      expect(result.chartNote.version).toBe(2)
+      expect(eventPublisher.getPublished()).toHaveLength(1)
+    })
+  })
+
+  describe('Given a payload whose value validates AFTER a status failure, when saving draft', () => {
+    it('then throws ChartNoteNotDraftError and never runs the value validator', async () => {
+      chartNoteRepo = new FakeChartNoteRepository()
+      chartNoteRepo.seed(makeDraftChartNote({ status: 'signed' }))
+
+      const input = makeInput({ fieldValues: { pain_scale: 42 } })
+
+      try {
+        await saveDraft(input, makePorts())
+        expect.fail('Should have thrown')
+      } catch (err) {
+        // Status check runs before value check — user sees status error, not value error
+        expect(err).toBeInstanceOf(ChartNoteNotDraftError)
+      }
     })
   })
 })

@@ -3,8 +3,24 @@ import {
   UnknownFieldIdError,
   VersionConflictError,
 } from '@careos/api-contract'
+import type { TemplateContentV2 } from '@careos/api-contract'
+import { FieldValueSchema } from '@careos/clinical'
 
 import type { ChartNoteRow, ChartNoteEvent, FieldValue } from './ports'
+
+function collectFieldKeys(content: TemplateContentV2): Set<string> {
+  const keys = new Set<string>()
+  for (const page of content.pages) {
+    for (const section of page.sections) {
+      for (const row of section.rows) {
+        for (const field of row.columns) {
+          keys.add(field.key)
+        }
+      }
+    }
+  }
+  return keys
+}
 
 /**
  * ChartNote aggregate root.
@@ -114,7 +130,7 @@ export class ChartNote {
    */
   saveDraft(params: {
     incomingFieldValues: Record<string, FieldValue>
-    templateFieldIds: string[]
+    templateContent: TemplateContentV2
     editedBy: string
     editedAt: Date
     incomingVersion: number
@@ -129,14 +145,22 @@ export class ChartNote {
       throw new VersionConflictError(this.id, params.incomingVersion, this.version)
     }
 
-    // Precondition: every incoming key must exist in the template's field IDs
-    const templateFieldSet = new Set(params.templateFieldIds)
+    // Precondition: every incoming key must exist in the template's field IDs.
+    // Key-existence is enforced first so the user sees "this field doesn't
+    // exist" before "this field's value is invalid" — the latter is
+    // meaningless when the key is bogus.
+    const templateFieldSet = collectFieldKeys(params.templateContent)
     const unknownKeys = Object.keys(params.incomingFieldValues).filter(
       (key) => !templateFieldSet.has(key),
     )
     if (unknownKeys.length > 0) {
       throw new UnknownFieldIdError(unknownKeys)
     }
+
+    // Precondition: every incoming value must match its template-declared
+    // type and per-type constraints. Throws FieldValueValidationError with
+    // all per-field errors collected; propagates unchanged.
+    FieldValueSchema.validate(params.incomingFieldValues, params.templateContent)
 
     // Merge: patch incoming values into existing fieldValues
     const mergedFieldValues: Record<string, FieldValue> = { ...this.fieldValues }

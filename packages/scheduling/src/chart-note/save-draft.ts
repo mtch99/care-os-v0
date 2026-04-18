@@ -1,11 +1,12 @@
 import {
   ChartNoteNotFoundError,
   NotSessionOwnerError,
+  TemplateNotFoundError,
   VersionConflictError,
 } from '@careos/api-contract'
+import type { TemplateContentV2 } from '@careos/api-contract'
 
 import { ChartNote } from './chart-note.aggregate'
-import { extractFieldKeys } from './extract-field-keys'
 import type {
   ChartNoteRepository,
   TemplateRepository,
@@ -76,28 +77,19 @@ export async function saveDraft(
     throw new NotSessionOwnerError(input.practitionerId)
   }
 
-  // 3. Load template to get valid field IDs
+  // 3. Load template content for key + value validation inside the aggregate.
+  // Template must exist since templateVersionId is an FK — missing it is a
+  // data-integrity failure, not a user error, so surface it loudly.
   const template = await templateRepo.findById(row.templateVersionId)
-  // Template must exist since it's a FK — defensive check
-  const templateFieldIds = template
-    ? extractFieldKeys(
-        template.content as {
-          pages: Array<{
-            sections: Array<{
-              rows: Array<{
-                columns: Array<{ key: string }>
-              }>
-            }>
-          }>
-        },
-      )
-    : []
+  if (!template) {
+    throw new TemplateNotFoundError(row.templateVersionId)
+  }
 
   // 4. Reconstitute aggregate and apply the command
   const chartNote = ChartNote.fromRow(row)
   const updated = chartNote.saveDraft({
     incomingFieldValues: input.fieldValues,
-    templateFieldIds,
+    templateContent: template.content as TemplateContentV2,
     editedBy: input.practitionerId,
     editedAt: clock.now(),
     incomingVersion: input.version,
