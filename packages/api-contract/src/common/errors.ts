@@ -152,6 +152,12 @@ export class AiGenerationFailedError extends DomainError {
   }
 }
 
+export class AiOutputInvalidError extends DomainError {
+  constructor() {
+    super('AI_OUTPUT_INVALID', 'AI produced an invalid template. Try different preferences.', 422)
+  }
+}
+
 export class DraftNotFoundError extends DomainError {
   constructor() {
     super('DRAFT_NOT_FOUND', 'AI draft not found.', 404)
