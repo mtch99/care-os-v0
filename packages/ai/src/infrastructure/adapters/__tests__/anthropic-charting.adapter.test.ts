@@ -6,7 +6,7 @@ import { AnthropicChartingAdapter } from '../anthropic-charting.adapter'
 import type { ChartNoteDraft } from '../../../domain/types/chart-note-draft'
 
 const TEMPLATE_RESULT: TemplateContentV2 = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {
@@ -86,6 +86,42 @@ describe('AnthropicChartingAdapter', () => {
         }),
       ).rejects.toThrow('did not contain a generate_template tool call')
     })
+
+    // CAR-122 regression guards. If these fail after a prompt edit, the LLM
+    // will start emitting 0.2-shaped templates (that fail TemplateSchema.parse)
+    // or label-shaped option selections (that fail NOT_IN_OPTIONS in the
+    // validator). Verify the prompt carries the current contract.
+    it('instructs the LLM to emit schemaVersion "0.3"', async () => {
+      const { client, createFn } = createSpyClient('generate_template', TEMPLATE_RESULT)
+      const adapter = new AnthropicChartingAdapter(client)
+
+      await adapter.generateTemplateDraft({
+        discipline: 'physiotherapy',
+        appointmentType: 'initial',
+        preferences: '',
+        locale: ['fr', 'en'],
+      })
+
+      const args = createFn.mock.calls[0][0] as Record<string, unknown>
+      expect(args.system).toContain('schemaVersion must be "0.3"')
+    })
+
+    it('instructs the LLM to add a stable key to every select/radio/checkboxGroup option', async () => {
+      const { client, createFn } = createSpyClient('generate_template', TEMPLATE_RESULT)
+      const adapter = new AnthropicChartingAdapter(client)
+
+      await adapter.generateTemplateDraft({
+        discipline: 'physiotherapy',
+        appointmentType: 'initial',
+        preferences: '',
+        locale: ['fr', 'en'],
+      })
+
+      const args = createFn.mock.calls[0][0] as Record<string, unknown>
+      const system = args.system as string
+      expect(system).toContain('stable "key"')
+      expect(system).toContain('snake_case')
+    })
   })
 
   describe('generateChartNoteDraft', () => {
@@ -128,6 +164,25 @@ describe('AnthropicChartingAdapter', () => {
           templateContent: TEMPLATE_RESULT,
         }),
       ).rejects.toThrow('did not contain a generate_chart_note tool call')
+    })
+
+    // CAR-122 regression guard. If this fails, the LLM will start emitting
+    // localized labels for select/radio/checkboxGroup field values — which
+    // acceptAiDraft copies into the chart note without validation, and the
+    // next practitioner saveDraft then rejects with NOT_IN_OPTIONS.
+    it('instructs the LLM to emit option.key values for select/radio/checkboxGroup', async () => {
+      const { client, createFn } = createSpyClient('generate_chart_note', CHART_NOTE_RESULT)
+      const adapter = new AnthropicChartingAdapter(client)
+
+      await adapter.generateChartNoteDraft({
+        rawNotes: 'Follow-up visit.',
+        templateContent: TEMPLATE_RESULT,
+      })
+
+      const args = createFn.mock.calls[0][0] as Record<string, unknown>
+      const system = args.system as string
+      expect(system).toContain('option.key')
+      expect(system).toContain('never the localized fr/en label')
     })
   })
 })

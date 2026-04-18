@@ -14,7 +14,7 @@ function makeTemplate(
   field: TemplateContentV2['pages'][number]['sections'][number]['rows'][number]['columns'][number],
 ): TemplateContentV2 {
   return {
-    schemaVersion: '0.2',
+    schemaVersion: '0.3',
     locale: ['fr', 'en'],
     pages: [
       {
@@ -46,7 +46,7 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
   describe('payload-level invariants', () => {
     it('passes on a valid payload across multiple field types', () => {
       const template: TemplateContentV2 = {
-        schemaVersion: '0.2',
+        schemaVersion: '0.3',
         locale: ['fr', 'en'],
         pages: [
           {
@@ -128,7 +128,7 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
 
     it('collects errors across multiple invalid fields before throwing once', () => {
       const template: TemplateContentV2 = {
-        schemaVersion: '0.2',
+        schemaVersion: '0.3',
         locale: ['fr', 'en'],
         pages: [
           {
@@ -155,8 +155,8 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
                         required: false,
                         config: {
                           options: [
-                            { fr: 'Traumatique', en: 'Traumatic' },
-                            { fr: 'Répétition', en: 'Repetitive' },
+                            { key: 'traumatic', fr: 'Traumatique', en: 'Traumatic' },
+                            { key: 'repetitive', fr: 'Répétition', en: 'Repetitive' },
                           ],
                         },
                       },
@@ -362,25 +362,36 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
       required: false,
       config: {
         options: [
-          { fr: 'Traumatique', en: 'Traumatic' },
-          { fr: 'Répétition', en: 'Repetitive' },
+          { key: 'traumatic', fr: 'Traumatique', en: 'Traumatic' },
+          { key: 'repetitive', fr: 'Répétition', en: 'Repetitive' },
         ],
       },
     })
 
-    it('accepts a value matching option.en', () => {
+    it('accepts a value matching option.key', () => {
       expect(() => {
+        validateFieldValues({ injury_kind: 'traumatic' }, template)
+      }).not.toThrow()
+    })
+
+    // CAR-122: matching is key-only. Sending the localized label is now a
+    // NOT_IN_OPTIONS error — this test proves the old locale-permissive
+    // behavior is gone.
+    it('rejects a value that is the localized EN label with NOT_IN_OPTIONS', () => {
+      const err = expectValidationError(() => {
         validateFieldValues({ injury_kind: 'Traumatic' }, template)
-      }).not.toThrow()
+      })
+      expect(err.errors[0].code).toBe('NOT_IN_OPTIONS')
     })
 
-    it('accepts a value matching option.fr', () => {
-      expect(() => {
+    it('rejects a value that is the localized FR label with NOT_IN_OPTIONS', () => {
+      const err = expectValidationError(() => {
         validateFieldValues({ injury_kind: 'Traumatique' }, template)
-      }).not.toThrow()
+      })
+      expect(err.errors[0].code).toBe('NOT_IN_OPTIONS')
     })
 
-    it('rejects a value that matches neither locale with NOT_IN_OPTIONS', () => {
+    it('rejects an unknown value with NOT_IN_OPTIONS', () => {
       const err = expectValidationError(() => {
         validateFieldValues({ injury_kind: 'Mystery' }, template)
       })
@@ -403,22 +414,23 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
       required: false,
       config: {
         options: [
-          { fr: 'Gauche', en: 'Left' },
-          { fr: 'Droite', en: 'Right' },
+          { key: 'left', fr: 'Gauche', en: 'Left' },
+          { key: 'right', fr: 'Droite', en: 'Right' },
         ],
       },
     })
 
-    it('accepts option.en', () => {
+    it('accepts option.key', () => {
       expect(() => {
-        validateFieldValues({ handedness: 'Right' }, template)
+        validateFieldValues({ handedness: 'right' }, template)
       }).not.toThrow()
     })
 
-    it('accepts option.fr', () => {
-      expect(() => {
-        validateFieldValues({ handedness: 'Gauche' }, template)
-      }).not.toThrow()
+    it('rejects localized label with NOT_IN_OPTIONS', () => {
+      const err = expectValidationError(() => {
+        validateFieldValues({ handedness: 'Right' }, template)
+      })
+      expect(err.errors[0].code).toBe('NOT_IN_OPTIONS')
     })
 
     it('rejects unknown with NOT_IN_OPTIONS', () => {
@@ -467,17 +479,26 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
       required: false,
       config: {
         options: [
-          { fr: 'Enflure', en: 'Swelling' },
-          { fr: 'Rougeur', en: 'Redness' },
-          { fr: 'Chaleur', en: 'Warmth' },
+          { key: 'swelling', fr: 'Enflure', en: 'Swelling' },
+          { key: 'redness', fr: 'Rougeur', en: 'Redness' },
+          { key: 'warmth', fr: 'Chaleur', en: 'Warmth' },
         ],
       },
     })
 
-    it('accepts a subset of options matching either locale', () => {
+    it('accepts a subset of options.key', () => {
       expect(() => {
-        validateFieldValues({ symptoms: ['Swelling', 'Rougeur'] }, template)
+        validateFieldValues({ symptoms: ['swelling', 'redness'] }, template)
       }).not.toThrow()
+    })
+
+    it('rejects an element that is the localized EN label with NOT_IN_OPTIONS at that index', () => {
+      const err = expectValidationError(() => {
+        validateFieldValues({ symptoms: ['swelling', 'Redness'] }, template)
+      })
+      expect(err.errors).toHaveLength(1)
+      expect(err.errors[0].path).toEqual(['symptoms', 1])
+      expect(err.errors[0].code).toBe('NOT_IN_OPTIONS')
     })
 
     it('accepts an empty array (clear-but-preserve-as-collection)', () => {
@@ -488,7 +509,7 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
 
     it('rejects an unknown option with NOT_IN_OPTIONS at the element index', () => {
       const err = expectValidationError(() => {
-        validateFieldValues({ symptoms: ['Swelling', 'Mystery'] }, template)
+        validateFieldValues({ symptoms: ['swelling', 'Mystery'] }, template)
       })
       expect(err.errors).toHaveLength(1)
       expect(err.errors[0].path).toEqual(['symptoms', 1])
@@ -498,14 +519,14 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
 
     it('rejects non-array with WRONG_TYPE', () => {
       const err = expectValidationError(() => {
-        validateFieldValues({ symptoms: 'Swelling' }, template)
+        validateFieldValues({ symptoms: 'swelling' }, template)
       })
       expect(err.errors[0].code).toBe('WRONG_TYPE')
     })
 
     it('rejects duplicates with DUPLICATE at the duplicate element index', () => {
       const err = expectValidationError(() => {
-        validateFieldValues({ symptoms: ['Swelling', 'Swelling'] }, template)
+        validateFieldValues({ symptoms: ['swelling', 'swelling'] }, template)
       })
       expect(err.errors).toHaveLength(1)
       expect(err.errors[0].code).toBe('DUPLICATE')

@@ -5,7 +5,7 @@ import type { TemplateContentV2 } from '@careos/api-contract'
  * 3 pages, bilingual fr/en
  */
 export const ergoInitialEval: TemplateContentV2 = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     // ── Page 1: Patient Profile & Occupational History ──
@@ -66,9 +66,9 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Droite', en: 'Right' },
-                      { fr: 'Gauche', en: 'Left' },
-                      { fr: 'Ambidextre', en: 'Ambidextrous' },
+                      { key: 'right', fr: 'Droite', en: 'Right' },
+                      { key: 'left', fr: 'Gauche', en: 'Left' },
+                      { key: 'ambidextrous', fr: 'Ambidextre', en: 'Ambidextrous' },
                     ],
                   },
                 },
@@ -79,10 +79,14 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Domicile — seul', en: 'Home — alone' },
-                      { fr: 'Domicile — avec famille', en: 'Home — with family' },
-                      { fr: 'Résidence', en: 'Assisted living' },
-                      { fr: 'CHSLD', en: 'Long-term care' },
+                      { key: 'home_alone', fr: 'Domicile — seul', en: 'Home — alone' },
+                      {
+                        key: 'home_with_family',
+                        fr: 'Domicile — avec famille',
+                        en: 'Home — with family',
+                      },
+                      { key: 'assisted_living', fr: 'Résidence', en: 'Assisted living' },
+                      { key: 'long_term_care', fr: 'CHSLD', en: 'Long-term care' },
                     ],
                   },
                 },
@@ -104,11 +108,11 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Travail régulier', en: 'Regular Work' },
-                      { fr: 'Travail modifié', en: 'Modified Work' },
-                      { fr: 'Arrêt de travail', en: 'Off Work' },
-                      { fr: 'Retraité', en: 'Retired' },
-                      { fr: 'Non applicable', en: 'N/A' },
+                      { key: 'regular_work', fr: 'Travail régulier', en: 'Regular Work' },
+                      { key: 'modified_work', fr: 'Travail modifié', en: 'Modified Work' },
+                      { key: 'off_work', fr: 'Arrêt de travail', en: 'Off Work' },
+                      { key: 'retired', fr: 'Retraité', en: 'Retired' },
+                      { key: 'na', fr: 'Non applicable', en: 'N/A' },
                     ],
                   },
                 },
@@ -338,9 +342,9 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Temps', en: 'Time' },
-                      { fr: 'Lieu', en: 'Place' },
-                      { fr: 'Personne', en: 'Person' },
+                      { key: 'time', fr: 'Temps', en: 'Time' },
+                      { key: 'place', fr: 'Lieu', en: 'Place' },
+                      { key: 'person', fr: 'Personne', en: 'Person' },
                     ],
                   },
                 },
@@ -351,10 +355,18 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Intacte', en: 'Intact' },
-                      { fr: 'Légèrement altérée', en: 'Mildly Impaired' },
-                      { fr: 'Modérément altérée', en: 'Moderately Impaired' },
-                      { fr: 'Sévèrement altérée', en: 'Severely Impaired' },
+                      { key: 'intact', fr: 'Intacte', en: 'Intact' },
+                      { key: 'mildly_impaired', fr: 'Légèrement altérée', en: 'Mildly Impaired' },
+                      {
+                        key: 'moderately_impaired',
+                        fr: 'Modérément altérée',
+                        en: 'Moderately Impaired',
+                      },
+                      {
+                        key: 'severely_impaired',
+                        fr: 'Sévèrement altérée',
+                        en: 'Severely Impaired',
+                      },
                     ],
                   },
                 },
@@ -410,11 +422,11 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Excellent', en: 'Excellent' },
-                      { fr: 'Bon', en: 'Good' },
-                      { fr: 'Modéré', en: 'Fair' },
-                      { fr: 'Réservé', en: 'Guarded' },
-                      { fr: 'Pauvre', en: 'Poor' },
+                      { key: 'excellent', fr: 'Excellent', en: 'Excellent' },
+                      { key: 'good', fr: 'Bon', en: 'Good' },
+                      { key: 'fair', fr: 'Modéré', en: 'Fair' },
+                      { key: 'guarded', fr: 'Réservé', en: 'Guarded' },
+                      { key: 'poor', fr: 'Pauvre', en: 'Poor' },
                     ],
                   },
                 },
@@ -472,13 +484,25 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Entraînement aux AVQ', en: 'ADL Training' },
-                      { fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
-                      { fr: 'Aides techniques', en: 'Assistive Devices' },
-                      { fr: 'Adaptation domiciliaire', en: 'Home Modifications' },
-                      { fr: 'Orthèse', en: 'Splinting / Orthotics' },
-                      { fr: 'Stimulation cognitive', en: 'Cognitive Stimulation' },
-                      { fr: 'Éducation', en: 'Education' },
+                      { key: 'adl_training', fr: 'Entraînement aux AVQ', en: 'ADL Training' },
+                      {
+                        key: 'therapeutic_exercises',
+                        fr: 'Exercices thérapeutiques',
+                        en: 'Therapeutic Exercises',
+                      },
+                      { key: 'assistive_devices', fr: 'Aides techniques', en: 'Assistive Devices' },
+                      {
+                        key: 'home_modifications',
+                        fr: 'Adaptation domiciliaire',
+                        en: 'Home Modifications',
+                      },
+                      { key: 'splinting_orthotics', fr: 'Orthèse', en: 'Splinting / Orthotics' },
+                      {
+                        key: 'cognitive_stimulation',
+                        fr: 'Stimulation cognitive',
+                        en: 'Cognitive Stimulation',
+                      },
+                      { key: 'education', fr: 'Éducation', en: 'Education' },
                     ],
                   },
                 },
@@ -493,10 +517,10 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: '1x / semaine', en: '1x / week' },
-                      { fr: '2x / semaine', en: '2x / week' },
-                      { fr: '3x / semaine', en: '3x / week' },
-                      { fr: 'Aux 2 semaines', en: 'Every 2 weeks' },
+                      { key: '1x_week', fr: '1x / semaine', en: '1x / week' },
+                      { key: '2x_week', fr: '2x / semaine', en: '2x / week' },
+                      { key: '3x_week', fr: '3x / semaine', en: '3x / week' },
+                      { key: 'every_2_weeks', fr: 'Aux 2 semaines', en: 'Every 2 weeks' },
                     ],
                   },
                 },
@@ -527,8 +551,8 @@ export const ergoInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Oui', en: 'Yes' },
-                      { fr: 'Non', en: 'No' },
+                      { key: 'yes', fr: 'Oui', en: 'Yes' },
+                      { key: 'no', fr: 'Non', en: 'No' },
                     ],
                   },
                 },

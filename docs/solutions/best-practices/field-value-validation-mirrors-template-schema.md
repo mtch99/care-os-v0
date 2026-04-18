@@ -146,13 +146,38 @@ A future contributor adding a new field type can't silently ship it without vali
 
 The aggregate now imports `FieldValueSchema` from `@careos/clinical`. [CLAUDE.md](../../../CLAUDE.md) records this: `packages/scheduling → db, api-contract, clinical`. The direction is safe — `clinical` depends on `api-contract` only, no circular risk. Future contributors who see the import and suspect a mistake can check the dependency-direction section in CLAUDE.md to confirm it's intentional.
 
+## Pattern: stable `key` on option configs — match persisted values on identity, not label
+
+`select`, `radio`, and `checkboxGroup` options carry a stable `key: string` alongside the localized `fr` / `en` labels. The validator matches incoming values against `option.key` only — never against the localized label. This is the contract CAR-122 shipped, replacing the earlier locale-permissive OR-match that pinned persisted values to whichever locale the client emitted.
+
+```typescript
+// packages/api-contract/src/clinical/field-configs.ts
+const keyedLocalizedOption = z.object({
+  key: z.string().min(1),  // stable snake_case slug — contract once written
+  fr: z.string(),
+  en: z.string(),
+})
+```
+
+**Key naming convention:** snake_case slug of the English label (`'Traumatic'` → `'traumatic'`, `'Post-surgical'` → `'post_surgical'`, `'Sit to Stand'` → `'sit_to_stand'`). Once written, the key is contract — a later label edit does NOT rename the key. Within a single field's options array, keys must be unique; across fields the same key (e.g., `'normal'`) can appear in multiple fields and is scoped to its containing field's options at lookup time.
+
+### Three `key` namespaces inside a single template
+
+A `TemplateContentV2` tree uses the identifier `key` at three different scopes with different semantics. Spelled out to prevent confusion:
+
+| Namespace | Where | What it identifies | Persistence role |
+|---|---|---|---|
+| **field.key** | Every `column` node | Identifies a field inside the template (`mechanism_of_injury`, `onset_date`) | Top-level object key under `chart_notes.field_values` |
+| **item.key** | `checkboxWithTextConfig.items[]` | Identifies a checkbox row inside a `checkboxWithText` field | Nested object key inside the field's stored array |
+| **option.key** | `selectConfig` / `radioConfig` / `checkboxGroupConfig` `.options[]` | Identifies a selectable value inside one of those field types (new in CAR-122) | The scalar (select/radio) or element (checkboxGroup) stored in `field_values[field.key]` |
+
+### Locale-pinned option matching (RESOLVED by CAR-122)
+
+Previously: options were `Array<LocalizedString>` with no stable identifier, so persisted values were whichever localized string the client emitted (`'Traumatic'` vs `'Traumatique'`). Downstream consumers had to branch on both locales to compare. **Resolved** in CAR-122 — the schema now requires `option.key`, the validator matches on `option.key` only, and a one-time backfill at `scripts/backfill/car-122-options-label-to-key.ts` rewrote pre-existing chart-note values from label-shape to key-shape.
+
 ## Known schema gaps (tracked)
 
-Three contract-level decisions were documented at landing time rather than papered over:
-
-### Locale-pinned option matching
-
-`select`, `radio`, and `checkboxGroup` options are `Array<LocalizedString>` — `{ fr, en }` with no stable key. The validator matches values against either locale, which means persisted values are whichever string the client emitted (`'Traumatic'` vs `'Traumatique'`). Downstream consumers (PDF, signed-note display, AI round-trip, analytics) must compare against both locales until the schema grows a stable `option.key`. Tracked: **[CAR-122](https://linear.app/careos/issue/CAR-122)** — High priority.
+Contract-level decisions documented at landing time rather than papered over:
 
 ### Repeater `select` vs top-level `select` shape divergence
 
@@ -194,5 +219,5 @@ Sending `{ rom_table: null }` for a `repeaterTable` field discards every existin
 - [TemplateSchema source](../../../packages/clinical/src/template-schema/) — the sibling pattern this mirrors
 - [Field-config schemas](../../../packages/api-contract/src/clinical/field-configs.ts) — the Zod source of truth
 - [Drizzle error-wrapping domain isolation](../integration-issues/drizzle-error-wrapping-domain-isolation.md) — the "infrastructure error shapes don't cross the port boundary" precedent this builds on
+- [CAR-122 plan](../../plans/2026-04-18-002-feat-stable-option-key-select-radio-checkboxgroup-plan.md) — adding the stable `option.key` covered in this doc
 - CAR-121 — schema gap follow-up: unify repeater vs top-level select option shapes
-- CAR-122 — schema gap follow-up: add stable `key` to select/radio/checkboxGroup options

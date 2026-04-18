@@ -5,7 +5,7 @@ import type { TemplateContentV2 } from '@careos/api-contract'
  * 1 page, 4 sections (Subjective, Objective, Assessment, Plan), bilingual fr/en
  */
 export const ergoFollowUpSoap: TemplateContentV2 = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {
@@ -29,9 +29,9 @@ export const ergoFollowUpSoap: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Amélioré', en: 'Improved' },
-                      { fr: 'Stable', en: 'Stable' },
-                      { fr: 'Aggravé', en: 'Worsened' },
+                      { key: 'improved', fr: 'Amélioré', en: 'Improved' },
+                      { key: 'stable', fr: 'Stable', en: 'Stable' },
+                      { key: 'worsened', fr: 'Aggravé', en: 'Worsened' },
                     ],
                   },
                 },
@@ -72,9 +72,9 @@ export const ergoFollowUpSoap: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Complète', en: 'Full' },
-                      { fr: 'Partielle', en: 'Partial' },
-                      { fr: 'Aucune', en: 'None' },
+                      { key: 'full', fr: 'Complète', en: 'Full' },
+                      { key: 'partial', fr: 'Partielle', en: 'Partial' },
+                      { key: 'none', fr: 'Aucune', en: 'None' },
                     ],
                   },
                 },
@@ -88,10 +88,10 @@ export const ergoFollowUpSoap: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Régulière', en: 'Regular' },
-                      { fr: 'Occasionnelle', en: 'Occasional' },
-                      { fr: 'Aucune', en: 'None' },
-                      { fr: 'Non applicable', en: 'N/A' },
+                      { key: 'regular', fr: 'Régulière', en: 'Regular' },
+                      { key: 'occasional', fr: 'Occasionnelle', en: 'Occasional' },
+                      { key: 'none', fr: 'Aucune', en: 'None' },
+                      { key: 'na', fr: 'Non applicable', en: 'N/A' },
                     ],
                   },
                 },
@@ -163,10 +163,10 @@ export const ergoFollowUpSoap: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Atteint les objectifs', en: 'Meeting Goals' },
-                      { fr: 'Progrès partiels', en: 'Partial Progress' },
-                      { fr: 'Plateau', en: 'Plateau' },
-                      { fr: 'Régression', en: 'Regression' },
+                      { key: 'meeting_goals', fr: 'Atteint les objectifs', en: 'Meeting Goals' },
+                      { key: 'partial_progress', fr: 'Progrès partiels', en: 'Partial Progress' },
+                      { key: 'plateau', fr: 'Plateau', en: 'Plateau' },
+                      { key: 'regression', fr: 'Régression', en: 'Regression' },
                     ],
                   },
                 },
@@ -205,13 +205,25 @@ export const ergoFollowUpSoap: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Entraînement aux AVQ', en: 'ADL Training' },
-                      { fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
-                      { fr: 'Aides techniques', en: 'Assistive Devices' },
-                      { fr: 'Adaptation domiciliaire', en: 'Home Modifications' },
-                      { fr: 'Orthèse', en: 'Splinting / Orthotics' },
-                      { fr: 'Stimulation cognitive', en: 'Cognitive Stimulation' },
-                      { fr: 'Éducation', en: 'Education' },
+                      { key: 'adl_training', fr: 'Entraînement aux AVQ', en: 'ADL Training' },
+                      {
+                        key: 'therapeutic_exercises',
+                        fr: 'Exercices thérapeutiques',
+                        en: 'Therapeutic Exercises',
+                      },
+                      { key: 'assistive_devices', fr: 'Aides techniques', en: 'Assistive Devices' },
+                      {
+                        key: 'home_modifications',
+                        fr: 'Adaptation domiciliaire',
+                        en: 'Home Modifications',
+                      },
+                      { key: 'splinting_orthotics', fr: 'Orthèse', en: 'Splinting / Orthotics' },
+                      {
+                        key: 'cognitive_stimulation',
+                        fr: 'Stimulation cognitive',
+                        en: 'Cognitive Stimulation',
+                      },
+                      { key: 'education', fr: 'Éducation', en: 'Education' },
                     ],
                   },
                 },
@@ -263,10 +275,10 @@ export const ergoFollowUpSoap: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Non', en: 'No' },
-                      { fr: 'Médecin', en: 'Physician' },
-                      { fr: 'Spécialiste', en: 'Specialist' },
-                      { fr: 'Travailleur social', en: 'Social Worker' },
+                      { key: 'no', fr: 'Non', en: 'No' },
+                      { key: 'physician', fr: 'Médecin', en: 'Physician' },
+                      { key: 'specialist', fr: 'Spécialiste', en: 'Specialist' },
+                      { key: 'social_worker', fr: 'Travailleur social', en: 'Social Worker' },
                     ],
                   },
                 },
