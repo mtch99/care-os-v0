@@ -67,6 +67,11 @@ const radioConfig = z.object({
 
 const dateConfig = z.object({})
 
+// CAR-121: repeater `select` columns share the same option shape as top-level
+// select/radio/checkboxGroup. Unification eliminates two divergent validator
+// paths (label-string match vs key match) and lets future renderers /
+// editors treat options as a single concept with a stable identity (`key`)
+// and localized labels (`fr`/`en`).
 const repeaterTableConfig = z.object({
   columns: z
     .array(
@@ -74,7 +79,7 @@ const repeaterTableConfig = z.object({
         key: z.string(),
         label: localizedString,
         type: z.enum(['text', 'select', 'narrative']),
-        options: z.array(z.string()).optional(),
+        options: z.array(keyedLocalizedOption).optional(),
       }),
     )
     .min(1),
