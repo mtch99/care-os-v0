@@ -28,7 +28,7 @@ const OTHER_PRACTITIONER_ID = '99999999-9999-9999-9999-999999999999'
 const TEMPLATE_VERSION_ID = '29187424-4563-4ebd-b2ee-c710ce251c70'
 
 const TEMPLATE_CONTENT = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {

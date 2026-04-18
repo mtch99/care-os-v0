@@ -1,4 +1,9 @@
-import type { FieldValueError, LocalizedString, TemplateContentV2 } from '@careos/api-contract'
+import type {
+  FieldValueError,
+  KeyedLocalizedOption,
+  LocalizedString,
+  TemplateContentV2,
+} from '@careos/api-contract'
 import { FieldValueValidationError, fieldConfigByType } from '@careos/api-contract'
 import type { z } from 'zod'
 
@@ -97,13 +102,13 @@ function validateOne(
       return
     case 'select':
     case 'radio':
-      validateLocalizedOption(value, (field.config as SelectConfig).options, path, errors)
+      validateKeyedOption(value, (field.config as SelectConfig).options, path, errors)
       return
     case 'date':
       validateDate(value, path, errors)
       return
     case 'checkboxGroup':
-      validateCheckboxGroup(value, (field.config as CheckboxGroupConfig).options, path, errors)
+      validateKeyedCheckboxGroup(value, (field.config as CheckboxGroupConfig).options, path, errors)
       return
     case 'checkboxWithText':
       validateCheckboxWithText(value, (field.config as CheckboxWithTextConfig).items, path, errors)
@@ -162,9 +167,13 @@ function validateScale(
   }
 }
 
-function validateLocalizedOption(
+// Value is matched against option.key only. Localized labels (option.fr /
+// option.en) are rendering concerns, not persistence concerns. CAR-122
+// introduced the stable key field to stop pinning persisted values to a
+// locale; accepting labels here would re-open that footgun.
+function validateKeyedOption(
   value: unknown,
-  options: ReadonlyArray<LocalizedString>,
+  options: ReadonlyArray<KeyedLocalizedOption>,
   path: FieldPath,
   errors: ErrorAccumulator,
 ): void {
@@ -172,11 +181,11 @@ function validateLocalizedOption(
     errors.push({ path, code: 'WRONG_TYPE', message: 'Expected a string' })
     return
   }
-  if (!options.some((opt) => opt.fr === value || opt.en === value)) {
+  if (!options.some((opt) => opt.key === value)) {
     errors.push({
       path,
       code: 'NOT_IN_OPTIONS',
-      message: `Value '${value}' does not match any declared option (matched against option.fr or option.en)`,
+      message: `Value '${value}' does not match any declared option.key`,
     })
   }
 }
@@ -192,9 +201,9 @@ function validateDate(value: unknown, path: FieldPath, errors: ErrorAccumulator)
   }
 }
 
-function validateCheckboxGroup(
+function validateKeyedCheckboxGroup(
   value: unknown,
-  options: ReadonlyArray<LocalizedString>,
+  options: ReadonlyArray<KeyedLocalizedOption>,
   path: FieldPath,
   errors: ErrorAccumulator,
 ): void {
@@ -219,11 +228,11 @@ function validateCheckboxGroup(
       continue
     }
     seen.add(el)
-    if (!options.some((opt) => opt.fr === el || opt.en === el)) {
+    if (!options.some((opt) => opt.key === el)) {
       errors.push({
         path: elPath,
         code: 'NOT_IN_OPTIONS',
-        message: `Value '${el}' does not match any declared option`,
+        message: `Value '${el}' does not match any declared option.key`,
       })
     }
   }

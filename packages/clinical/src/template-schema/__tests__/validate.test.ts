@@ -5,7 +5,7 @@ import { validateTemplateSemantics } from '../validate'
 
 function makeTemplate(overrides: Partial<TemplateContentV2> = {}): TemplateContentV2 {
   return {
-    schemaVersion: '0.2',
+    schemaVersion: '0.3',
     locale: ['fr', 'en'],
     pages: [
       {

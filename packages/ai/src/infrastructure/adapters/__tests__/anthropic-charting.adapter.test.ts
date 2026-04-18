@@ -6,7 +6,7 @@ import { AnthropicChartingAdapter } from '../anthropic-charting.adapter'
 import type { ChartNoteDraft } from '../../../domain/types/chart-note-draft'
 
 const TEMPLATE_RESULT: TemplateContentV2 = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {

@@ -20,7 +20,7 @@ const TEMPLATE_ID = '29187424-4563-4ebd-b2ee-c710ce251c70'
 const INTAKE_ID = 'intake-1111-2222-3333-444444444444'
 
 const TEMPLATE_CONTENT = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {

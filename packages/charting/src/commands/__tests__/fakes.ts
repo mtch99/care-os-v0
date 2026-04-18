@@ -249,7 +249,7 @@ export function makeTemplate(
     discipline: 'physiotherapy',
     appointmentType: 'initial',
     content: {
-      schemaVersion: '0.2',
+      schemaVersion: '0.3',
       locale: ['en'],
       pages: [
         {
