@@ -43,3 +43,7 @@ export const initializeChartNoteSchema = z.object({
 export const generateAiDraftSchema = z.object({
   rawNotes: z.string().min(1),
 })
+
+export const markReadyForSignatureSchema = z.object({
+  version: z.number().int().positive(),
+})
