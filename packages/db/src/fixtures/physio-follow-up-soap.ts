@@ -5,7 +5,7 @@ import type { TemplateContentV2 } from '@careos/api-contract'
  * 1 page, 4 sections (Subjective, Objective, Assessment, Plan), bilingual fr/en
  */
 export const physioFollowUpSoap: TemplateContentV2 = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {
@@ -36,9 +36,9 @@ export const physioFollowUpSoap: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Amélioré', en: 'Improved' },
-                      { fr: 'Stable', en: 'Stable' },
-                      { fr: 'Aggravé', en: 'Worsened' },
+                      { key: 'improved', fr: 'Amélioré', en: 'Improved' },
+                      { key: 'stable', fr: 'Stable', en: 'Stable' },
+                      { key: 'worsened', fr: 'Aggravé', en: 'Worsened' },
                     ],
                   },
                 },
@@ -72,9 +72,9 @@ export const physioFollowUpSoap: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Complète', en: 'Full' },
-                      { fr: 'Partielle', en: 'Partial' },
-                      { fr: 'Aucune', en: 'None' },
+                      { key: 'full', fr: 'Complète', en: 'Full' },
+                      { key: 'partial', fr: 'Partielle', en: 'Partial' },
+                      { key: 'none', fr: 'Aucune', en: 'None' },
                     ],
                   },
                 },
@@ -153,10 +153,10 @@ export const physioFollowUpSoap: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Atteint les objectifs', en: 'Meeting Goals' },
-                      { fr: 'Progrès partiels', en: 'Partial Progress' },
-                      { fr: 'Plateau', en: 'Plateau' },
-                      { fr: 'Régression', en: 'Regression' },
+                      { key: 'meeting_goals', fr: 'Atteint les objectifs', en: 'Meeting Goals' },
+                      { key: 'partial_progress', fr: 'Progrès partiels', en: 'Partial Progress' },
+                      { key: 'plateau', fr: 'Plateau', en: 'Plateau' },
+                      { key: 'regression', fr: 'Régression', en: 'Regression' },
                     ],
                   },
                 },
@@ -195,13 +195,13 @@ export const physioFollowUpSoap: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Thérapie manuelle', en: 'Manual Therapy' },
-                      { fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
-                      { fr: 'Électrothérapie', en: 'Electrotherapy' },
-                      { fr: 'Ultrasons', en: 'Ultrasound' },
-                      { fr: 'Glace / Chaleur', en: 'Ice / Heat' },
-                      { fr: 'Taping', en: 'Taping' },
-                      { fr: 'Éducation', en: 'Education' },
+                      { key: 'manual_therapy', fr: 'Thérapie manuelle', en: 'Manual Therapy' },
+                      { key: 'therapeutic_exercises', fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
+                      { key: 'electrotherapy', fr: 'Électrothérapie', en: 'Electrotherapy' },
+                      { key: 'ultrasound', fr: 'Ultrasons', en: 'Ultrasound' },
+                      { key: 'ice_heat', fr: 'Glace / Chaleur', en: 'Ice / Heat' },
+                      { key: 'taping', fr: 'Taping', en: 'Taping' },
+                      { key: 'education', fr: 'Éducation', en: 'Education' },
                     ],
                   },
                 },
@@ -253,10 +253,10 @@ export const physioFollowUpSoap: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Non', en: 'No' },
-                      { fr: 'Médecin', en: 'Physician' },
-                      { fr: 'Spécialiste', en: 'Specialist' },
-                      { fr: 'Imagerie', en: 'Imaging' },
+                      { key: 'no', fr: 'Non', en: 'No' },
+                      { key: 'physician', fr: 'Médecin', en: 'Physician' },
+                      { key: 'specialist', fr: 'Spécialiste', en: 'Specialist' },
+                      { key: 'imaging', fr: 'Imagerie', en: 'Imaging' },
                     ],
                   },
                 },

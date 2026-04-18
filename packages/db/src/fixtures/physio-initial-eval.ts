@@ -6,7 +6,7 @@ import type { TemplateContentV2 } from '@careos/api-contract'
  * Based on ClinicMaster template analysis
  */
 export const physioInitialEval: TemplateContentV2 = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     // ── Page 1: Patient History ──
@@ -74,10 +74,10 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Traumatique', en: 'Traumatic' },
-                      { fr: 'Insidieux', en: 'Insidious' },
-                      { fr: 'Post-chirurgical', en: 'Post-surgical' },
-                      { fr: 'Autre', en: 'Other' },
+                      { key: 'traumatic', fr: 'Traumatique', en: 'Traumatic' },
+                      { key: 'insidious', fr: 'Insidieux', en: 'Insidious' },
+                      { key: 'post_surgical', fr: 'Post-chirurgical', en: 'Post-surgical' },
+                      { key: 'other', fr: 'Autre', en: 'Other' },
                     ],
                   },
                 },
@@ -110,11 +110,11 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Aiguë', en: 'Sharp' },
-                      { fr: 'Sourde', en: 'Dull' },
-                      { fr: 'Brûlure', en: 'Burning' },
-                      { fr: 'Engourdissement', en: 'Numbness' },
-                      { fr: 'Lancinante', en: 'Throbbing' },
+                      { key: 'sharp', fr: 'Aiguë', en: 'Sharp' },
+                      { key: 'dull', fr: 'Sourde', en: 'Dull' },
+                      { key: 'burning', fr: 'Brûlure', en: 'Burning' },
+                      { key: 'numbness', fr: 'Engourdissement', en: 'Numbness' },
+                      { key: 'throbbing', fr: 'Lancinante', en: 'Throbbing' },
                     ],
                   },
                 },
@@ -209,11 +209,11 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Normale', en: 'Normal' },
-                      { fr: 'Cyphose augmentée', en: 'Increased Kyphosis' },
-                      { fr: 'Lordose augmentée', en: 'Increased Lordosis' },
-                      { fr: 'Scoliose', en: 'Scoliosis' },
-                      { fr: 'Tête antérieure', en: 'Forward Head' },
+                      { key: 'normal', fr: 'Normale', en: 'Normal' },
+                      { key: 'increased_kyphosis', fr: 'Cyphose augmentée', en: 'Increased Kyphosis' },
+                      { key: 'increased_lordosis', fr: 'Lordose augmentée', en: 'Increased Lordosis' },
+                      { key: 'scoliosis', fr: 'Scoliose', en: 'Scoliosis' },
+                      { key: 'forward_head', fr: 'Tête antérieure', en: 'Forward Head' },
                     ],
                   },
                 },
@@ -224,9 +224,9 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Normale', en: 'Normal' },
-                      { fr: 'Antalgique', en: 'Antalgic' },
-                      { fr: 'Avec aide technique', en: 'With Assistive Device' },
+                      { key: 'normal', fr: 'Normale', en: 'Normal' },
+                      { key: 'antalgic', fr: 'Antalgique', en: 'Antalgic' },
+                      { key: 'with_assistive_device', fr: 'Avec aide technique', en: 'With Assistive Device' },
                     ],
                   },
                 },
@@ -466,13 +466,13 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Marche', en: 'Walking' },
-                      { fr: 'Escaliers', en: 'Stairs' },
-                      { fr: 'Se lever / asseoir', en: 'Sit to Stand' },
-                      { fr: 'Lever les bras', en: 'Overhead Reach' },
-                      { fr: 'Se pencher', en: 'Bending' },
-                      { fr: 'Dormir', en: 'Sleeping' },
-                      { fr: 'Conduire', en: 'Driving' },
+                      { key: 'walking', fr: 'Marche', en: 'Walking' },
+                      { key: 'stairs', fr: 'Escaliers', en: 'Stairs' },
+                      { key: 'sit_to_stand', fr: 'Se lever / asseoir', en: 'Sit to Stand' },
+                      { key: 'overhead_reach', fr: 'Lever les bras', en: 'Overhead Reach' },
+                      { key: 'bending', fr: 'Se pencher', en: 'Bending' },
+                      { key: 'sleeping', fr: 'Dormir', en: 'Sleeping' },
+                      { key: 'driving', fr: 'Conduire', en: 'Driving' },
                     ],
                   },
                 },
@@ -487,10 +487,10 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Travail régulier', en: 'Regular Work' },
-                      { fr: 'Travail modifié', en: 'Modified Work' },
-                      { fr: 'Arrêt de travail', en: 'Off Work' },
-                      { fr: 'Non applicable', en: 'N/A' },
+                      { key: 'regular_work', fr: 'Travail régulier', en: 'Regular Work' },
+                      { key: 'modified_work', fr: 'Travail modifié', en: 'Modified Work' },
+                      { key: 'off_work', fr: 'Arrêt de travail', en: 'Off Work' },
+                      { key: 'na', fr: 'Non applicable', en: 'N/A' },
                     ],
                   },
                 },
@@ -534,11 +534,11 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Excellent', en: 'Excellent' },
-                      { fr: 'Bon', en: 'Good' },
-                      { fr: 'Modéré', en: 'Fair' },
-                      { fr: 'Réservé', en: 'Guarded' },
-                      { fr: 'Pauvre', en: 'Poor' },
+                      { key: 'excellent', fr: 'Excellent', en: 'Excellent' },
+                      { key: 'good', fr: 'Bon', en: 'Good' },
+                      { key: 'fair', fr: 'Modéré', en: 'Fair' },
+                      { key: 'guarded', fr: 'Réservé', en: 'Guarded' },
+                      { key: 'poor', fr: 'Pauvre', en: 'Poor' },
                     ],
                   },
                 },
@@ -604,13 +604,13 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: false,
                   config: {
                     options: [
-                      { fr: 'Thérapie manuelle', en: 'Manual Therapy' },
-                      { fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
-                      { fr: 'Électrothérapie', en: 'Electrotherapy' },
-                      { fr: 'Ultrasons', en: 'Ultrasound' },
-                      { fr: 'Glace / Chaleur', en: 'Ice / Heat' },
-                      { fr: 'Taping', en: 'Taping' },
-                      { fr: 'Aiguilles sèches', en: 'Dry Needling' },
+                      { key: 'manual_therapy', fr: 'Thérapie manuelle', en: 'Manual Therapy' },
+                      { key: 'therapeutic_exercises', fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
+                      { key: 'electrotherapy', fr: 'Électrothérapie', en: 'Electrotherapy' },
+                      { key: 'ultrasound', fr: 'Ultrasons', en: 'Ultrasound' },
+                      { key: 'ice_heat', fr: 'Glace / Chaleur', en: 'Ice / Heat' },
+                      { key: 'taping', fr: 'Taping', en: 'Taping' },
+                      { key: 'dry_needling', fr: 'Aiguilles sèches', en: 'Dry Needling' },
                     ],
                   },
                 },
@@ -625,10 +625,10 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: '1x / semaine', en: '1x / week' },
-                      { fr: '2x / semaine', en: '2x / week' },
-                      { fr: '3x / semaine', en: '3x / week' },
-                      { fr: 'Aux 2 semaines', en: 'Every 2 weeks' },
+                      { key: '1x_week', fr: '1x / semaine', en: '1x / week' },
+                      { key: '2x_week', fr: '2x / semaine', en: '2x / week' },
+                      { key: '3x_week', fr: '3x / semaine', en: '3x / week' },
+                      { key: 'every_2_weeks', fr: 'Aux 2 semaines', en: 'Every 2 weeks' },
                     ],
                   },
                 },
@@ -692,8 +692,8 @@ export const physioInitialEval: TemplateContentV2 = {
                   required: true,
                   config: {
                     options: [
-                      { fr: 'Oui', en: 'Yes' },
-                      { fr: 'Non', en: 'No' },
+                      { key: 'yes', fr: 'Oui', en: 'Yes' },
+                      { key: 'no', fr: 'Non', en: 'No' },
                     ],
                   },
                 },

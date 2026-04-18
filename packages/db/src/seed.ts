@@ -1,3 +1,5 @@
+import { templateContentSchemaV2 } from '@careos/api-contract'
+
 import { db } from './index'
 import { clinics, patients, practitioners } from './schema/shared'
 import { appointments } from './schema/scheduling'
@@ -93,7 +95,27 @@ async function seed() {
     ])
     .onConflictDoNothing()
 
-  // Chart note templates (v0.2 — rich TemplateContentV2)
+  // Chart note templates (v0.3 — keyed options on select/radio/checkboxGroup).
+  // Parse each fixture against the current schema before insert so any drift
+  // (missing option.key, bad shape, stale schemaVersion) fails loudly here
+  // rather than silently at a runtime saveDraft (where the error would blame
+  // the client, not the fixture). This is the seed-time forcing function the
+  // CAR-122 plan relies on in lieu of runtime template-load parsing.
+  const fixtures = [
+    { name: 'physioInitialEval', content: physioInitialEval },
+    { name: 'physioFollowUpSoap', content: physioFollowUpSoap },
+    { name: 'ergoInitialEval', content: ergoInitialEval },
+    { name: 'ergoFollowUpSoap', content: ergoFollowUpSoap },
+  ]
+  for (const { name, content } of fixtures) {
+    try {
+      templateContentSchemaV2.parse(content)
+    } catch (err) {
+      console.error(`Fixture ${name} failed schema parse:`, err)
+      process.exit(1)
+    }
+  }
+
   await db
     .insert(chartNoteTemplates)
     .values([
