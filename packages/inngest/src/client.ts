@@ -62,6 +62,14 @@ export const chartNoteReopened = eventType('charting/chartNote.reopened', {
   }),
 })
 
+export const chartNoteSigned = eventType('charting/chartNote.signed', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    signedBy: z.string(),
+    signedAt: z.string(),
+  }),
+})
+
 // --- AI Template Draft events (CAR-97) ---
 
 export const aiTemplateDraftGenerated = eventType('clinical/aiTemplateDraft.generated', {

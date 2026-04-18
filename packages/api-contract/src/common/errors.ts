@@ -180,6 +180,16 @@ export class ChartNoteAlreadySignedError extends DomainError {
   }
 }
 
+export class ChartNoteNotReadyForSignatureError extends DomainError {
+  constructor(chartNoteId: string) {
+    super(
+      'CHART_NOTE_NOT_READY_FOR_SIGNATURE',
+      `Chart note ${chartNoteId} is not ready for signature`,
+      409,
+    )
+  }
+}
+
 export class VersionConflictError extends DomainError {
   constructor(entityId: string, expected: number, actual: number) {
     super(
