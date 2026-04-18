@@ -71,7 +71,7 @@ curl http://localhost:3000/health
 
 ```
 apps/
-  api/                → Hono HTTP server, routes, Inngest webhook endpoint
+  api/                → Hono HTTP server, routes, composition root, Inngest webhook endpoint
 
 packages/
   api-contract/       → Zod request schemas, response types, domain error classes
@@ -81,7 +81,7 @@ packages/
   scheduling/         → Domain commands (e.g. startSession) — pure business logic
 ```
 
-`apps/api` imports from all packages. Packages reference each other where needed (e.g., `scheduling` imports from `db` and `api-contract`).
+`apps/api` imports from all packages. Packages reference each other where needed (e.g., `scheduling` imports from `db` and `api-contract`). The composition root in `apps/api/src/composition/` wires domain port interfaces to their Drizzle/infrastructure adapters. Routes import assembled port bundles — they never construct adapters inline.
 
 ## Domain Model
 
@@ -157,6 +157,7 @@ Design decisions, brainstorms, and implementation plans live in `docs/`:
 docs/
   brainstorms/    → Requirements exploration before planning
   plans/          → Implementation plans with file lists and verification steps
+  solutions/      → Solved problems and pattern decisions (indexed by symptoms and tags)
 ```
 
 These are internal working documents — they capture the _why_ behind decisions and are not guaranteed to stay current with the code.

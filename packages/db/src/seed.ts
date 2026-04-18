@@ -2,7 +2,12 @@ import { db } from './index'
 import { clinics, patients, practitioners } from './schema/shared'
 import { appointments } from './schema/scheduling'
 import { chartNoteTemplates } from './schema/clinical'
-import { physioInitialEval, physioFollowUpSoap } from './fixtures'
+import {
+  physioInitialEval,
+  physioFollowUpSoap,
+  ergoInitialEval,
+  ergoFollowUpSoap,
+} from './fixtures'
 
 const CLINIC_ID = 'a5514ace-7a45-4315-8809-e2aa2277aefc'
 const PHYSIO_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
@@ -12,12 +17,10 @@ const BOB_ID = '52380868-78bc-4594-8db4-3045be4ab003'
 const APPT_1_ID = '988930cb-8255-4883-9899-cc2b0c5e44c4'
 const APPT_2_ID = '37d6720e-6b0b-4930-88e6-b4f545142558'
 const APPT_3_ID = '7d7bb66a-e722-4c8f-aaf5-c8f196befdc5'
-const TEMPLATE_1_ID = '29187424-4563-4ebd-b2ee-c710ce251c70'
-const TEMPLATE_2_ID = 'e55a96e5-fbc2-4bef-a261-c70e824c1a4e'
-const TEMPLATE_3_ID = '9a78491a-380b-4a67-b2d7-856a3bc29c4b'
-const TEMPLATE_4_ID = 'f720c816-4907-4ee8-8d3f-ee0b04a1ae63'
-const TEMPLATE_V2_INITIAL_ID = 'b3a1c7d2-5e4f-4a89-9c12-d8f6e2a1b3c4'
-const TEMPLATE_V2_SOAP_ID = 'c4d2e8f3-6a5b-4b90-ad23-e9f7f3b2c4d5'
+const TEMPLATE_PHYSIO_INITIAL_ID = '29187424-4563-4ebd-b2ee-c710ce251c70'
+const TEMPLATE_PHYSIO_FOLLOWUP_ID = 'e55a96e5-fbc2-4bef-a261-c70e824c1a4e'
+const TEMPLATE_ERGO_INITIAL_ID = '9a78491a-380b-4a67-b2d7-856a3bc29c4b'
+const TEMPLATE_ERGO_FOLLOWUP_ID = 'f720c816-4907-4ee8-8d3f-ee0b04a1ae63'
 
 async function seed() {
   console.log('Seeding...')
@@ -90,70 +93,45 @@ async function seed() {
     ])
     .onConflictDoNothing()
 
-  // Chart note templates
+  // Chart note templates (v0.2 — rich TemplateContentV2)
   await db
     .insert(chartNoteTemplates)
     .values([
       {
-        id: TEMPLATE_1_ID,
+        id: TEMPLATE_PHYSIO_INITIAL_ID,
         name: 'IAF — Physiotherapy',
         discipline: 'physiotherapy',
         appointmentType: 'initial',
-        content: { sections: ['subjective', 'objective', 'assessment', 'plan', 'goals'] },
+        content: physioInitialEval,
         isDefault: true,
         createdBy: PHYSIO_ID,
       },
       {
-        id: TEMPLATE_2_ID,
+        id: TEMPLATE_PHYSIO_FOLLOWUP_ID,
         name: 'SOAP Note — Physiotherapy',
         discipline: 'physiotherapy',
         appointmentType: 'follow_up',
-        content: { sections: ['subjective', 'objective', 'assessment', 'plan'] },
+        content: physioFollowUpSoap,
         isDefault: true,
         createdBy: PHYSIO_ID,
       },
       {
-        id: TEMPLATE_3_ID,
+        id: TEMPLATE_ERGO_INITIAL_ID,
         name: 'IAF — Ergotherapy',
         discipline: 'ergotherapy',
         appointmentType: 'initial',
-        content: { sections: ['subjective', 'objective', 'assessment', 'plan', 'goals'] },
+        content: ergoInitialEval,
         isDefault: true,
         createdBy: ERGO_ID,
       },
       {
-        id: TEMPLATE_4_ID,
+        id: TEMPLATE_ERGO_FOLLOWUP_ID,
         name: 'SOAP Note — Ergotherapy',
         discipline: 'ergotherapy',
         appointmentType: 'follow_up',
-        content: { sections: ['subjective', 'objective', 'assessment', 'plan'] },
+        content: ergoFollowUpSoap,
         isDefault: true,
         createdBy: ERGO_ID,
-      },
-    ])
-    .onConflictDoNothing()
-
-  // Chart note templates (v0.2 — rich content, alongside v0.1 seeds)
-  await db
-    .insert(chartNoteTemplates)
-    .values([
-      {
-        id: TEMPLATE_V2_INITIAL_ID,
-        name: 'IAF v0.2 — Physiotherapy',
-        discipline: 'physiotherapy',
-        appointmentType: 'initial',
-        content: physioInitialEval,
-        isDefault: false,
-        createdBy: PHYSIO_ID,
-      },
-      {
-        id: TEMPLATE_V2_SOAP_ID,
-        name: 'SOAP Note v0.2 — Physiotherapy',
-        discipline: 'physiotherapy',
-        appointmentType: 'follow_up',
-        content: physioFollowUpSoap,
-        isDefault: false,
-        createdBy: PHYSIO_ID,
       },
     ])
     .onConflictDoNothing()

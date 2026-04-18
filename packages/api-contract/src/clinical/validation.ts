@@ -34,7 +34,11 @@ export const defaultTemplateQuerySchema = z.object({
   appointmentType: appointmentTypeEnum,
 })
 
-// --- AI Chart Note Draft schemas (CAR-98) ---
+export const initializeChartNoteSchema = z.object({
+  sessionId: z.uuid(),
+  discipline: disciplineEnum,
+  appointmentType: appointmentTypeEnum,
+})
 
 export const generateAiDraftSchema = z.object({
   rawNotes: z.string().min(1),

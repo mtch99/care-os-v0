@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { eq, and, sql, max, type SQL } from 'drizzle-orm'
 import { db, chartNoteTemplates } from '@careos/db'
 import {
@@ -6,6 +7,7 @@ import {
   updateTemplateSchema,
   listTemplatesQuerySchema,
   defaultTemplateQuerySchema,
+  initializeChartNoteSchema,
   TemplateNotFoundError,
   DefaultTemplateNotFoundError,
   CannotArchiveDefaultTemplateError,
@@ -13,6 +15,8 @@ import {
   DefaultAlreadyExistsError,
 } from '@careos/api-contract'
 import { TemplateSchema } from '@careos/clinical'
+import { initializeChartNote } from '@careos/scheduling'
+import { makeChartNotePorts } from '../composition/clinical-ports'
 
 export const clinicalRoutes = new Hono()
 
@@ -243,4 +247,23 @@ clinicalRoutes.delete('/templates/:id', async (c) => {
     .returning()
 
   return c.json({ data: archived })
+})
+
+// ── Chart Note Initialization ──
+
+const ports = makeChartNotePorts()
+
+clinicalRoutes.post('/chart-notes/initialize', async (c) => {
+  const input = initializeChartNoteSchema.parse(await c.req.json())
+  const result = await initializeChartNote(
+    {
+      sessionId: input.sessionId,
+      discipline: input.discipline,
+      appointmentType: input.appointmentType,
+      practitionerId: HARDCODED_PRACTITIONER_ID,
+    },
+    ports,
+  )
+  const status = result.created ? 201 : 200
+  return c.json(result, status as ContentfulStatusCode)
 })
