@@ -66,7 +66,7 @@ export async function generateAiDraft(
           .update(aiChartNoteDrafts)
           .set({ status: 'rejected' })
           .where(eq(aiChartNoteDrafts.id, draft.id))
-  
+
         rejectedDraftEvents.push({
           draftId: draft.id,
           chartNoteId: input.chartNoteId,
