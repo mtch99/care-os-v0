@@ -155,17 +155,14 @@ export async function acceptAiDraft(
       .where(eq(aiChartNoteDrafts.id, input.draftId))
 
     // 7. Surface events from the aggregate alongside the handler-owned draft event
-    const savedEvent = updated
-      .getUncommittedEvents()
-      .find((e) => e.type === 'chartNote.saved')
+    const savedEvent = updated.getUncommittedEvents().find((e) => e.type === 'chartNote.saved')
 
     const events: Partial<AcceptAiDraftEvents> = {
       'aiChartDraft.accepted': { draftId: input.draftId, chartNoteId: input.chartNoteId },
     }
 
     if (savedEvent) {
-      events['chartNote.saved'] =
-        savedEvent.payload as AcceptAiDraftEvents['chartNote.saved']
+      events['chartNote.saved'] = savedEvent.payload as AcceptAiDraftEvents['chartNote.saved']
     }
 
     return {
