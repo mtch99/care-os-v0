@@ -3,8 +3,9 @@
 # Reuses the same session + chart note from the CAR-98 suite.
 #
 # Fixed IDs:
-#   TEST_SESSION_ID    = 11111111-1111-1111-1111-111111111111
-#   TEST_CHART_NOTE_ID = 22222222-2222-2222-2222-222222222222
+#   TEST_SESSION_ID             = 11111111-1111-1111-1111-111111111111
+#   TEST_CHART_NOTE_ID          = 22222222-2222-2222-2222-222222222222
+#   TEMPLATE_PHYSIO_INITIAL_ID  = 29187424-4563-4ebd-b2ee-c710ce251c70 (seeded)
 set -e
 
 : "${DATABASE_URL:=postgresql://postgres:careos@localhost:5432/careos}"
@@ -38,7 +39,7 @@ BEGIN
   VALUES (
     '22222222-2222-2222-2222-222222222222',
     v_session_id,
-    'b3a1c7d2-5e4f-4a89-9c12-d8f6e2a1b3c4',
+    '29187424-4563-4ebd-b2ee-c710ce251c70',
     'draft',
     NULL,
     1
