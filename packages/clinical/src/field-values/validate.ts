@@ -1,5 +1,6 @@
 import type { FieldValueError, LocalizedString, TemplateContentV2 } from '@careos/api-contract'
-import { FieldValueValidationError } from '@careos/api-contract'
+import { FieldValueValidationError, fieldConfigByType } from '@careos/api-contract'
+import type { z } from 'zod'
 
 /**
  * Semantic validation for chart-note field-value payloads against a
@@ -28,23 +29,19 @@ type FieldType = Field['type']
 // The template-content Zod schema is a discriminated union at runtime, but
 // the static inference widens `config` into the union of all per-type
 // configs — narrowing on `field.type` does not narrow `field.config` in
-// TypeScript. We keep local aliases and cast once per case. Safe at runtime
-// because any TemplateContentV2 reaching this validator has already passed
-// the structural Zod schema.
-type ScaleConfig = { min: number; max: number; step?: number; unit?: string }
-type OptionsConfig = { options: ReadonlyArray<LocalizedString> }
-type CheckboxWithTextConfig = {
-  items: ReadonlyArray<{ key: string; label: LocalizedString }>
-  columns?: number
-}
-type RepeaterColumn = {
-  key: string
-  label: LocalizedString
-  type: 'text' | 'select' | 'narrative'
-  options?: string[]
-}
-type RepeaterConfig = { columns: ReadonlyArray<RepeaterColumn> }
-type TableConfig = { columns: string[]; rows?: string[] }
+// TypeScript. We derive per-type config types directly from
+// `fieldConfigByType` via `z.infer` so any change to the Zod schemas in
+// `field-configs.ts` (new constraints, renamed keys) is picked up here
+// without manual syncing. The runtime cast is safe because any
+// TemplateContentV2 reaching this validator has already passed the
+// structural Zod schema.
+type ScaleConfig = z.infer<(typeof fieldConfigByType)['scale']>
+type SelectConfig = z.infer<(typeof fieldConfigByType)['select']>
+type CheckboxGroupConfig = z.infer<(typeof fieldConfigByType)['checkboxGroup']>
+type CheckboxWithTextConfig = z.infer<(typeof fieldConfigByType)['checkboxWithText']>
+type RepeaterConfig = z.infer<(typeof fieldConfigByType)['repeaterTable']>
+type RepeaterColumn = RepeaterConfig['columns'][number]
+type TableConfig = z.infer<(typeof fieldConfigByType)['table']>
 
 type ErrorAccumulator = FieldValueError[]
 type FieldPath = ReadonlyArray<string | number>
@@ -100,13 +97,13 @@ function validateOne(
       return
     case 'select':
     case 'radio':
-      validateLocalizedOption(value, (field.config as OptionsConfig).options, path, errors)
+      validateLocalizedOption(value, (field.config as SelectConfig).options, path, errors)
       return
     case 'date':
       validateDate(value, path, errors)
       return
     case 'checkboxGroup':
-      validateCheckboxGroup(value, (field.config as OptionsConfig).options, path, errors)
+      validateCheckboxGroup(value, (field.config as CheckboxGroupConfig).options, path, errors)
       return
     case 'checkboxWithText':
       validateCheckboxWithText(value, (field.config as CheckboxWithTextConfig).items, path, errors)
