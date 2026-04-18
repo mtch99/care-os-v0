@@ -8,7 +8,7 @@
 #   TEMPLATE_PHYSIO_INITIAL_ID  = 29187424-4563-4ebd-b2ee-c710ce251c70 (seeded)
 set -e
 
-: "${DATABASE_URL:=postgresql://postgres:careos@localhost:5432/careos}"
+source "$(dirname "$0")/../_lib/load-env.sh"
 
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
 -- Insert test session if not exists

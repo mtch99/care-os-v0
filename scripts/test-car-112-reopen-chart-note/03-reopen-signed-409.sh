@@ -3,7 +3,7 @@
 # First set the chart note to signed, then attempt reopen.
 # Expect 409 with { error: { code: "CHART_NOTE_ALREADY_SIGNED" } }
 
-: "${DATABASE_URL:=postgresql://postgres:careos@localhost:5432/careos}"
+source "$(dirname "$0")/../_lib/load-env.sh"
 CHART_NOTE_ID="${1:-22222222-2222-2222-2222-222222222222}"
 
 # Set chart note to signed status

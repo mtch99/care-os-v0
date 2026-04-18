@@ -28,6 +28,7 @@ For each endpoint found in step 4, generate:
 - Scripts that need IDs from previous steps accept them as `$1` arguments with usage validation: `"${1:?Usage: $0 <id>}"`
 - Scripts with optional parameters use defaults: `"${1:-default_value}"`
 - Name format: `NN-verb-description.sh` (e.g. `01-create-template.sh`, `02-create-default-conflict.sh`)
+- **Any script that calls `psql` MUST source the shared env loader** with `source "$(dirname "$0")/../_lib/load-env.sh"` near the top (after the shebang and any `set -e`). The loader pulls `DATABASE_URL` from `packages/db/.env` so the script works in worktrees where the DB port is dynamic — see the header comments in [`scripts/_lib/load-env.sh`](../../scripts/_lib/load-env.sh) for details. Do not copy the inline boilerplate; extend the loader if new env vars are ever needed. Scripts that only call `curl` don't need this.
 
 Generate a `README.md` with:
 
