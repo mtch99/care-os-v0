@@ -75,7 +75,8 @@ export async function generateAiDraft(
         rawNotes: input.rawNotes,
         templateContent: template.content as TemplateContentV2,
       })
-    } catch {
+    } catch (error) {
+      console.error('[AI_CHARTING]: Failed to generate draft', error)
       throw new AiGenerationFailedError()
     }
 
