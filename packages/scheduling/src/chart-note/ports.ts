@@ -63,7 +63,6 @@ export interface TemplateListItem {
 export interface ChartNoteRepository {
   findBySessionId(sessionId: string): Promise<ChartNoteRow | null>
   findById(id: string): Promise<ChartNoteRow | null>
-  findById(id: string): Promise<ChartNoteRow | null>
   insert(data: {
     id: string
     sessionId: string
@@ -79,17 +78,10 @@ export interface ChartNoteRepository {
     updatedAt: Date
     expectedVersion: number
   }): Promise<ChartNoteRow | null>
-  updateFieldValues(data: {
-    id: string
-    fieldValues: Record<string, FieldValue>
-    updatedAt: Date
-    expectedVersion: number
-  }): Promise<ChartNoteRow | null>
 }
 
 export interface TemplateRepository {
   findDefault(discipline: string, appointmentType: string): Promise<TemplateRow | null>
-  findById(id: string): Promise<TemplateRow | null>
   findById(id: string): Promise<TemplateRow | null>
   listByDisciplineAndType(discipline: string, appointmentType: string): Promise<TemplateListItem[]>
 }
@@ -101,7 +93,6 @@ export interface IntakeLookupPort {
 }
 
 export interface SessionLookupPort {
-  findById(sessionId: string): Promise<{ id: string; practitionerId: string } | null>
   findById(sessionId: string): Promise<{ id: string; practitionerId: string } | null>
 }
 
