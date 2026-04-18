@@ -19,7 +19,7 @@
     "db:migrate:apply": "pnpm --filter @careos/db migrate:apply",
     "db:seed": "pnpm --filter @careos/db seed",
     "db:reboot": "pnpm db:nuke && pnpm db:up && pnpm db:migrate:apply && pnpm db:seed",
-    "bootstrap": "pnpm install && pnpm db:up && pnpm db:migrate:apply && pnpm db:seed",
+    "bootstrap": "pnpm install && pnpm db:up && pnpm db:migrate && pnpm db:migrate:apply && pnpm db:seed",
     "start": "node scripts/start.mjs",
     "teardown": "pnpm stop; pnpm db:nuke && rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "stop": "pkill -f 'turbo run dev' || true; lsof -ti tcp:3000,9376 | xargs kill -9 2>/dev/null || true; pnpm db:down"
