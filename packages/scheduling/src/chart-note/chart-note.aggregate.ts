@@ -1,4 +1,10 @@
-import type { ChartNoteRow, ChartNoteEvent } from './ports'
+import {
+  ChartNoteNotDraftError,
+  UnknownFieldIdError,
+  VersionConflictError,
+} from '@careos/api-contract'
+
+import type { ChartNoteRow, ChartNoteEvent, FieldValue } from './ports'
 
 /**
  * ChartNote aggregate root.
@@ -8,6 +14,8 @@ import type { ChartNoteRow, ChartNoteEvent } from './ports'
  * - fieldValues keys must be a subset of the referenced template version's field IDs
  * - Initial state is 'draft'
  * - State machine: draft -> readyForSignature -> signed (only draft is set here)
+ * - Edits allowed only in 'draft' status
+ * - Optimistic locking via version column
  */
 export class ChartNote {
   private readonly events: ChartNoteEvent[] = []
@@ -17,7 +25,7 @@ export class ChartNote {
     public readonly sessionId: string,
     public readonly templateVersionId: string,
     public readonly status: 'draft' | 'readyForSignature' | 'signed',
-    public readonly fieldValues: Record<string, null>,
+    public readonly fieldValues: Record<string, FieldValue>,
     public readonly prePopulatedFromIntakeId: string | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
@@ -87,6 +95,81 @@ export class ChartNote {
     }
 
     return note
+  }
+
+  /**
+   * Apply human edits to a draft chart note (patch semantics).
+   *
+   * Preconditions (enforced here on the aggregate):
+   * - status must be 'draft'
+   * - incoming version must match current version (optimistic lock)
+   * - every key in incomingFieldValues must exist in the template's field IDs
+   *
+   * Merge semantics:
+   * - Keys present in incomingFieldValues are merged into existing fieldValues
+   * - Keys absent from the payload are left unchanged
+   * - A value of null means "clear this field"
+   *
+   * Returns a new ChartNote with bumped version and chartNote.saved event.
+   */
+  saveDraft(params: {
+    incomingFieldValues: Record<string, FieldValue>
+    templateFieldIds: string[]
+    editedBy: string
+    editedAt: Date
+    incomingVersion: number
+  }): ChartNote {
+    // Precondition: must be in draft status
+    if (this.status !== 'draft') {
+      throw new ChartNoteNotDraftError()
+    }
+
+    // Precondition: optimistic lock — version must match
+    if (params.incomingVersion !== this.version) {
+      throw new VersionConflictError(this.version, params.incomingVersion)
+    }
+
+    // Precondition: every incoming key must exist in the template's field IDs
+    const templateFieldSet = new Set(params.templateFieldIds)
+    const unknownKeys = Object.keys(params.incomingFieldValues).filter(
+      (key) => !templateFieldSet.has(key),
+    )
+    if (unknownKeys.length > 0) {
+      throw new UnknownFieldIdError(unknownKeys)
+    }
+
+    // Merge: patch incoming values into existing fieldValues
+    const mergedFieldValues: Record<string, FieldValue> = { ...this.fieldValues }
+    for (const [key, value] of Object.entries(params.incomingFieldValues)) {
+      mergedFieldValues[key] = value
+    }
+
+    const nextVersion = this.version + 1
+    const fieldIdsChanged = Object.keys(params.incomingFieldValues)
+
+    const updated = new ChartNote(
+      this.id,
+      this.sessionId,
+      this.templateVersionId,
+      this.status,
+      mergedFieldValues,
+      this.prePopulatedFromIntakeId,
+      this.createdAt,
+      params.editedAt,
+      nextVersion,
+    )
+
+    updated.events.push({
+      type: 'chartNote.saved',
+      payload: {
+        chartNoteId: this.id,
+        editedBy: params.editedBy,
+        editedAt: params.editedAt.toISOString(),
+        fieldIdsChanged,
+      },
+    })
+
+    return updated
   }
 
   /**

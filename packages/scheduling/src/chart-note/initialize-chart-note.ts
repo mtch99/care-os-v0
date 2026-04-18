@@ -13,6 +13,7 @@ import type {
   SessionLookupPort,
   Clock,
   EventPublisher,
+  FieldValue,
 } from './ports'
 
 export interface InitializeChartNoteInput {
@@ -28,7 +29,7 @@ export interface InitializeChartNoteResult {
     sessionId: string
     templateVersionId: string
     status: string
-    fieldValues: Record<string, null>
+    fieldValues: Record<string, FieldValue>
     prePopulatedFromIntakeId: string | null
     createdAt: string
     updatedAt: string

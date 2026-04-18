@@ -5,6 +5,8 @@ export type {
   InitializeChartNoteResult,
   InitializeChartNotePorts,
 } from './initialize-chart-note'
+export { saveDraft } from './save-draft'
+export type { SaveDraftInput, SaveDraftResult, SaveDraftPorts } from './save-draft'
 export type {
   ChartNoteRepository,
   TemplateRepository,
@@ -16,5 +18,6 @@ export type {
   TemplateRow,
   TemplateListItem,
   ChartNoteEvent,
+  FieldValue,
 } from './ports'
 export { extractFieldKeys } from './extract-field-keys'

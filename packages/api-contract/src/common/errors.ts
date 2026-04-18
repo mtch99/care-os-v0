@@ -169,3 +169,30 @@ export class DraftAlreadyResolvedError extends DomainError {
     super('DRAFT_ALREADY_RESOLVED', 'This draft was already accepted or rejected.', 409)
   }
 }
+
+// --- Chart Note Save Draft errors (CAR-110) ---
+
+export class UnknownFieldIdError extends DomainError {
+  constructor(public readonly unknownKeys: string[]) {
+    super('UNKNOWN_FIELD_ID', `Unknown field IDs in payload: ${unknownKeys.join(', ')}`, 422)
+  }
+}
+
+export class VersionConflictError extends DomainError {
+  constructor(
+    public readonly expected: number,
+    public readonly actual: number,
+  ) {
+    super(
+      'VERSION_CONFLICT',
+      `Version conflict: expected ${String(expected)}, got ${String(actual)}`,
+      409,
+    )
+  }
+}
+
+export class NotSessionOwnerError extends DomainError {
+  constructor(practitionerId: string) {
+    super('NOT_SESSION_OWNER', `Practitioner ${practitionerId} is not the session owner`, 403)
+  }
+}

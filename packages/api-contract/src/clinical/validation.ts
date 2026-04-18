@@ -43,3 +43,9 @@ export const initializeChartNoteSchema = z.object({
 export const generateAiDraftSchema = z.object({
   rawNotes: z.string().min(1),
 })
+
+export const saveDraftSchema = z.object({
+  fieldValues: z.record(z.string(), z.unknown()),
+  version: z.number().int().positive(),
+  practitionerId: z.uuid(),
+})

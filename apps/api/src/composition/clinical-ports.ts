@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm'
 import { db, chartNotes, chartNoteTemplates, sessions } from '@careos/db'
-import type { InitializeChartNotePorts } from '@careos/scheduling'
+import type { InitializeChartNotePorts, FieldValue } from '@careos/scheduling'
 
 type AppointmentTypeLiteral = 'initial' | 'follow_up'
 
@@ -19,16 +19,28 @@ function toChartNoteRow(row: {
 }) {
   return {
     ...row,
-    fieldValues: row.fieldValues ? (row.fieldValues as Record<string, null>) : null,
+    fieldValues: row.fieldValues ? (row.fieldValues as Record<string, FieldValue>) : null,
   }
 }
 
+/**
+ * Composition root for ChartNote ports.
+ *
+ * Satisfies both InitializeChartNotePorts and SaveDraftPorts since the
+ * ChartNoteRepository and other ports are shared between the two commands.
+ */
 export function makeChartNotePorts(): InitializeChartNotePorts {
   return {
     chartNoteRepo: {
       async findBySessionId(sessionId) {
         const row = await db.query.chartNotes.findFirst({
           where: eq(chartNotes.sessionId, sessionId),
+        })
+        return row ? toChartNoteRow(row) : null
+      },
+      async findById(id) {
+        const row = await db.query.chartNotes.findFirst({
+          where: eq(chartNotes.id, id),
         })
         return row ? toChartNoteRow(row) : null
       },
@@ -63,6 +75,20 @@ export function makeChartNotePorts(): InitializeChartNotePorts {
 
         return { row: toChartNoteRow(existing), created: false }
       },
+      async updateFieldValues(data) {
+        const rows = await db
+          .update(chartNotes)
+          .set({
+            fieldValues: data.fieldValues,
+            updatedAt: data.updatedAt,
+            version: data.expectedVersion + 1,
+          })
+          .where(and(eq(chartNotes.id, data.id), eq(chartNotes.version, data.expectedVersion)))
+          .returning()
+
+        if (rows.length === 0) return null
+        return toChartNoteRow(rows[0])
+      },
     },
     templateRepo: {
       async findDefault(discipline, appointmentType) {
@@ -72,6 +98,12 @@ export function makeChartNotePorts(): InitializeChartNotePorts {
             eq(chartNoteTemplates.appointmentType, appointmentType as AppointmentTypeLiteral),
             eq(chartNoteTemplates.isDefault, true),
           ),
+        })
+        return row ?? null
+      },
+      async findById(id) {
+        const row = await db.query.chartNoteTemplates.findFirst({
+          where: eq(chartNoteTemplates.id, id),
         })
         return row ?? null
       },
@@ -108,7 +140,7 @@ export function makeChartNotePorts(): InitializeChartNotePorts {
         const row = await db.query.sessions.findFirst({
           where: eq(sessions.id, sessionId),
         })
-        return row ? { id: row.id } : null
+        return row ? { id: row.id, practitionerId: row.practitionerId } : null
       },
     },
     clock: {
