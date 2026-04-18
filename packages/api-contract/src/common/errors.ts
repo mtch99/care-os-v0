@@ -169,3 +169,13 @@ export class DraftAlreadyResolvedError extends DomainError {
     super('DRAFT_ALREADY_RESOLVED', 'This draft was already accepted or rejected.', 409)
   }
 }
+
+export class VersionConflictError extends DomainError {
+  constructor(entityId: string, expected: number, actual: number) {
+    super(
+      'VERSION_CONFLICT',
+      `Version conflict on ${entityId}: expected ${String(expected)}, got ${String(actual)}`,
+      409,
+    )
+  }
+}

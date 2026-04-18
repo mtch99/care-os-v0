@@ -48,6 +48,8 @@ export interface FakeDbConfig {
   pendingDraft?: FakeAiChartNoteDraft | null
   template?: FakeChartNoteTemplate | null
   draft?: FakeAiChartNoteDraft | null
+  /** All pending drafts for findMany queries (markReadyForSignature auto-reject) */
+  pendingDrafts?: FakeAiChartNoteDraft[]
 }
 
 /**
@@ -101,6 +103,7 @@ export function createFakeDb(config: FakeDbConfig) {
   let chartNoteCallIdx = 0
   let draftCallIdx = 0
   let templateCallIdx = 0
+  let draftUpdateCallIdx = 0
 
   const txProxy = {
     query: {
@@ -116,6 +119,9 @@ export function createFakeDb(config: FakeDbConfig) {
           const result = draftFindCalls[draftCallIdx]
           draftCallIdx++
           return Promise.resolve(result)
+        }),
+        findMany: vi.fn(() => {
+          return Promise.resolve(config.pendingDrafts ?? [])
         }),
       },
       chartNoteTemplates: {
@@ -159,11 +165,14 @@ export function createFakeDb(config: FakeDbConfig) {
             }
           }
 
-          if ('status' in updates && !('fieldValues' in updates)) {
-            const draft = config.draft ?? config.pendingDraft
-            if (draft) {
-              mutations.updatedDrafts.push({ id: draft.id, updates })
-            }
+          if ('status' in updates && !('fieldValues' in updates) && !('version' in updates)) {
+            // Draft status update. Cycle through pendingDrafts if available,
+            // otherwise fall back to draft/pendingDraft.
+            const drafts = config.pendingDrafts ?? []
+            const fallbackDraft = config.draft ?? config.pendingDraft
+            const targetDraft = drafts[draftUpdateCallIdx] ?? fallbackDraft
+            draftUpdateCallIdx++
+            mutations.updatedDrafts.push({ id: targetDraft.id, updates })
           }
 
           return {
