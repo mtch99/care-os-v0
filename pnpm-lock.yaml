@@ -155,9 +155,15 @@ importers:
       '@careos/api-contract':
         specifier: workspace:*
         version: link:../api-contract
+      '@careos/clinical':
+        specifier: workspace:*
+        version: link:../clinical
       '@careos/db':
         specifier: workspace:*
         version: link:../db
+      '@careos/scheduling':
+        specifier: workspace:*
+        version: link:../scheduling
       drizzle-orm:
         specifier: ^0.45.1
         version: 0.45.1(@opentelemetry/api@1.9.1)(@types/pg@8.15.6)(postgres@3.4.8)

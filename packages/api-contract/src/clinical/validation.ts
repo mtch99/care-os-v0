@@ -57,3 +57,21 @@ export const saveDraftSchema = z.object({
   version: z.number().int().positive(),
   practitionerId: z.uuid(),
 })
+
+// --- AI Template Draft schemas (CAR-97) ---
+
+export const localeEnum = z.enum(['fr', 'en'])
+
+export const generateAiTemplateDraftSchema = z.object({
+  discipline: disciplineEnum,
+  appointmentType: appointmentTypeEnum,
+  preferences: z.string().min(1),
+  locale: z.array(localeEnum).min(1),
+  practitionerId: z.uuid(),
+})
+
+export const acceptAiTemplateDraftSchema = z.object({
+  name: z.string().min(1).max(255),
+  isDefault: z.boolean().optional().default(false),
+  practitionerId: z.uuid(),
+})

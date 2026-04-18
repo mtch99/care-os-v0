@@ -6,6 +6,7 @@ import { DomainError, NoDefaultTemplateError } from '@careos/api-contract'
 import { schedulingRoutes } from './routes/scheduling'
 import { clinicalRoutes } from './routes/clinical'
 import { chartingRoutes } from './routes/charting'
+import { aiTemplateDraftRoutes } from './routes/ai-template-drafts'
 import { env } from './env'
 import { serve as serveInngest } from 'inngest/hono'
 import { inngest } from '@careos/inngest/client'
@@ -44,6 +45,7 @@ app.onError((err, c) => {
 app.route('/api/scheduling', schedulingRoutes)
 app.route('/api/clinical', clinicalRoutes)
 app.route('/api/charting', chartingRoutes)
+app.route('/api/templates', aiTemplateDraftRoutes)
 
 app.get('/health', (c) => c.json({ status: 'ok' }))
 

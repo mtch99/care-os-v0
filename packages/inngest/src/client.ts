@@ -62,6 +62,34 @@ export const chartNoteReopened = eventType('charting/chartNote.reopened', {
   }),
 })
 
+// --- AI Template Draft events (CAR-97) ---
+
+export const aiTemplateDraftGenerated = eventType('clinical/aiTemplateDraft.generated', {
+  schema: z.object({
+    draftId: z.string(),
+    discipline: z.string(),
+    appointmentType: z.string(),
+    generatedBy: z.string(),
+  }),
+})
+
+export const aiTemplateDraftAccepted = eventType('clinical/aiTemplateDraft.accepted', {
+  schema: z.object({
+    draftId: z.string(),
+    templateId: z.string(),
+    discipline: z.string(),
+    appointmentType: z.string(),
+  }),
+})
+
+export const aiTemplateDraftRejected = eventType('clinical/aiTemplateDraft.rejected', {
+  schema: z.object({
+    draftId: z.string(),
+    discipline: z.string(),
+    appointmentType: z.string(),
+  }),
+})
+
 // --- Chart Note Save Draft events (CAR-110) ---
 
 export const chartNoteSaved = eventType('charting/chartNote.saved', {

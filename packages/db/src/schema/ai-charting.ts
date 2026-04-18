@@ -1,15 +1,4 @@
-import { sql } from 'drizzle-orm'
-import {
-  pgTable,
-  pgEnum,
-  uuid,
-  varchar,
-  text,
-  timestamp,
-  jsonb,
-  index,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core'
+import { pgTable, pgEnum, uuid, varchar, text, timestamp, jsonb, index } from 'drizzle-orm/pg-core'
 import { appointmentTypeEnum } from './scheduling'
 import { chartNoteTemplates } from './clinical'
 import { practitioners } from './shared'
@@ -38,12 +27,7 @@ export const aiTemplateDrafts = pgTable(
     expiresAt: timestamp('expires_at').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('ai_template_drafts_status_idx').on(table.status),
-    uniqueIndex('ai_template_drafts_pending_unique_idx')
-      .on(table.discipline, table.appointmentType)
-      .where(sql`${table.status} = 'pending'`),
-  ],
+  (table) => [index('ai_template_drafts_status_idx').on(table.status)],
 )
 
 export type AiTemplateDraft = typeof aiTemplateDrafts.$inferSelect
