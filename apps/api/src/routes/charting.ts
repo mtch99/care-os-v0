@@ -31,6 +31,10 @@ export const chartingRoutes = new Hono()
 // Wire the AI charting port once at module level (composition root)
 const aiCharting = createAnthropicChartingAdapter()
 
+// Decision: practitioner identity uses HARDCODED_PRACTITIONER_ID since auth is not implemented (see CLAUDE.md).
+// Same pattern as the scheduling and clinical routes.
+const HARDCODED_PRACTITIONER_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
+
 // POST /chart-notes/:id/ai-draft -- generate AI draft
 chartingRoutes.post('/chart-notes/:id/ai-draft', async (c) => {
   const { id } = c.req.param()
@@ -63,6 +67,7 @@ chartingRoutes.post('/chart-notes/:id/ai-draft/:draftId/accept', async (c) => {
   const { result, events } = await acceptAiDraft(db, {
     chartNoteId: id,
     draftId,
+    acceptedBy: HARDCODED_PRACTITIONER_ID,
   })
 
   if (events['aiChartDraft.accepted']) {
@@ -95,10 +100,6 @@ chartingRoutes.post('/chart-notes/:id/ai-draft/:draftId/reject', async (c) => {
 
   return c.json({ data: result })
 })
-
-// Decision: markedBy uses HARDCODED_PRACTITIONER_ID since auth is not implemented (see CLAUDE.md).
-// Same pattern as the scheduling and clinical routes.
-const HARDCODED_PRACTITIONER_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
 
 // POST /chart-notes/:id/mark-ready-for-signature -- lock chart note for review
 chartingRoutes.post('/chart-notes/:id/mark-ready-for-signature', async (c) => {
