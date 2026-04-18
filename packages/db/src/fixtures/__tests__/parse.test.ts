@@ -1,12 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { templateContentSchemaV2 } from '@careos/api-contract'
 
-import {
-  physioInitialEval,
-  physioFollowUpSoap,
-  ergoInitialEval,
-  ergoFollowUpSoap,
-} from '..'
+import { physioInitialEval, physioFollowUpSoap, ergoInitialEval, ergoFollowUpSoap } from '..'
 
 /**
  * Loud-fail test for fixture drift against the current template schema.

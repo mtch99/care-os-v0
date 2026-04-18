@@ -206,11 +206,23 @@ export const ergoFollowUpSoap: TemplateContentV2 = {
                   config: {
                     options: [
                       { key: 'adl_training', fr: 'Entraînement aux AVQ', en: 'ADL Training' },
-                      { key: 'therapeutic_exercises', fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
+                      {
+                        key: 'therapeutic_exercises',
+                        fr: 'Exercices thérapeutiques',
+                        en: 'Therapeutic Exercises',
+                      },
                       { key: 'assistive_devices', fr: 'Aides techniques', en: 'Assistive Devices' },
-                      { key: 'home_modifications', fr: 'Adaptation domiciliaire', en: 'Home Modifications' },
+                      {
+                        key: 'home_modifications',
+                        fr: 'Adaptation domiciliaire',
+                        en: 'Home Modifications',
+                      },
                       { key: 'splinting_orthotics', fr: 'Orthèse', en: 'Splinting / Orthotics' },
-                      { key: 'cognitive_stimulation', fr: 'Stimulation cognitive', en: 'Cognitive Stimulation' },
+                      {
+                        key: 'cognitive_stimulation',
+                        fr: 'Stimulation cognitive',
+                        en: 'Cognitive Stimulation',
+                      },
                       { key: 'education', fr: 'Éducation', en: 'Education' },
                     ],
                   },

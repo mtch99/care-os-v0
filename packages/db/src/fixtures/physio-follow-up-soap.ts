@@ -196,7 +196,11 @@ export const physioFollowUpSoap: TemplateContentV2 = {
                   config: {
                     options: [
                       { key: 'manual_therapy', fr: 'Thérapie manuelle', en: 'Manual Therapy' },
-                      { key: 'therapeutic_exercises', fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
+                      {
+                        key: 'therapeutic_exercises',
+                        fr: 'Exercices thérapeutiques',
+                        en: 'Therapeutic Exercises',
+                      },
                       { key: 'electrotherapy', fr: 'Électrothérapie', en: 'Electrotherapy' },
                       { key: 'ultrasound', fr: 'Ultrasons', en: 'Ultrasound' },
                       { key: 'ice_heat', fr: 'Glace / Chaleur', en: 'Ice / Heat' },

@@ -210,8 +210,16 @@ export const physioInitialEval: TemplateContentV2 = {
                   config: {
                     options: [
                       { key: 'normal', fr: 'Normale', en: 'Normal' },
-                      { key: 'increased_kyphosis', fr: 'Cyphose augmentée', en: 'Increased Kyphosis' },
-                      { key: 'increased_lordosis', fr: 'Lordose augmentée', en: 'Increased Lordosis' },
+                      {
+                        key: 'increased_kyphosis',
+                        fr: 'Cyphose augmentée',
+                        en: 'Increased Kyphosis',
+                      },
+                      {
+                        key: 'increased_lordosis',
+                        fr: 'Lordose augmentée',
+                        en: 'Increased Lordosis',
+                      },
                       { key: 'scoliosis', fr: 'Scoliose', en: 'Scoliosis' },
                       { key: 'forward_head', fr: 'Tête antérieure', en: 'Forward Head' },
                     ],
@@ -226,7 +234,11 @@ export const physioInitialEval: TemplateContentV2 = {
                     options: [
                       { key: 'normal', fr: 'Normale', en: 'Normal' },
                       { key: 'antalgic', fr: 'Antalgique', en: 'Antalgic' },
-                      { key: 'with_assistive_device', fr: 'Avec aide technique', en: 'With Assistive Device' },
+                      {
+                        key: 'with_assistive_device',
+                        fr: 'Avec aide technique',
+                        en: 'With Assistive Device',
+                      },
                     ],
                   },
                 },
@@ -605,7 +617,11 @@ export const physioInitialEval: TemplateContentV2 = {
                   config: {
                     options: [
                       { key: 'manual_therapy', fr: 'Thérapie manuelle', en: 'Manual Therapy' },
-                      { key: 'therapeutic_exercises', fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
+                      {
+                        key: 'therapeutic_exercises',
+                        fr: 'Exercices thérapeutiques',
+                        en: 'Therapeutic Exercises',
+                      },
                       { key: 'electrotherapy', fr: 'Électrothérapie', en: 'Electrotherapy' },
                       { key: 'ultrasound', fr: 'Ultrasons', en: 'Ultrasound' },
                       { key: 'ice_heat', fr: 'Glace / Chaleur', en: 'Ice / Heat' },

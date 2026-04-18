@@ -80,7 +80,11 @@ export const ergoInitialEval: TemplateContentV2 = {
                   config: {
                     options: [
                       { key: 'home_alone', fr: 'Domicile — seul', en: 'Home — alone' },
-                      { key: 'home_with_family', fr: 'Domicile — avec famille', en: 'Home — with family' },
+                      {
+                        key: 'home_with_family',
+                        fr: 'Domicile — avec famille',
+                        en: 'Home — with family',
+                      },
                       { key: 'assisted_living', fr: 'Résidence', en: 'Assisted living' },
                       { key: 'long_term_care', fr: 'CHSLD', en: 'Long-term care' },
                     ],
@@ -353,8 +357,16 @@ export const ergoInitialEval: TemplateContentV2 = {
                     options: [
                       { key: 'intact', fr: 'Intacte', en: 'Intact' },
                       { key: 'mildly_impaired', fr: 'Légèrement altérée', en: 'Mildly Impaired' },
-                      { key: 'moderately_impaired', fr: 'Modérément altérée', en: 'Moderately Impaired' },
-                      { key: 'severely_impaired', fr: 'Sévèrement altérée', en: 'Severely Impaired' },
+                      {
+                        key: 'moderately_impaired',
+                        fr: 'Modérément altérée',
+                        en: 'Moderately Impaired',
+                      },
+                      {
+                        key: 'severely_impaired',
+                        fr: 'Sévèrement altérée',
+                        en: 'Severely Impaired',
+                      },
                     ],
                   },
                 },
@@ -473,11 +485,23 @@ export const ergoInitialEval: TemplateContentV2 = {
                   config: {
                     options: [
                       { key: 'adl_training', fr: 'Entraînement aux AVQ', en: 'ADL Training' },
-                      { key: 'therapeutic_exercises', fr: 'Exercices thérapeutiques', en: 'Therapeutic Exercises' },
+                      {
+                        key: 'therapeutic_exercises',
+                        fr: 'Exercices thérapeutiques',
+                        en: 'Therapeutic Exercises',
+                      },
                       { key: 'assistive_devices', fr: 'Aides techniques', en: 'Assistive Devices' },
-                      { key: 'home_modifications', fr: 'Adaptation domiciliaire', en: 'Home Modifications' },
+                      {
+                        key: 'home_modifications',
+                        fr: 'Adaptation domiciliaire',
+                        en: 'Home Modifications',
+                      },
                       { key: 'splinting_orthotics', fr: 'Orthèse', en: 'Splinting / Orthotics' },
-                      { key: 'cognitive_stimulation', fr: 'Stimulation cognitive', en: 'Cognitive Stimulation' },
+                      {
+                        key: 'cognitive_stimulation',
+                        fr: 'Stimulation cognitive',
+                        en: 'Cognitive Stimulation',
+                      },
                       { key: 'education', fr: 'Éducation', en: 'Education' },
                     ],
                   },
