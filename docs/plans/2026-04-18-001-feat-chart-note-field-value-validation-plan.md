@@ -277,7 +277,7 @@ Hono app.onError
 
 ---
 
-- [ ] **Unit 4: Wire validator into `ChartNote.saveDraft` aggregate**
+- [x] **Unit 4: Wire validator into `ChartNote.saveDraft` aggregate**
 
 **Goal:** The aggregate enforces value validation as part of its precondition chain, after the unknown-key check.
 
@@ -320,7 +320,7 @@ Hono app.onError
 
 ---
 
-- [ ] **Unit 5: Update `save-draft` handler to pass `templateContent`**
+- [x] **Unit 5: Update `save-draft` handler to pass `templateContent`**
 
 **Goal:** Match the aggregate's new signature.
 
@@ -378,7 +378,7 @@ Hono app.onError
 
 ---
 
-- [ ] **Unit 7: Add the new package edge to dependencies and update `CLAUDE.md`**
+- [x] **Unit 7: Add the new package edge to dependencies and update `CLAUDE.md`**
 
 **Goal:** Make the new dependency direction explicit so future contributors don't think it's a mistake.
 

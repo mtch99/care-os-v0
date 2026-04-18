@@ -249,6 +249,9 @@ importers:
       '@careos/api-contract':
         specifier: workspace:*
         version: link:../api-contract
+      '@careos/clinical':
+        specifier: workspace:*
+        version: link:../clinical
       '@careos/db':
         specifier: workspace:*
         version: link:../db
