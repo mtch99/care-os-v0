@@ -601,6 +601,9 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
   })
 
   describe('repeaterTable', () => {
+    // CAR-121: repeater `select` options share the keyed-localized shape with
+    // top-level select, so these tests exercise the same matcher as the
+    // top-level select/radio/checkboxGroup suites above.
     const template = makeTemplate({
       key: 'rom_log',
       label: { fr: 'Amplitude', en: 'ROM log' },
@@ -613,14 +616,17 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
             key: 'side',
             label: { fr: 'Côté', en: 'Side' },
             type: 'select',
-            options: ['left', 'right'],
+            options: [
+              { key: 'left', fr: 'Gauche', en: 'Left' },
+              { key: 'right', fr: 'Droite', en: 'Right' },
+            ],
           },
           { key: 'notes', label: { fr: 'Notes', en: 'Notes' }, type: 'narrative' },
         ],
       },
     })
 
-    it('accepts valid rows', () => {
+    it('accepts valid rows with option.key values', () => {
       expect(() => {
         validateFieldValues(
           {
@@ -649,13 +655,55 @@ describe('FieldValueSchema.validate / validateFieldValues', () => {
       expect(err.errors[0].path).toEqual(['rom_log', 0, 'mystery'])
     })
 
-    it('rejects a select cell value not in the column options', () => {
+    it('rejects a select cell value not matching any option.key', () => {
       const err = expectValidationError(() => {
         validateFieldValues({ rom_log: [{ motion: 'flex', side: 'middle' }] }, template)
       })
       expect(err.errors).toHaveLength(1)
       expect(err.errors[0].code).toBe('NOT_IN_OPTIONS')
       expect(err.errors[0].path).toEqual(['rom_log', 0, 'side'])
+    })
+
+    // Parity with top-level select (CAR-122): sending the localized label
+    // instead of the key is a validation error, not a silent match.
+    it('rejects a select cell value that is the EN label with NOT_IN_OPTIONS', () => {
+      const err = expectValidationError(() => {
+        validateFieldValues({ rom_log: [{ motion: 'flex', side: 'Left' }] }, template)
+      })
+      expect(err.errors).toHaveLength(1)
+      expect(err.errors[0].code).toBe('NOT_IN_OPTIONS')
+      expect(err.errors[0].path).toEqual(['rom_log', 0, 'side'])
+    })
+
+    it('rejects a select cell value that is the FR label with NOT_IN_OPTIONS', () => {
+      const err = expectValidationError(() => {
+        validateFieldValues({ rom_log: [{ motion: 'flex', side: 'Gauche' }] }, template)
+      })
+      expect(err.errors[0].code).toBe('NOT_IN_OPTIONS')
+    })
+
+    // A select column without an `options` array is a rare but schema-legal
+    // shape (free-text-with-suggestions). It should still reject non-string
+    // cells, but any string is accepted.
+    it('accepts any string when the select column has no options array', () => {
+      const freeSelect = makeTemplate({
+        key: 'rom_log',
+        label: { fr: 'Amplitude', en: 'ROM log' },
+        type: 'repeaterTable',
+        required: false,
+        config: {
+          columns: [
+            {
+              key: 'side',
+              label: { fr: 'Côté', en: 'Side' },
+              type: 'select',
+            },
+          ],
+        },
+      })
+      expect(() => {
+        validateFieldValues({ rom_log: [{ side: 'anything' }] }, freeSelect)
+      }).not.toThrow()
     })
 
     it('includes rowIndex in the error path for nested failures', () => {

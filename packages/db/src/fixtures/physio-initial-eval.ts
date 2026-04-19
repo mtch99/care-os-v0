@@ -312,7 +312,17 @@ export const physioInitialEval: TemplateContentV2 = {
                         key: 'movement',
                         label: { fr: 'Mouvement', en: 'Movement' },
                         type: 'select',
-                        options: ['Flexion', 'Extension', 'Abduction', 'Adduction', 'Rotation'],
+                        // CAR-121: keyed options match top-level select shape.
+                        // Keys are lowercase ASCII so persisted values stay
+                        // locale-agnostic (the backfill maps old label values
+                        // to these keys).
+                        options: [
+                          { key: 'flexion', fr: 'Flexion', en: 'Flexion' },
+                          { key: 'extension', fr: 'Extension', en: 'Extension' },
+                          { key: 'abduction', fr: 'Abduction', en: 'Abduction' },
+                          { key: 'adduction', fr: 'Adduction', en: 'Adduction' },
+                          { key: 'rotation', fr: 'Rotation', en: 'Rotation' },
+                        ],
                       },
                       {
                         key: 'active',

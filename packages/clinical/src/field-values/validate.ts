@@ -348,16 +348,15 @@ function validateRepeaterCell(
       validateString(value, path, errors)
       return
     case 'select':
-      if (typeof value !== 'string') {
-        errors.push({ path, code: 'WRONG_TYPE', message: 'Expected a string' })
-        return
-      }
-      if (column.options && !column.options.includes(value)) {
-        errors.push({
-          path,
-          code: 'NOT_IN_OPTIONS',
-          message: `Value '${value}' does not match any option for column '${column.key}'`,
-        })
+      // CAR-121 unified repeater select with top-level select: options share
+      // the same `{ key, fr, en }` shape, so we reuse the same matcher
+      // instead of maintaining a parallel string-comparison path. If a column
+      // declares no options, fall back to structural string validation —
+      // this preserves the prior "free string when no options" behavior.
+      if (column.options) {
+        validateKeyedOption(value, column.options, path, errors)
+      } else {
+        validateString(value, path, errors)
       }
       return
     default:

@@ -179,9 +179,9 @@ Previously: options were `Array<LocalizedString>` with no stable identifier, so 
 
 Contract-level decisions documented at landing time rather than papered over:
 
-### Repeater `select` vs top-level `select` shape divergence
+### Repeater `select` vs top-level `select` shape divergence (RESOLVED by CAR-121)
 
-`repeaterTable` column `select` options are `string[]` (plain strings), distinct from top-level select's `LocalizedString[]`. The validator handles both on separate code paths. Tracked: **[CAR-121](https://linear.app/careos/issue/CAR-121)** — Medium priority.
+Previously: `repeaterTable` column `select` options were `string[]` (plain strings), distinct from top-level select's keyed-localized options. The validator kept two code paths (`validateKeyedOption` for top-level, inline string-includes check for repeater cells). **Resolved** in CAR-121 — repeater columns now declare `options: KeyedLocalizedOption[]` just like top-level select, `validateRepeaterCell` reuses `validateKeyedOption`, and a one-time backfill at `scripts/backfill/car-121-repeater-options-to-key.ts` rewrote repeater cell values from label-shape to key-shape.
 
 ### `null` on collection fields clears the collection
 
