@@ -17,7 +17,9 @@
   "license": "ISC",
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
+    "@careos/ai": "workspace:*",
     "@careos/api-contract": "workspace:*",
+    "@careos/charting": "workspace:*",
     "@careos/clinical": "workspace:*",
     "@careos/db": "workspace:*",
     "@careos/inngest": "workspace:*",

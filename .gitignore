@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 
 # Build
 dist/
@@ -37,11 +38,13 @@ coverage/
 
 # Claude Code settings
 .claude/settings.local.json
-.claude/worktrees/*
+.worktrees/*
 
 # Plans
-docs/plans/*
 docs/brainstorms/
 
 # pnpm store
 .pnpm-store/
+
+# Any temp folder
+**/temp/*

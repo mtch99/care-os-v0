@@ -30,13 +30,10 @@ if (running.length > 0) {
     })
   })
 
-  if (answer !== 'y') {
-    console.log('Aborting.')
-    process.exit(0)
+  if (answer === 'y') {
+    console.log('Stopping services...')
+    spawnSync('pnpm', ['stop'], { stdio: 'inherit' })
   }
-
-  console.log('Stopping services...')
-  spawnSync('pnpm', ['stop'], { stdio: 'inherit' })
 }
 
 spawnSync('pnpm', ['bootstrap'], { stdio: 'inherit' })

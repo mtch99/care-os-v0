@@ -13,7 +13,9 @@ export function sanitizeProjectName(raw) {
   s = s.replace(/^[-_]+|[-_]+$/g, '')
   s = s.replace(/^[^a-z0-9]+/, '')
   if (!s || !COMPOSE_NAME_RE.test(s)) {
-    throw new Error(`sanitizeProjectName: "${raw}" cannot be reduced to a valid Compose project name`)
+    throw new Error(
+      `sanitizeProjectName: "${raw}" cannot be reduced to a valid Compose project name`,
+    )
   }
   return s
 }

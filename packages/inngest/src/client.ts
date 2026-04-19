@@ -15,6 +15,100 @@ export const userSignup = eventType('user/signup', {
   }),
 })
 
+// --- AI Chart Note Draft events (CAR-98) ---
+
+export const rawNotesSubmitted = eventType('charting/rawNotes.submitted', {
+  schema: z.object({
+    chartNoteId: z.string(),
+  }),
+})
+
+export const aiChartDraftGenerated = eventType('charting/aiChartDraft.generated', {
+  schema: z.object({
+    draftId: z.string(),
+    chartNoteId: z.string(),
+  }),
+})
+
+export const aiChartDraftAccepted = eventType('charting/aiChartDraft.accepted', {
+  schema: z.object({
+    draftId: z.string(),
+    chartNoteId: z.string(),
+  }),
+})
+
+export const aiChartDraftRejected = eventType('charting/aiChartDraft.rejected', {
+  schema: z.object({
+    draftId: z.string(),
+    chartNoteId: z.string(),
+  }),
+})
+
+// --- Chart Note lifecycle events (CAR-111) ---
+
+export const chartNoteReadyForSignature = eventType('charting/chartNote.readyForSignature', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    markedBy: z.string(),
+    markedAt: z.string(),
+  }),
+})
+
+export const chartNoteReopened = eventType('charting/chartNote.reopened', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    reopenedBy: z.string(),
+    reopenedAt: z.string(),
+  }),
+})
+
+export const chartNoteSigned = eventType('charting/chartNote.signed', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    signedBy: z.string(),
+    signedAt: z.string(),
+  }),
+})
+
+// --- AI Template Draft events (CAR-97) ---
+
+export const aiTemplateDraftGenerated = eventType('clinical/aiTemplateDraft.generated', {
+  schema: z.object({
+    draftId: z.string(),
+    discipline: z.string(),
+    appointmentType: z.string(),
+    generatedBy: z.string(),
+  }),
+})
+
+export const aiTemplateDraftAccepted = eventType('clinical/aiTemplateDraft.accepted', {
+  schema: z.object({
+    draftId: z.string(),
+    templateId: z.string(),
+    discipline: z.string(),
+    appointmentType: z.string(),
+  }),
+})
+
+export const aiTemplateDraftRejected = eventType('clinical/aiTemplateDraft.rejected', {
+  schema: z.object({
+    draftId: z.string(),
+    discipline: z.string(),
+    appointmentType: z.string(),
+  }),
+})
+
+// --- Chart Note Save Draft events (CAR-110) ---
+
+export const chartNoteSaved = eventType('charting/chartNote.saved', {
+  schema: z.object({
+    chartNoteId: z.string(),
+    editedBy: z.string(),
+    editedAt: z.string(),
+    fieldIdsChanged: z.array(z.string()),
+  }),
+})
+
 export const inngest = new Inngest({
   id: 'my-app',
 })

@@ -41,15 +41,16 @@ function resolveTarget(argument) {
     process.exit(1)
   }
 
-  return { worktreePath: target, projectName: sanitizeProjectName(`careos-${path.basename(target)}`) }
+  return {
+    worktreePath: target,
+    projectName: sanitizeProjectName(`careos-${path.basename(target)}`),
+  }
 }
 
 function nukeComposeProject(projectName) {
-  const result = spawnSync(
-    'docker',
-    ['compose', '--project-name', projectName, 'down', '-v'],
-    { stdio: 'inherit' },
-  )
+  const result = spawnSync('docker', ['compose', '--project-name', projectName, 'down', '-v'], {
+    stdio: 'inherit',
+  })
   return result.status === 0
 }
 
@@ -75,13 +76,17 @@ console.log(`[worktree:remove] compose project=${projectName}`)
 
 const gitRemoved = gitWorktreeRemove(worktreePath)
 if (!gitRemoved) {
-  console.error('[worktree:remove] git worktree remove failed. Nothing nuked yet. Resolve and retry.')
+  console.error(
+    '[worktree:remove] git worktree remove failed. Nothing nuked yet. Resolve and retry.',
+  )
   process.exit(1)
 }
 
 const composeNuked = nukeComposeProject(projectName)
 if (!composeNuked) {
-  console.warn(`[worktree:remove] compose down -v for ${projectName} returned non-zero; continuing.`)
+  console.warn(
+    `[worktree:remove] compose down -v for ${projectName} returned non-zero; continuing.`,
+  )
 }
 
 if (existsSync(worktreePath)) {
@@ -90,4 +95,6 @@ if (existsSync(worktreePath)) {
 
 runPrune()
 
-console.log(`[worktree:remove] Done. Removed worktree ${path.basename(worktreePath)} and project ${projectName}.`)
+console.log(
+  `[worktree:remove] Done. Removed worktree ${path.basename(worktreePath)} and project ${projectName}.`,
+)

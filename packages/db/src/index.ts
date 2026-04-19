@@ -3,6 +3,7 @@ import postgres from 'postgres'
 import * as shared from './schema/shared'
 import * as scheduling from './schema/scheduling'
 import * as clinical from './schema/clinical'
+import * as aiCharting from './schema/ai-charting'
 import { env } from './env'
 
 const client = postgres(env.DATABASE_URL, {
@@ -13,7 +14,7 @@ const client = postgres(env.DATABASE_URL, {
 })
 
 export const db = drizzle(client, {
-  schema: { ...shared, ...scheduling, ...clinical },
+  schema: { ...shared, ...scheduling, ...clinical, ...aiCharting },
 })
 
 export type DrizzleDB = typeof db
@@ -22,3 +23,4 @@ export type DrizzleDB = typeof db
 export * from './schema/shared'
 export * from './schema/scheduling'
 export * from './schema/clinical'
+export * from './schema/ai-charting'

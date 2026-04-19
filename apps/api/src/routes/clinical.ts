@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { eq, and, sql, max, type SQL } from 'drizzle-orm'
 import { db, chartNoteTemplates } from '@careos/db'
 import {
@@ -6,13 +7,18 @@ import {
   updateTemplateSchema,
   listTemplatesQuerySchema,
   defaultTemplateQuerySchema,
+  initializeChartNoteSchema,
+  saveDraftSchema,
   TemplateNotFoundError,
   DefaultTemplateNotFoundError,
   CannotArchiveDefaultTemplateError,
   TemplateArchivedError,
-  DefaultAlreadyExistsError,
 } from '@careos/api-contract'
 import { TemplateSchema } from '@careos/clinical'
+import { createTemplate, initializeChartNote, saveDraft } from '@careos/scheduling'
+import type { FieldValue } from '@careos/scheduling'
+import { inngest, chartNoteSaved } from '@careos/inngest/client'
+import { makeChartNotePorts } from '../composition/clinical-ports'
 
 export const clinicalRoutes = new Hono()
 
@@ -21,35 +27,22 @@ const HARDCODED_PRACTITIONER_ID = '0323c4a0-28e8-48cd-aed0-d57bf170a948'
 
 // POST /templates — create new template
 clinicalRoutes.post('/templates', async (c) => {
+  // Pass 1: Structural validation (Zod)
   const input = createTemplateSchema.parse(await c.req.json())
+  // Pass 2: Semantic validation (unique keys, locale completeness)
   TemplateSchema.validate(input.content)
 
-  if (input.isDefault) {
-    const existing = await db.query.chartNoteTemplates.findFirst({
-      where: and(
-        eq(chartNoteTemplates.discipline, input.discipline),
-        eq(chartNoteTemplates.appointmentType, input.appointmentType),
-        eq(chartNoteTemplates.isDefault, true),
-      ),
-    })
-    if (existing) {
-      throw new DefaultAlreadyExistsError(input.discipline, input.appointmentType)
-    }
-  }
+  // Delegate to transaction script
+  const result = await createTemplate(db, {
+    name: input.name,
+    discipline: input.discipline,
+    appointmentType: input.appointmentType,
+    content: input.content,
+    isDefault: input.isDefault,
+    createdBy: HARDCODED_PRACTITIONER_ID,
+  })
 
-  const [template] = await db
-    .insert(chartNoteTemplates)
-    .values({
-      name: input.name,
-      discipline: input.discipline,
-      appointmentType: input.appointmentType,
-      content: input.content,
-      isDefault: input.isDefault,
-      createdBy: HARDCODED_PRACTITIONER_ID,
-    })
-    .returning()
-
-  return c.json({ data: template }, 201)
+  return c.json({ data: result.template }, 201)
 })
 
 // GET /templates — list templates with optional filters
@@ -243,4 +236,55 @@ clinicalRoutes.delete('/templates/:id', async (c) => {
     .returning()
 
   return c.json({ data: archived })
+})
+
+// ── Chart Note Initialization ──
+
+const ports = makeChartNotePorts()
+
+clinicalRoutes.post('/chart-notes/initialize', async (c) => {
+  const input = initializeChartNoteSchema.parse(await c.req.json())
+  const result = await initializeChartNote(
+    {
+      sessionId: input.sessionId,
+      discipline: input.discipline,
+      appointmentType: input.appointmentType,
+      practitionerId: HARDCODED_PRACTITIONER_ID,
+    },
+    ports,
+  )
+  const status = result.created ? 201 : 200
+  return c.json(result, status as ContentfulStatusCode)
+})
+
+// ── Chart Note Save Draft (CAR-110) ──
+
+clinicalRoutes.patch('/chart-notes/:id', async (c) => {
+  const { id } = c.req.param()
+  const body = saveDraftSchema.parse(await c.req.json())
+
+  const result = await saveDraft(
+    {
+      chartNoteId: id,
+      fieldValues: body.fieldValues as Record<string, FieldValue>,
+      version: body.version,
+      practitionerId: body.practitionerId,
+    },
+    ports,
+  )
+
+  await inngest
+    .send(
+      chartNoteSaved.create({
+        chartNoteId: result.chartNote.id,
+        editedBy: body.practitionerId,
+        editedAt: result.chartNote.updatedAt,
+        fieldIdsChanged: Object.keys(body.fieldValues),
+      }),
+    )
+    .catch((error: unknown) => {
+      console.error('[INNGEST_ERROR]: Failed to send chartNote.saved event', error)
+    })
+
+  return c.json({ chartNote: result.chartNote })
 })

@@ -4,7 +4,7 @@ import { TemplateValidationError } from '@careos/api-contract'
 import { TemplateSchema } from '../index'
 
 const validContent = {
-  schemaVersion: '0.2',
+  schemaVersion: '0.3',
   locale: ['fr', 'en'],
   pages: [
     {
@@ -36,7 +36,7 @@ const validContent = {
 describe('TemplateSchema.parse', () => {
   it('returns typed TemplateContentV2 for valid input', () => {
     const result = TemplateSchema.parse(validContent)
-    expect(result.schemaVersion).toBe('0.2')
+    expect(result.schemaVersion).toBe('0.3')
     expect(result.pages).toHaveLength(1)
     expect(result.pages[0].sections[0].rows[0].columns[0].key).toBe('field_a')
   })

@@ -23,6 +23,7 @@
   "packageManager": "pnpm@10.12.4",
   "dependencies": {
     "@careos/api-contract": "workspace:*",
+    "@careos/clinical": "workspace:*",
     "@careos/db": "workspace:*",
     "drizzle-orm": "^0.45.1"
   },

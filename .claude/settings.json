@@ -46,5 +46,10 @@
       "Bash(bash scripts/**)"
     ],
     "additionalDirectories": []
+  },
+  "enabledPlugins": {
+    "compound-engineering@compound-engineering-plugin": true,
+    "coding-tutor@compound-engineering-plugin": true,
+    "skill-creator@claude-plugins-official": true
   }
 }

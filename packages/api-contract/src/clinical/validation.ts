@@ -33,3 +33,49 @@ export const defaultTemplateQuerySchema = z.object({
   discipline: disciplineEnum,
   appointmentType: appointmentTypeEnum,
 })
+
+export const initializeChartNoteSchema = z.object({
+  sessionId: z.uuid(),
+  discipline: disciplineEnum,
+  appointmentType: appointmentTypeEnum,
+})
+
+export const generateAiDraftSchema = z.object({
+  rawNotes: z.string().min(1),
+})
+
+export const markReadyForSignatureSchema = z.object({
+  version: z.number().int().positive(),
+})
+
+export const reopenChartNoteSchema = z.object({
+  version: z.number().int().positive(),
+})
+
+export const signChartNoteSchema = z.object({
+  version: z.number().int().positive(),
+})
+
+export const saveDraftSchema = z.object({
+  fieldValues: z.record(z.string(), z.unknown()),
+  version: z.number().int().positive(),
+  practitionerId: z.uuid(),
+})
+
+// --- AI Template Draft schemas (CAR-97) ---
+
+export const localeEnum = z.enum(['fr', 'en'])
+
+export const generateAiTemplateDraftSchema = z.object({
+  discipline: disciplineEnum,
+  appointmentType: appointmentTypeEnum,
+  preferences: z.string().min(1),
+  locale: z.array(localeEnum).min(1),
+  practitionerId: z.uuid(),
+})
+
+export const acceptAiTemplateDraftSchema = z.object({
+  name: z.string().min(1).max(255),
+  isDefault: z.boolean().optional().default(false),
+  practitionerId: z.uuid(),
+})
