@@ -124,8 +124,20 @@ When generating new scripts, `chmod +x` before committing.
 - **`@careos/fixtures` package** is planned for shared test data — `packages/db/src/fixtures/` exists as an interim location for seed fixtures (typed objects, no runtime deps on `clinical`). Migrate these to `@careos/fixtures` when that package is created
 - **Inngest Dev Server** for manual debugging of background functions — `pnpm --filter @careos/inngest dev`
 
+## Branching Model
+
+```
+feature/<car-id>-<slug>  →  develop  →  master
+hotfix/<car-id>-<slug>   →  master   (approved exception only)
+```
+
+- **`master`**: production-ready. Only receives merges from `develop` (or urgent hotfixes). Protected — require PR + CI green.
+- **`develop`**: integration branch. All feature branches target `develop`, not `master`. Protected — require PR + CI green.
+- **Feature branches**: branch from `develop`; PR targets `develop`. Use the Linear branch name format (`feature/car-NNN-slug`).
+
 ## CI/CD
 
+- **Triggers**: push and PR to `master` or `develop`
 - **Quality Gate** (blocking): build → typecheck → lint → format:check
 - **Tests** (blocking): `pnpm turbo test` — fails the pipeline on test failures
 - **Pre-push hooks** (Lefthook): typecheck + lint + format:check in parallel
